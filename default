@@ -1,0 +1,5 @@
+// Test
+digraph {
+	node [shape=record]
+	home [label="{  { <0>un |<1>dauphin |<2>est |<3>mammifere |<4>marin |<5>le } | { <6>se |<7>nourrit |<8>de |<9>poisson |<10>chat |<11>vit } | { <12>en |<13>eau |<14>douce |<15>animal |<16>domestique |<17>terrestre } | { <18>aime |<19>manger |<20>la |<21>souris |<22>a |<23>peur } | { <24>du |<25>elle |<26>veut |<27>morceau |<28>fromage |<29>une } | { <30>rongeur |<31> |<32> |<33> |<34> |<35> }  }"]
+}
