@@ -25,11 +25,6 @@ import pickle
 from argparse import ArgumentParser
 # import pathlib
 
-# ALGORITHME GÉNÉTIQUE
-from deap import base
-from deap import creator
-from deap import tools
-
 
 class Slot():
     '''Représente l'element le plus basique d'une grille.
@@ -361,18 +356,32 @@ class Grid():
   :param col_size: longueur fixe de chaque page de la grille
   :type col_size: entier
   :raises Exception: exception d'entrée incompatible  
+  :param root_name: name of the root page ("accueil" by default)
+  :type root_name: string
   '''
 
-  def __init__(self, input_file, row_size, col_size):
+  def __init__(self, input_file, row_size, col_size, root_name = "accueil"):
     '''Constructeur'''
 
     self.__row_size = row_size
     self.__col_size = col_size
     self.__core_voc = {}
+    self.__root_name = root_name
     self.__pages = {}
     self.__pageCounter = 0     
     self.__fusion_id = 0
     self.__generate_random_grid(input_file)
+
+  
+  def get_root_name(self):
+    '''Get the root page name of the grid
+
+    :return: return the root page name
+    :rtype: string
+    '''
+
+    return self.__root_name
+
 
 
   def get_root_page(self):
@@ -382,7 +391,7 @@ class Grid():
     :rtype: classe: `Page`
     '''
 
-    return self.__pages.get('accueil')
+    return self.__pages.get(self.get_root_name())
 
   
   def get_nb_pages(self):
@@ -584,7 +593,12 @@ class Grid():
           #For each word in the splitted line, store it in the vocabulary of the corpus
           for word in splittedLine:
             rawVoc.append(word)
-            
+
+        #Creating the root page   
+        self.add_new_page(self.get_root_name())
+        p = self.get_root_page()
+        print(p.get_name())
+        print(rawVoc)
     #The source file is not a '.txt' file
     else:
       raise Exception("Incorrect file format !")

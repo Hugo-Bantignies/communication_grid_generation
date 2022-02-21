@@ -1,4 +1,4 @@
-from gridGenerator import Grid
+from communication_grid import Grid
 
 input_f = "small_entry.txt"
 r_size = 5
