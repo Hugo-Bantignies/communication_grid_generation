@@ -25,85 +25,169 @@ import pickle
 from argparse import ArgumentParser
 # import pathlib
 
+class Pictogram:
+    '''Object that will be stored in a slot. It contains several informations.
+
+    :word: Corresponding word of the pictogram
+    :type word: string
+    :row: Row of the pictogram (in the page)
+    :type row: int
+    :col: Col of the pictogram (in the page)
+    :type col: int
+    :page_name: Page holding the pictogram
+    :type page_name: string
+    :id: Identifier of the pictogram
+    :type id: string
+    '''
+
+    def __init__(self,word,row,col,page_name,id):
+      '''Constructor
+      '''
+
+      self.__word = copy.copy(word)
+      self.__row = row
+      self.__col = col
+      self.__page_name = page_name
+      self.__id = id
+
+    def get_word(self):
+      '''Getter for word
+      
+      :return: Returns the corresponding word of the pictogram
+      :rtype: string
+      '''
+
+      return self.__word
+    
+    def get_row(self):
+      '''Getter for row
+      
+      :return: Returns the row position of the pictogram in its page
+      :rtype: int
+      '''
+
+      return self.__row
+
+    def get_col(self):
+      '''Getter for col
+      
+      :return: Returns the col position of the pictogram in its page
+      :rtype: int
+      '''
+
+      return self.__col
+    
+    def get_page_name(self):
+      '''Getter for page name
+      
+      :return: Returns the name of the corresponding page of the pictogram
+      :rtype: string
+      '''
+      return self.__page_name
+
+    def get_id(self):
+      '''Getter for page name
+      
+      :return: Returns the id of the pictogram
+      :rtype: int
+      '''
+      return self.__id
+
+    def set_word(self, word):
+        '''Setter. Set the word of the pictogram
+        
+        :word: word to set
+        :type word: string   
+        '''
+
+        self.__word = word
+
+    def __str__(self):
+        '''Display the pictogram information (text)
+        
+        :return: Return the pictogram information
+        :rtype: string
+        '''
+
+        return f'Word : {self.__word}, row : {self.__row}, col : {self.__col}, page_name : {self.__page_name}, id : {self.__id}'
 
 class Slot():
-    '''Représente l'element le plus basique d'une grille.
+    '''Smallest element of the grid. Representing one pictogram.
     
-    Il peut contenir un pictogramme ou être vide (None).
+    Can contain a pictogram or be empty (None)
 
-    :word: mot lié au pictpgramme
-    :type word: chaîne de caractères
-    :is_core: boolean qui indique si le mot associé fait partie du vocabulaire de base.
+    :pictogram: corresponding pictogram
+    :type: classe: `Pictogram`
+    :is_core: True if the pictogram belongs to the vocabulary core, False if not. 
     :type is_core: boolean
-    :page_destination: Eventuelle page de destination liée au pictogramme. Peut être nulle.
+    :page_destination: Destination page of the pictogram (if any). Can be null (None)
     :type page_destination: class: `Page`
     '''
 
-    def __init__(self, word, is_core, page_destination):        
-        '''Constructeur        
+    def __init__(self, pictogram, is_core, page_destination):        
+        '''Constructor        
         '''        
-
-        self.__word = copy.copy(word)
+        self.__pictogram = copy.copy(pictogram)
         self.__is_core = copy.copy(is_core)
         self.__page_destination = copy.copy(page_destination)
 
     def get_word(self):
-        '''Accesseur
+        '''Getter
         
-        :return: Renvoi le mot lié au slot
-        :rtype: châine de charactères        
+        :return: Returns the corresponding word of the slot
+        :rtype: string       
         '''
 
-        return self.__word
+        return self.__pictogram.get_word()
 
     def get_is_core(self):
-        '''Accesseur
+        '''Getter
 
-        :return: Renvoi le boolean `is_core` du slot
+        :return: Returns the boolean `is_core` of the slot
         :rtype: boolean        
         '''
 
         return self.__is_core
 
     def get_page_destination(self):
-        '''Accesseur
+        '''Getter
         
-        :return: Renvoi la page de destination du slot
+        :return: Returns the destination page of the slot
         :rtype: class: `Page`        
         '''
 
         return self.__page_destination
 
     def set_word(self, word):
-        '''Setter. Mettre en place le mot du slot
+        '''Setter. Set the word of the slot
         
-        :word: mot à metre en place
-        :type word: chaîne de caractères        
+        :word: word to set
+        :type word: string   
         '''
 
-        self.__word = word
+        self.__pictogram.set_word(word)
 
     def set_page_destination(self, page):
-        '''Setter. Mettre en place la page de destination du slot
+        '''Setter. Set the destination page of the slot
         
-        :page: page à mettre en place
+        :page: destination page to set
         :type page: class: `Page`        
         '''
 
         self.__page_destination = page
 
     def __str__(self):
-        '''Méthode de affichage du slot
+        '''Display the slot (text)
         
-        :return: Renvoi l'information du slot
-        :rtype: chaîne de charactères
+        :return: Return the slot information
+        :rtype: string
         '''
 
         dest = self.__page_destination
         if dest:
             dest = self.__page_destination.get_name()
 
-        return f'{self.__word}({dest})'
+        return f'{self.get_word()}({dest})'
 
 
 class Page():
@@ -218,6 +302,18 @@ class Page():
 
       return self.__slots[num_row][num_col]
 
+    def get_empty_slot(self):
+      '''Getter.
+
+      :return: Return the next empty slot of the page at position `(last_R,last_C)`, if any.
+      :rtype: class: `Slot`
+      '''
+
+      if(self.__full == False):
+        return self.__last_R,self.__last_C
+      else:
+        return -1,-1
+
 
     def get_slot_list(self):
       '''Accesseur
@@ -305,7 +401,7 @@ class Page():
       :rtype: chaîne de charactères
       '''
 
-      if(self.__last_C == self.__col_size) : 
+      if(self.__last_C == self.__col_size - 1) : 
         self.__last_C = 0
         self.__last_R += 1
 
@@ -596,9 +692,32 @@ class Grid():
 
         #Creating the root page   
         self.add_new_page(self.get_root_name())
-        p = self.get_root_page()
-        print(p.get_name())
-        print(rawVoc)
+        page = self.get_root_page()
+        pageName = page.get_name()
+
+        #Transform each word into a pictogram in the page
+        for word in rawVoc:
+
+          #If there is an empty slot in the page
+          if page.is_full() == False:
+              #Get the row and col of the next empty slot
+              slot_row,slot_col = page.get_empty_slot()
+              print("New row : "+str(slot_row)+"  New col : "+str(slot_col))
+
+              #Create the pictogram
+              id = str(word)+"@"+str(pageName)
+              picto = [word,slot_row,slot_col,pageName,id]
+
+              #Store the pictogram in the vocabulary
+              self.__core_voc[id] = picto
+
+              #Store the pictogram in the corresponding page
+              #slot = Slot(word, True, None)    
+              #page.set_slot(slot, slot_row,slot_col)
+              #page.add_word(word)
+
+        print(self.__core_voc)
+
     #The source file is not a '.txt' file
     else:
       raise Exception("Incorrect file format !")
