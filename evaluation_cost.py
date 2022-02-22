@@ -114,34 +114,34 @@ def compute_distances(grid, movement_factor=1, selection_factor=1):
 
 #=========================================================================================================================
 
-# FONCTIONS AUXILIAIRES POUR LE CALCUL DU COÛT DE PRODUCTION
+# AUXILIARY FUNCTIONS FOR THE COMPUTATION OF THE PRODUCTION COST
 #--------------------------------------------------------------
 
 class WeightedPath:
-    '''Classe auxiliaire pour stocker le chemin et le coût lors du calcul du chemin optimale'''
+    '''Auxiliary class to store the path and the cost for the computation of the optimal path. pour stocker'''
 
     def __init__(self):
-        '''Constructeur'''
+        '''Constructor'''
 
         self.path = []
         self.weight = 0
 
 
 def initialNode(text, nodeList, edgeList, G, root_name):
-    '''Fonction qui établit le noeud à partir duquel il faut commencer à calculer un arc
+    '''Function that initialize the node to start to compute an arc.
 
-    :param text: texte d'entrée
-    :type text: chaîne de charactères
-    :param nodeList: liste de tous les noeuds du graphe
-    :type nodeList: liste
-    :param edgeList: tableau associatif de tous les arcs avec en clé le noeud tête et en valeurs le noeud pointé et le poids de l'arc
+    :param text: input text
+    :type text: string
+    :param nodeList: list of all nodes of the graph
+    :type nodeList: list
+    :param edgeList: array of all arcs with for key : head node and value : pointed node and the weight of the arc.
     :type edgeList: Dict
-    :param G: graphe initial 
-    :type G: classe: `networkx.DiGraph`
+    :param G: initial graph
+    :type G: class: `networkx.DiGraph`
     :param root_name: name of the root page of the grid.
     :type root_name: string
-    :return: liste avec le chemin et le poids total
-    :rtype: liste
+    :return: list with the path and the total weight.
+    :rtype: list
     '''
 
     path = []
@@ -149,30 +149,30 @@ def initialNode(text, nodeList, edgeList, G, root_name):
     totalWeight = 0
     startNode = root_name
 
-    # On parcours le fichier texte
+    # Explore the entire input file
     for line in text.splitlines():
         line = line.lower()
         line = line.strip()
-        # On évite les lignes vides
+        # Avoid empty lines
         if line != "":
-            # On récupère le plus court chemin
+            # Compute and get the shortest path
             words = shortestPath(startNode, line, nodeList, edgeList, G, root_name)
             path = words.path
-            # On récupère le dernier élément de la liste
+            # Get the last element of the list
             startNode = path[-1]
-            # On ajoute le poids
+            # Add the weight of the path
             totalWeight += words.weight
 
         finalPath = []
-        # On ajoute le premier élément de la liste au chemin final
+        # Add the first element of the list to the final path
         finalPath.append(path[0])
-        # On parcours le chemin
+        # Explore the path
         for i in range(1, len(path)):
-            # Si on toruve deux mots qui se suivent différents
+            # If two different consecutive words.
             if path[i - 1] != path[i]:
-                # on ajoute l'elt au chemin final
+                # Add the element to the final path.
                 finalPath.append(path[i])
-        # On stocke dans une liste le chemin et le poids total
+        # Store in a list the final path and the total weight. 
         stock.append((finalPath, totalWeight))
 
     return stock
@@ -202,21 +202,21 @@ def textToNodes(word, nodeList):
 
 
 def shortestPath(initialNode, sentance, nodeList, edgeList, G, root_name):
-    '''Fonction de calcul du plus court path
+    '''Function to compute the shortest path
 
-    :param initialNode: point de départ de la recherche dans le graphe
+    :param initialNode: strarting point of the research
     :type initialNode: Node
-    :param sentance: phrase d'entrée pour laquelle il faut calculer le cout de production
-    :type sentance: chaîne de charactères
-    :param nodeList: liste de tous les noeuds du graphe
-    :type nodeList: liste
-    :param edgeList: tableau associatif de tous les arcs avec en clé le noeud tête et en valeurs le noeud pointé et le weight de l'arc
+    :param sentance: input sentence from which it will compute the cost
+    :type sentance: string
+    :param nodeList: list of all nodes of the graph
+    :type nodeList: list
+    :param edgeList: array of all arcs with for key : head node and value : pointed node and the weight of the arc.
     :type edgeList: Dict
-    :param G: graphe en question
-    :type G: classe: networkx.DiGraph
+    :param G: initial graph
+    :type G: class: `networkx.DiGraph`
     :param root_name: name of the root page of the grid.
     :type root_name: string
-    :return: objet contenant le chemin final et le coût final
+    :return: object containing the final path and the final cost.
     :rtype: classe: `WeightedPath`
     '''
 
@@ -224,74 +224,73 @@ def shortestPath(initialNode, sentance, nodeList, edgeList, G, root_name):
     words = sentance.split(" ")
     shortestPath = []
 
-    # Initialisation du poids total
+    # Initialisation of the total weight
     totalWeight = 0
     initialNodes.append(initialNode)
     
-    # On créé la variable du chemin final
+    # Creation of the final path
     finalPath = []
     pathList = []
 
-    # On créé un nouveau graphe avec la liste des candidats
+    # Creation of a sub graph containing the candidate list
     coupleGraphe = nx.DiGraph()
 
     index = 0
-    # On parcours la phrase
+    # Exploration of the phrase
     for word in words:
         minWeight = 10000
-        # On stocke dans une variable les mots "candidats" pour créer le plus court chemin        
+        # Store the candidates words to compute the shortest path.      
         candidates = textToNodes(word, nodeList)
 
-        # Pour chaque candidat
+        # For each candidate
         for candidate in candidates:
-            # On ajoute les candidats comme noeuds du sous graphe
+            # Add the candidates as node of the sub graph
             coupleGraphe.add_node(candidate)
 
-            # Quand on arrive à l fin d ela phrase
+            # When we reach the end of the sentence
             if index == len(words) - 1:
-                # On créé un arc "end" de poids 0
+                # Cration of the "end" arc with a weight of 0
                 coupleGraphe.add_edge(candidate, "end", weight=0)
             elif index == 0:
-                # On créé un arc "root_name" de poids 0
+                # Creation of the "root_name" arc with a weight of 0
                 coupleGraphe.add_edge(root_name, candidate, weight=0)
 
-            # On parcours la liste des noeuds initiaux
+            # Exploration of the list of initial nodes.
             for firstNode in initialNodes:
-                # On extrait le plus court chemin entre le premier noeud et le candidat avec la fonctionn "shortest_path "fonction Networkx
+                # Extraction of the shortest path between the first node and the candidate with the "shortest_path" function of Networkx.
                 try:
-                    # graph = Digraph(filename='GGGG',format='png',comment='TEST_1')
                     path = nx.shortest_path(G, source=firstNode, target=candidate)
                 except nx.NetworkXNoPath:                    
                     print ("No path between %s and %s." % (firstNode, candidate))
                 
-                # On initialise le poids
+                # Initialization of the weights
                 weight = 0
 
-                # On parcours le chemin
+                # Exploration of the path
                 for i in range(1, len(path)):
                     edgePrevNode = edgeList[path[i - 1]]
                     for edge in edgePrevNode:
-                        # On vérifie que le premier elt de la variable arc = shortest path de i
+                        # Check if the first element and the arc correspond to the shortest path.
                         if edge[0] == path[i]:
                             weight += edge[1]                                                        
 
-                # Si le poids est inférieur au poids minimum
+                # If the weight is lower than the minimum weight.
                 if weight < minWeight:
-                    # Le poids min prend la valeur du poids
+                    # The minimum weight becomes the weight.
                     minWeight = weight
 
                 pathList.append(path)
 
                 coupleGraphe.add_edge(path[0], path[-1], weight=weight)
                 
-        # On modifie le point de départ de la fonction
+        # New starting point
         initialNodes = candidates
         index = index + 1
 
-        # On calcule la somme des poids entre les arcs
+        # Computation of the sum of all weights.
         totalWeight += minWeight
     
-    # On applique à nouveau une recherche du plus court chemin dans le sous graphe
+    # New computaton of the shortest path in the sub graph.
     try:        
         shortestpath = nx.shortest_path(coupleGraphe, source=root_name, target="end")
     except nx.NetworkXNoPath:
@@ -299,17 +298,17 @@ def shortestPath(initialNode, sentance, nodeList, edgeList, G, root_name):
         print ("No path between %s and %s. Please check the input phrase" % (root_name, "end"))
         sys.exit()
         
-    # On créé le chemin final
+    # Final path
     wordIndex = 0
 
-    # On parcours la liste des chemins
+    # OExploration of all paths
     for path in pathList:
         if (shortestpath[wordIndex] == path[0]) and (shortestpath[wordIndex + 1] == path[-1]):
             for words in path:
                 finalPath.append(words)
             wordIndex = wordIndex + 1
     
-    # On créé un objet
+    # Creation of the object
     weightedPath = WeightedPath()
     weightedPath.path = finalPath
     weightedPath.weight = totalWeight
@@ -318,23 +317,23 @@ def shortestPath(initialNode, sentance, nodeList, edgeList, G, root_name):
 
 
 def save_obj(obj, name ):
-    '''Fonction qui stocke un objet dans un fichier .pkl
+    '''Function to store an object in a .pkl file.
 
-    :param obj: l'objet à stocker
+    :param obj: object to store
     :type obj: any
-    :param name: nom du fichier créé
-    :type name: chaîne de charactères
+    :param name: name of the file
+    :type name: string
     '''
     with open(name + '.pkl', 'wb') as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
 def load_obj(name):
-    '''Fonction qui récupere un objet contenu dans un fichier .pkl
+    '''Function to get an object in a .pkl file. 
 
-    :param name: nom du fichier cible
-    :type name: chaîne de charactères
-    :return: renvoie le fichier avec nom `name`
+    :param name: name of the target file.
+    :type name: string
+    :return: return the file with the name : `name`
     :rtype: any
     '''
     with open(name + '.pkl', 'rb') as f:
@@ -343,55 +342,53 @@ def load_obj(name):
 
 
 def compute_cost(input_sentence, distances, root_name):
-  '''Calcule le coût associé à la phrase d'entrée utilisant les distances données en entrée 
+  '''Compute the associated cost of the input sentence and the computed distances (arcs)
 
-  :param input_sentence: phrase d'entrée
-  :type input_sentence: chaîne de charactères
-  :param distances: contient les distances entre chaque pictogramme 
-  :type distances: chaîne de charactères
+  :param input_sentence: source sentence
+  :type input_sentence: string
+  :param distances: distance between each pictograms (arcs)
+  :type distances: string
   :param root_name: name of the root page of the grid.
   :type root_name: string
-  :return: le meilleur chemin et le coût final
-  :rtype: liste
+  :return: best path and the final cost
+  :rtype: list
   '''
   # start_time = time.time()
 
-  # variable qui garde le meilleur chemin et le coût final
+  # Best path and final cost
   result = []
       
-  # # On créé le graph G
+  # # Creation of the graph g
   graph = nx.DiGraph()
 
-  # tableau associatif (dict) qui comprendra les noeuds et les poids
+  # Dictionary contaning the nodes and the weights (edges)
   edgeList = {}
 
-  # # On parcours les distances pour déterminer les noeuds, les arcs et les poids
+  # # Exploration of the distances to determine the nodes, the arcs and the weights.
   for line in distances.splitlines():
       line = line.strip()
       col = line.split('\t')
       
-      # Addition du noeud au graphe
+      # Add the node to the graph
       graph.add_node(col[1])
 
-      # Création des arcs avec leurs poids
+      # Arc creation with its weight
       graph.add_edge(col[1], col[2], weight=col[3])
 
-      # Création du tableau associatif 
+      # Creation of the edge dictionary. 
       if col[1] in edgeList.keys():
           edgeList[col[1]].append((col[2], float(col[3])))
       else:
           edgeList[col[1]] = [(col[2], float(col[3]))]
 
-  # création de la liste des noeuds
+  # Creation of the list of nodes.
   nodeList = list(graph.nodes())
 
   output = initialNode(input_sentence, nodeList, edgeList, graph, root_name)
 
-  # Sauvegarde des résultats
+  # Save results
   for elt in output:
       result.append(elt)      
-
-  # print("--- %s seconds ---" % '{:5.5}'.format(time.time() - start_time))
 
   return result
 

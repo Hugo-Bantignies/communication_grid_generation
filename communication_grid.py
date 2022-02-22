@@ -848,8 +848,10 @@ class Grid():
       # Create the slot and add it to the page
       page.add_pictogram(final_picto,True,destination)
 
+  #=========================================================================================================================
 
-  #========PRINT AND DISPLAY METHODS======================#
+  # PRINT AND DISPLAY METHODS OF THE GRID
+  #--------------------------------------------------------------
 
   def to_graph(self):
     '''Génére un graphe décrivant la structure de la grille
