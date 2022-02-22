@@ -736,12 +736,12 @@ class Grid():
               #Store the pictogram in the vocabulary
               self.__core_voc[id] = picto.get_pictogram_in_list()
 
+              # Create the slot and add it to the page
+              page.add_pictogram(picto,True,None)
+
     #The source file is not a '.txt' file
     else:
       raise Exception("Incorrect file format !")
-    
-    #Generate the entire grid and its pages and slots from the core vocabulary
-    self.__add_core_voc()
 
   def __generate_grid_csv(self, input_file):
     '''Generate a grid from a .csv input file.

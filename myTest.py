@@ -6,9 +6,7 @@ cost_f = "input_cost.txt"
 r_size = 5
 c_size = 5
 
-gtest_a = Grid(input_f,r_size,c_size,"accueil",True)
-gtest_b = Grid(input_f,r_size,c_size,"accueil",True)
+gtest = Grid(input_f,r_size,c_size,"accueil",randomizer = True)
 
-print("Cost of the grid gtest_a : " + str(grid_cost(gtest_a,cost_f)))
-print("Cost of the grid gtest_b : " + str(grid_cost(gtest_b,cost_f)))
+print("Cost of the grid gtest : " + str(grid_cost(gtest,cost_f)))
 
