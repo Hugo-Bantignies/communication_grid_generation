@@ -8,3 +8,4 @@ r_size = 5
 c_size = 5
 
 gtest = Grid(input_f,r_size,c_size,"accueil")
+gtest.display()

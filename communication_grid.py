@@ -737,12 +737,12 @@ class Grid():
               #Store the pictogram in the vocabulary
               self.__core_voc[id] = picto.get_pictogram_in_list()
 
-              #Store the pictogram in the corresponding page
-              page.add_pictogram(picto)
-
     #The source file is not a '.txt' file
     else:
       raise Exception("Incorrect file format !")
+    
+    #Generate the entire grid and its pages and slots from the core vocabulary
+    self.__add_core_voc()
 
   def __generate_grid_csv(self, input_file):
     '''Generate a grid from a .csv input file.
@@ -791,6 +791,7 @@ class Grid():
     else:
       raise Exception("Incorrect file format !")
 
+    #Generate the entire grid and its pages and slots from the core vocabulary
     self.__add_core_voc()
 
   def __generate_grid_dict(self, input_file):
@@ -810,15 +811,16 @@ class Grid():
     else:
       raise Exception("Incorrect file format !")
 
+    #Generate the entire grid and its pages and slots from the core vocabulary
     self.__add_core_voc()
 
 
   def __add_core_voc(self):
-    '''Mettre en place la structure de la grille à partir de son tableau d'attributes
+    '''From the initial grid (tsv format), set the entire grid and all its pages.
     
-    Crée des pages et des slots et les affecte en suivant le tableau d'attributes'''
+    Generates pages and slots of the grid following the file format (csv,tsv)'''
     
-    #parcourir le tableau d'attributes and extraire l'information
+    #Exploring the entire core vocabulary to store its pictogram
     for picto in self.__core_voc.values():
       word = picto[0]
       row = picto[1]
@@ -826,14 +828,16 @@ class Grid():
       page_name = picto[3]
       dest_name = picto[4]
 
-      # créer la page contenant le picto s'il n'existe pas
+      final_picto = Pictogram(word,row,col,page_name,dest_name)
+
+      # If the corresponding page of the pictogram does not exist, create it.
       if page_name in self.__pages:
         page = self.__pages.get(page_name)
       else:		  
         page = self.__add_page(page_name)
 
-      # créer la page de destination s'il n'existe pas    
-      if dest_name:
+      # Create the destination page if it does not exist. 
+      if dest_name != str(word) + "@" + str(page_name):
         if dest_name in self.__pages:
           destination = self.__pages.get(dest_name)
         else:			
@@ -841,9 +845,9 @@ class Grid():
       else:
         destination = None
 
-      # créer un slot et l'ajouter dans la bonne page et position
-      slot = Slot(word, True, destination)    
-      page.set_slot(slot, row, col)
+      final_picto = Pictogram(word,row,col,page_name,destination)
+      # Create the slot and add it to the page
+      page.add_pictogram(final_picto,True,destination)
 
   def update_leaf_picto(self, extra_page):
     '''Affecte la page `extra_page` à un pictogramme disponible
