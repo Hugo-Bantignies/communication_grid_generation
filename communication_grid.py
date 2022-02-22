@@ -86,12 +86,21 @@ class Pictogram:
       return self.__page_name
 
     def get_id(self):
-      '''Getter for page name
+      '''Getter for the identifier of the pictogram
       
       :return: Returns the id of the pictogram
       :rtype: integer
       '''
       return self.__id
+
+    def get_pictogram_in_list(self):
+      '''Getter for the entire list of attribute
+      
+      :return: Returns the list of all attributes of the pictogram
+      :rtype: list
+      '''
+      
+      return [self.get_word(),self.get_row(),self.get_col(),self.get_page_name(),self.get_id()]
 
     def set_word(self, word):
         '''Setter. Set the word of the pictogram
@@ -478,9 +487,11 @@ class Grid():
   :raises Exception: incompatible input file.
   :param root_name: name of the root page ("accueil" by default)
   :type root_name: string
+  :param randomizer: If True, the generation of the grid will be random, else, it will follow the input file.
+  :type randomizer: boolean
   '''
 
-  def __init__(self, input_file, row_size, col_size, root_name = "accueil"):
+  def __init__(self, input_file, row_size, col_size, root_name = "accueil", randomizer = True):
     '''Constructor'''
 
     self.__row_size = row_size
@@ -490,7 +501,8 @@ class Grid():
     self.__pages = {}
     self.__pageCounter = 0     
     self.__fusion_id = 0
-    self.__generate_random_grid(input_file)
+    self.__randomizer = randomizer
+    self.__generate_grid(input_file)
 
   
   def get_root_name(self):
@@ -585,6 +597,15 @@ class Grid():
 
     return self.__col_size
 
+  def get_randomizer(self):
+    '''Returns the randomizer of the grid.
+
+    :return: randomizer.
+    :rtype: boolean
+    '''
+
+    return self.__randomizer
+
   
   def add_word_in_root(self, pictogram, dest=None):
     '''Add a new pictogram to the root page in the first empty slot.
@@ -635,8 +656,195 @@ class Grid():
 
     return page
 
+  
+  def __generate_grid(self,input_file):
+    '''Encapsulation function.
+    Generate a grid from a file.
 
-    ''''''
+    :param input_file: source file
+    :type input_file: file
+    :raises Exception: Not accepted file format !
+    '''
+    #'.txt' file
+    if(input_file.endswith('.txt')):
+      self.__generate_grid_txt(input_file)
+
+    #'.csv' file
+    elif(input_file.endswith('.tsv')):
+      self.__generate_grid_csv(input_file)
+
+    #'AugCom' file (dictionary)
+    elif isinstance(input_file, dict):
+      self.__generate_grid_dict(input_file)
+
+    #File format not accepted
+    else:
+      raise Exception("Not accepted file format !")
+
+
+  def __generate_grid_txt(self, input_file):
+    '''Generate a grid from a .txt input file (corpus)
+
+    :param input_file: source text file containing the corpus
+    :type input_file: `.txt` file
+    :raises Exception: Incorrect file format !
+    '''
+    #Vocabulary of the corpus
+    rawVoc = []
+
+    #The source file is a '.txt' file
+    if(input_file.endswith('.txt')):
+
+      #Source file opening
+      with open(input_file,"r") as rawFile:
+
+        #For each line in the file, split the line
+        for line in rawFile:
+          sentence = line.strip()
+          splittedLine = sentence.split(" ")
+
+          #For each word in the splitted line, store it in the vocabulary of the corpus
+          for word in splittedLine:
+            if(word not in rawVoc):
+              rawVoc.append(word)
+
+        #Creating the root page   
+        self.add_new_page(self.get_root_name())
+        page = self.get_root_page()
+        pageName = page.get_name()
+
+        #Transform each word into a pictogram in the page
+        for i in range(len(rawVoc)):
+
+          #Random generation
+          if(self.get_randomizer()):
+            ridx = random.randint(0,len(rawVoc) - 1)
+            word = rawVoc[ridx]
+            rawVoc.pop(ridx)
+          #Not random generation
+          else:
+            word = rawVoc[i]
+
+          #If there is an empty slot in the page
+          if page.page_is_full() == False:
+              #Get the row and col of the next empty slot
+              slot_row,slot_col = page.get_empty_slot()
+
+              #Create the pictogram
+              id = str(word)+"@"+str(pageName)
+              picto = Pictogram(word,slot_row,slot_col,pageName,id)
+
+              #Store the pictogram in the vocabulary
+              self.__core_voc[id] = picto.get_pictogram_in_list()
+
+              #Store the pictogram in the corresponding page
+              page.add_pictogram(picto)
+
+    #The source file is not a '.txt' file
+    else:
+      raise Exception("Incorrect file format !")
+
+  def __generate_grid_csv(self, input_file):
+    '''Generate a grid from a .csv input file.
+
+    :param input_file: source csv file containing a pictogram grid.
+    :type input_file: `.csv` file
+    :raises Exception: Incorrect file format !
+    '''
+
+    last_id = None
+
+    #The source file is a '.csv' file
+    if(input_file.endswith('.tsv')):
+
+      #Source file opening
+      with open(input_file,"r") as rawFile:
+
+        #For each line in the file, split the line
+        for lines in rawFile:
+          lines = lines.lower()
+          sentence = lines.strip()
+          col = sentence.split("\t")
+
+          #Get the pictogram
+          if len(col) > 4:
+            
+            word = col[0]
+            row = int(col[1])
+            column = int(col[2])
+            page_name = str(col[3])			
+            id = col[4]
+
+            picto = Pictogram(word,row,column,page_name,id)
+
+            #Store the pictogram in the vocabulary
+            self.__core_voc[id] = picto.get_pictogram_in_list()
+
+            last_id = id
+
+          #Get the link of the pictogram (directory pictogram)
+          elif len(col) > 1:            
+            pointed_link = col[1]            			
+            self.__core_voc.get(last_id)[4] = pointed_link
+
+    #The source file is not a '.txt' file
+    else:
+      raise Exception("Incorrect file format !")
+
+    self.__add_core_voc()
+
+  def __generate_grid_dict(self, input_file):
+    '''Generate a grid from a dictionary input file with (format: {`id_picto`:[`nom`,`ligne`,`colonne`,`page`, `page_dest`]}.
+
+    :param input_file: source dictionary text file containing a pictogram grid.
+    :type input_file: `Augcom` file
+    :raises Exception: Incorrect file format !
+    '''
+    #If the input is a dictionary of pictograms.
+    if isinstance(input_file, dict):
+      
+      #Copy of the dictionary in the core_voc.
+      self.__core_voc = dict(input_file)
+
+    #The source file is not a 'AugCom' file (dictionary)
+    else:
+      raise Exception("Incorrect file format !")
+
+    self.__add_core_voc()
+
+
+  def __add_core_voc(self):
+    '''Mettre en place la structure de la grille à partir de son tableau d'attributes
+    
+    Crée des pages et des slots et les affecte en suivant le tableau d'attributes'''
+    
+    #parcourir le tableau d'attributes and extraire l'information
+    for picto in self.__core_voc.values():
+      word = picto[0]
+      row = picto[1]
+      col = picto[2]
+      page_name = picto[3]
+      dest_name = picto[4]
+
+      # créer la page contenant le picto s'il n'existe pas
+      if page_name in self.__pages:
+        page = self.__pages.get(page_name)
+      else:		  
+        page = self.__add_page(page_name)
+
+      # créer la page de destination s'il n'existe pas    
+      if dest_name:
+        if dest_name in self.__pages:
+          destination = self.__pages.get(dest_name)
+        else:			
+          destination = self.__add_page(dest_name)          
+      else:
+        destination = None
+
+      # créer un slot et l'ajouter dans la bonne page et position
+      slot = Slot(word, True, destination)    
+      page.set_slot(slot, row, col)
+
   def update_leaf_picto(self, extra_page):
     '''Affecte la page `extra_page` à un pictogramme disponible
 
@@ -688,150 +896,6 @@ class Grid():
                                   
                 # print([(k,p) for k,p in core_voc_dict.items() if p[3] == 'accueil'])
                 return page
-
-  def __generate_random_grid(self, input_file):
-    '''Generate a random grid from a .txt input file (corpus)
-
-    :param input_file: source text file containing the corpus
-    :type input_file: `.txt` file
-    :raises Exception: Incorrect file format !
-    '''
-    #Vocabulary of the corpus
-    rawVoc = []
-
-    #The source file is a '.txt' file
-    if(input_file.endswith('.txt')):
-
-      #Source file opening
-      with open(input_file,"r") as rawFile:
-
-        #For each line in the file, split the line
-        for line in rawFile:
-          sentence = line.strip()
-          splittedLine = sentence.split(" ")
-
-          #For each word in the splitted line, store it in the vocabulary of the corpus
-          for word in splittedLine:
-            if(word not in rawVoc):
-              rawVoc.append(word)
-
-        #Creating the root page   
-        self.add_new_page(self.get_root_name())
-        page = self.get_root_page()
-        pageName = page.get_name()
-
-        #Transform each word into a pictogram in the page
-        for word in rawVoc:
-
-          #If there is an empty slot in the page
-          if page.page_is_full() == False:
-              #Get the row and col of the next empty slot
-              slot_row,slot_col = page.get_empty_slot()
-
-              #Create the pictogram
-              id = str(word)+"@"+str(pageName)
-              picto = Pictogram(word,slot_row,slot_col,pageName,id)
-
-              #Store the pictogram in the vocabulary
-              #self.__core_voc[id] = picto
-
-              #Store the pictogram in the corresponding page
-              #slot = Slot(word, True, None)    
-              #page.set_slot(slot, slot_row,slot_col)
-              page.add_pictogram(picto)
-
-    #The source file is not a '.txt' file
-    else:
-      raise Exception("Incorrect file format !")
-
-  def __create_grid(self, input_file):
-    '''Crée une grille à partir d'un fichier texte ou d'un tableau d'attributes
-
-    :param input_file: fichier/tableau source contenant toute l'information d'une grille 
-    :type input_file: fichier `.csv` en format `Augcom` (voir le repo du projet pour plus d'information), 
-    ou tableau d'attributes décrivant chaque pictogramme (format: {`id_picto`:[`nom`,`ligne`,`colonne`,`page`, `page_dest`]})    
-    :raises Exception: exception d'entrée incompatible
-    '''
-
-    #référence pour le calcul de row_size, col_size et destination
-    last_id = None
-
-    # si l'entrée est un dictionaire de pictogrammes
-    if isinstance(input_file, dict):
-      # print("Grille créée à partir d'un dictionaire de pictogrammes")
-      
-      self.__core_voc = dict(input_file)
-
-    # si l'entrée est un fichier .csv en format Augcom
-    elif input_file.endswith('.tsv'):
-      # print("Grille créée à partir du fichier " + input_file)
-    
-      # Fichier brut à traiter
-      with open(input_file, "r") as rawFile:
-
-        #Traitement du fichier source
-        for lines in rawFile:
-          lines = lines.lower()
-          sentence = lines.strip()
-          col = sentence.split("\t")
-
-          # On gére le problème des lignes semi-vides créées par les liens entre les répertoires
-          if len(col) > 4:
-            
-            word = col[0]
-            row = int(col[1])
-            column = int(col[2])
-            page = col[3]			
-            id = col[4]
-
-            # enregistrer le mot, les coordonnées, la page actuelle et la destination de chaque pictogramme
-            self.__core_voc[id] = [word, row, column, page, None]
-            
-            last_id = id
-
-          # Nous récupérons les liens entre les répertoires
-          elif len(col) > 1:            
-            pointed_link = col[1]            			
-            self.__core_voc.get(last_id)[4] = pointed_link
-
-    else:
-      raise Exception('Entrée incompatible. Seul tableaux d attributes (dict) ou fichiers .csv (format AUGCOM) sont acceptés')
-
-    self.__add_core_voc()
-
-
-  def __add_core_voc(self):
-    '''Mettre en place la structure de la grille à partir de son tableau d'attributes
-    
-    Crée des pages et des slots et les affecte en suivant le tableau d'attributes'''
-    
-    #parcourir le tableau d'attributes and extraire l'information
-    for picto in self.__core_voc.values():
-      word = picto[0]
-      row = picto[1]
-      col = picto[2]
-      page_name = picto[3]
-      dest_name = picto[4]
-
-      # créer la page contenant le picto s'il n'existe pas
-      if page_name in self.__pages:
-        page = self.__pages.get(page_name)
-      else:		  
-        page = self.__add_page(page_name)
-
-      # créer la page de destination s'il n'existe pas    
-      if dest_name:
-        if dest_name in self.__pages:
-          destination = self.__pages.get(dest_name)
-        else:			
-          destination = self.__add_page(dest_name)          
-      else:
-        destination = None
-
-      # créer un slot et l'ajouter dans la bonne page et position
-      slot = Slot(word, True, destination)    
-      page.set_slot(slot, row, col)
-
 
   def cross_pages(self, page1, page2, parent=None):
     '''Croise deux pages et toutes les sous-pages analogues reliées entre elles 
