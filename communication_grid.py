@@ -14,14 +14,10 @@ import matplotlib.pyplot as plt
 import random
 import copy
 import math
-import numpy as np
-import sys
 from graphviz import Digraph
 
 import networkx as nx
 from networkx import *
-import pickle
-from argparse import ArgumentParser
 
 class Pictogram:
     '''Object that will be stored in a slot. It contains several informations.
