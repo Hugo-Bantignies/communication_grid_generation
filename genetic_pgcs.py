@@ -54,6 +54,9 @@ class GeneticPGCSOptimizer():
 
         self.__gen_number = gen_number
 
+        #Toolbox initialization
+        self.__toolbox = base.Toolbox()
+
         #Display informations
         print("####### Genetic Pictogram Grid Communication Optimizer ######\n")
         print("  INITIAL POPULATION SIZE : "+ str(self.__pop_size)+"\n")
@@ -156,4 +159,17 @@ class GeneticPGCSOptimizer():
       '''
 
       self.__gen_number = gen_number
-    
+
+    def init_genetic_objects(self):
+        '''Method that will initialize the objects for the genetic algorithm
+        '''
+
+        #Creator for the fitness and the individual
+        creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+        creator.create("Individual", Grid, fitness=creator.FitnessMin)
+        
+        #Individual definition
+        self.__toolbox.register("individual", tools.initRepeat, creator.Individual)
+
+        #Population definition
+        self.__toolbox.register("population", tools.initRepeat, list, self.__toolbox.individual)

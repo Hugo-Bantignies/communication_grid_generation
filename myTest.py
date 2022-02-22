@@ -11,10 +11,11 @@ gtest = Grid(input_f,"accueil",randomizer = True, dynamic_size = True)
 gtest.display()
 
 #Cost computation
-print("Cost of the grid gtest (random) : " + str(grid_cost(gtest,cost_f)))
+cost = grid_cost(gtest,cost_f)
+#print("Cost of the grid gtest (random) : " + str(cost))
 
 #New genetic optimizer
 genopti = GeneticPGCSOptimizer(gtest)
-
+genopti.init_genetic_objects()
 
 
