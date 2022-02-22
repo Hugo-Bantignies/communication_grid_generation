@@ -490,7 +490,7 @@ class Grid():
   :type randomizer: boolean
   '''
 
-  def __init__(self, input_file, row_size, col_size, root_name = "accueil", randomizer = True):
+  def __init__(self, input_file, row_size = 5, col_size = 5, root_name = "accueil", randomizer = True, dynamic_size = True):
     '''Constructor'''
 
     self.__row_size = row_size
@@ -501,6 +501,7 @@ class Grid():
     self.__pageCounter = 0     
     self.__fusion_id = 0
     self.__randomizer = randomizer
+    self.__dynamic_size = dynamic_size
     self.__generate_grid(input_file)
 
   
@@ -605,6 +606,33 @@ class Grid():
 
     return self.__randomizer
 
+  def get_dynamic_size(self):
+    '''Returns if the grid has a dynamic size or not.
+
+    :return: dynamic_size.
+    :rtype: boolean
+    '''
+
+    return self.__dynamic_size
+
+  def set_row_size(self,row_size):
+    '''Setter. Set the row_size 
+
+    :param: new row size of the grid
+    :type row_size: integer
+    '''
+
+    self.__row_size = row_size
+
+  def set_col_size(self,col_size):
+    '''Setter. Set the col_size 
+
+    :param: new col size of the grid
+    :type col_size: integer
+    '''
+
+    self.__col_size = col_size
+
   
   def add_word_in_root(self, pictogram, dest=None):
     '''Add a new pictogram to the root page in the first empty slot.
@@ -706,6 +734,11 @@ class Grid():
           for word in splittedLine:
             if(word not in rawVoc):
               rawVoc.append(word)
+
+        #If the size of the grid is dynamic
+        if(self.get_dynamic_size() == True):
+          self.set_row_size(int(math.ceil(math.sqrt(len(rawVoc)))))
+          self.set_col_size(int(math.ceil(math.sqrt(len(rawVoc)))))
 
         #Creating the root page   
         self.add_new_page(self.get_root_name())

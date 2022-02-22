@@ -301,7 +301,7 @@ def shortestPath(initialNode, sentance, nodeList, edgeList, G, root_name):
     # Final path
     wordIndex = 0
 
-    # OExploration of all paths
+    # Exploration of all paths
     for path in pathList:
         if (shortestpath[wordIndex] == path[0]) and (shortestpath[wordIndex + 1] == path[-1]):
             for words in path:
