@@ -18,12 +18,10 @@ import numpy as np
 import sys
 from graphviz import Digraph
 
-# import time
 import networkx as nx
 from networkx import *
 import pickle
 from argparse import ArgumentParser
-# import pathlib
 
 class Pictogram:
     '''Object that will be stored in a slot. It contains several informations.
@@ -119,6 +117,7 @@ class Pictogram:
         '''
 
         return f'"{self.__word}",{self.__row},{self.__col},"{self.__page_name}","{self.__id}"'
+
 
 class Slot():
     '''Smallest element of the grid. Representing one pictogram.

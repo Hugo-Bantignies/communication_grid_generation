@@ -1,3 +1,29 @@
+#!python -m pip install networkx
+#!python -m pip install matplotlib==2.2.3
+#!python -m pip install ipywidgets
+#!python -m pip install graphviz
+#!python -m pip install pandas
+#!python -m pip install pudb
+#!python -m pip install nbconvert
+#!python -m pip install nbconvert -U
+#coding=utf-8
+
+
+# %matplotlib
+import matplotlib.pyplot as plt
+import random
+import copy
+import math
+import numpy as np
+import sys
+from graphviz import Digraph
+
+# import time
+import networkx as nx
+from networkx import *
+import pickle
+# import pathlib
+from argparse import ArgumentParser
 from communication_grid import Grid
 
 #=========================================================================================================================
@@ -352,6 +378,7 @@ def compute_cost(input_sentence, distances):
 
   # création de la liste des noeuds
   nodeList = list(graph.nodes())
+  #print(nodeList)
 
   output = initialNode(input_sentence, nodeList, edgeList, graph)
 
@@ -362,3 +389,40 @@ def compute_cost(input_sentence, distances):
   # print("--- %s seconds ---" % '{:5.5}'.format(time.time() - start_time))
 
   return result
+
+
+def grid_cost(grid,input_file):
+
+    '''Main function to compute the cost of a given grid and a source file.
+
+    :param grid: Input grid to evalute its cost.
+    :type grid: class: Grid
+    :param input_file: source file containing sentences for the evaluation.
+    :type input_file: file (`.txt`)
+    :return: cost of the grid for the input file. 
+    :rtype: float
+    '''
+    #Arcs and distance generation for the given grid
+    arcs = compute_distances(grid)
+
+    print(arcs)
+    
+    #The source file is a '.txt' file
+    if(input_file.endswith('.txt')):
+
+      #Source file opening
+      with open(input_file,"r") as rawFile:
+
+        cost = 0
+        #For each line in the file, split the line
+        for line in rawFile:
+            line = line.strip()
+            #Cost computation
+            result = compute_cost(line,arcs)
+            cost+=result[0][1]
+
+        return cost
+    
+    #The source file is not a '.txt' file
+    else:
+      raise Exception("Incorrect file format !")
