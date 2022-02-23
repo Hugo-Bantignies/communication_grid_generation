@@ -671,7 +671,7 @@ class Grid():
     :return: new page
     :rtype: classe: `Page`
     '''
-
+    
     page = Page(name_page, self.get_row_size(), self.get_col_size())    
     self.__pages[name_page] = page
     self.__pageCounter += 1 
@@ -855,8 +855,6 @@ class Grid():
       col = picto[2]
       page_name = picto[3]
       dest_name = picto[4]
-
-      final_picto = Pictogram(word,row,col,page_name,dest_name)
 
       # If the corresponding page of the pictogram does not exist, create it.
       if page_name in self.__pages:

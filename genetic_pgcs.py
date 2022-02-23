@@ -188,16 +188,33 @@ class GeneticPGCSOptimizer():
 
       self.__gen_number = gen_number
 
-    def init_individual(self,container):
+    def init_individual(self,container,source_file):
       '''Method to initialize one individual (Grid) for the Optimizer
       
       :param container: Encapsulation structure for the Grid.
       :type container: container
+      :param source_file: Vocabulary or file from which the grid will be generated.
+      :type source_file: file or Dict
       :return: returns a container
       :rtype container: container
       '''
       #Create an encapsulated grid in the container to fit with the DEAP framework (from the source file)
-      return container(self.get_source_file(),"accueil",randomizer = True, dynamic_size = True)
+      return container(source_file,root_name = "accueil",randomizer = True, dynamic_size = True)
+
+    def init_population(self,container,func,source_file):
+      '''Method to initialize the population of the Optimizer
+      
+      :param container: Encapsulation structure for the population.
+      :type container: container
+      :param source_file: Vocabulary or file from which the grid will be generated.
+      :type source_file: file or Dict
+      :return: returns a container
+      :rtype container: container
+      '''
+
+      #Create a population of individuals. The size of the population is the initial population size. 
+      return container(func(source_file) for i in range(self.get_pop_size()))
+
 
     def init_genetic_objects(self):
       '''Method that will initialize the objects for the genetic algorithm
@@ -211,7 +228,7 @@ class GeneticPGCSOptimizer():
       self.__toolbox.register("individual", self.init_individual, creator.Individual)
 
       #Population definition (using initRepeat, we will generate a list of individual)
-      self.__toolbox.register("population", tools.initRepeat, list, self.__toolbox.individual)
+      self.__toolbox.register("population", self.init_population, list, self.__toolbox.individual)
 
     def production_cost(self,individual):
       '''Method used by the optimizer to evaluate one individual by using the production cost
@@ -226,29 +243,37 @@ class GeneticPGCSOptimizer():
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
       '''
 
-      new_voc = ind_a.get_core_voc()
-      #self.set_source_file(new_voc)
-      new_ind = self.__toolbox.individual()
-  
+      voc_a = ind_a.get_core_voc()
+      voc_b = ind_b.get_core_voc()
+
+      new_ind = self.__toolbox.individual(voc_a)
       return new_ind
 
+    def pgcs_mutation(self,ind):
+      '''Method used by the optimizer to perform a mutation on one individual
+      '''
+      
+      voc = ind.get_core_voc()
+      new_ind = self.__toolbox.individual(voc)
+      return new_ind
 
     def init_operations(self):
       '''Method that will initialize operations used by the genetic algorithm (evaluation, selection, crossover, mutation)
       '''
 
-      #Evaluation definition
+      #--Evaluation definition--
       self.__toolbox.register("evaluation", self.production_cost)
 
-      #Selection definition
+      #--Selection definition--
 
       #Using tools.selBest (select the k best individuals following the fitness)
       self.__toolbox.register("selection", tools.selBest) 
 
-      #Crossover definition
+      #--Crossover definition--
       self.__toolbox.register("crossover",self.pgcs_crossover)
 
-      #Mutation definition
+      #--Mutation definition--
+      self.__toolbox.register("mutation",self.pgcs_mutation)
   
 
     def genetic_algorithm(self):
@@ -258,7 +283,7 @@ class GeneticPGCSOptimizer():
       #====INITIAL GENERATION====
 
       #Initialization of the population
-      pop = self.__toolbox.population(self.get_pop_size())
+      pop = self.__toolbox.population(self.get_source_file())
 
       #Evaluation of the initial population
       fitnesses = list(map(self.__toolbox.evaluation,pop))
@@ -268,6 +293,7 @@ class GeneticPGCSOptimizer():
         ind.fitness.values = fit + (1,)
 
       print("GENERATION 0 (initial)")
+      print("fitnesses :" + str(fitnesses))
 
       #==ITERATION OVER GENERATIONS==
 
@@ -287,15 +313,30 @@ class GeneticPGCSOptimizer():
           if(random.random() < self.get_cross_proba()):
             #Crossover operation to generate the new individual
             new_ind = self.__toolbox.crossover(ind1,ind2)
+            offspring.append(new_ind)
 
         #MUTATION
+        for ind in offspring:
+
+          #Probability to perform a mutation
+          if(random.random() < self.get_mutation_proba()):
+            #Mutation operation to modify the individual
+            modified_ind = self.__toolbox.mutation(ind)
+            offspring.append(modified_ind)
 
         #EVALUATION
 
         #Evaluation of the population
-        fitnesses = list(map(self.__toolbox.evaluation,pop))
+        fitnesses = list(map(self.__toolbox.evaluation,offspring))
+        print("fitnesses :" + str(fitnesses))
 
         #For each individual in the population, associate the fitness to the individual
-        for ind, fit in zip(pop, fitnesses):
+        for ind, fit in zip(offspring, fitnesses):
           ind.fitness.values = fit
+
+        #NEW GENERATION
+        pop[:] = offspring
+      
+      #Final population
+      return pop
 

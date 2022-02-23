@@ -6,7 +6,7 @@ input_f = "small_entry.txt"
 cost_f = "input_cost.txt"
 
 #New genetic optimizer
-genopti = GeneticPGCSOptimizer(input_f,pop_size=5)
+genopti = GeneticPGCSOptimizer(input_f,pop_size=3)
 genopti.genetic_algorithm()
 
 
