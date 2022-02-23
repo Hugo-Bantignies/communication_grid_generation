@@ -252,9 +252,30 @@ class GeneticPGCSOptimizer():
     def pgcs_mutation(self,ind):
       '''Method used by the optimizer to perform a mutation on one individual
       '''
+      #Get the vocabulary of the individual
+      voc = ind.get_core_voc().values()
+
+      #Initialization of empty lists to store the vocabulary
+      list_voc = []
+      identifiers = []
+
+      #Store the dictionary in list format
+      for picto in voc:
+        list_voc.append(picto)
       
-      voc = ind.get_core_voc()
-      new_ind = self.__toolbox.individual(voc)
+      #Random shuffle the list (mutation)
+      random.shuffle(list_voc)
+
+      #Store the identifiers of each pictogram
+      for picto in list_voc:
+        identifiers.append(picto[4])
+
+      #Build the new vocabulary
+      new_voc = dict(zip(identifiers,list_voc))
+
+      #Modify the individual
+      new_ind = self.__toolbox.individual(new_voc)
+
       return new_ind
 
     def init_operations(self):
@@ -301,12 +322,12 @@ class GeneticPGCSOptimizer():
       for gen in range(1,self.get_gen_number()+1):
         print("GENERATION " + str(gen))
 
-        #SELECTION
+        #--SELECTION--
 
         #Select the k best individuals of the current generation
         offspring = self.__toolbox.selection(pop,self.get_select_number())
 
-        #CROSSOVER
+        #--CROSSOVER--
         for ind1,ind2 in zip(offspring[::2], offspring[1::2]):
 
           #Probability to perform the crossover
@@ -315,16 +336,17 @@ class GeneticPGCSOptimizer():
             new_ind = self.__toolbox.crossover(ind1,ind2)
             offspring.append(new_ind)
 
-        #MUTATION
+        #--MUTATION--
         for ind in offspring:
 
           #Probability to perform a mutation
           if(random.random() < self.get_mutation_proba()):
             #Mutation operation to modify the individual
+            offspring.remove(ind)
             modified_ind = self.__toolbox.mutation(ind)
             offspring.append(modified_ind)
 
-        #EVALUATION
+        #--EVALUATION--
 
         #Evaluation of the population
         fitnesses = list(map(self.__toolbox.evaluation,offspring))
@@ -334,7 +356,7 @@ class GeneticPGCSOptimizer():
         for ind, fit in zip(offspring, fitnesses):
           ind.fitness.values = fit
 
-        #NEW GENERATION
+        #--NEW GENERATION--
         pop[:] = offspring
       
       #Final population
