@@ -23,8 +23,8 @@ class GeneticPGCSOptimizer():
     '''Object that will compute an optimized grid from an initial grid using 
        an Evolutionary Algorithm (Genetic Algorithm) for a Pictogram Grid Communication System (PGCS)
 
-    :initial_grid: initial grid from what the optimizer will compute the optimized one
-    :type initial_grid: class: Grid
+    :source_file: source_file name from the one the optimizer will generate an optimal grid (`.txt`,`.csv`, Augcom)
+    :type source_file: string
     :pop_size: size of the initial population, optional (10 by default)
     :type pop_size: integer
     :cross_proba: probability of having a crossover between two individuals, optional (0.5 by default)
@@ -35,11 +35,11 @@ class GeneticPGCSOptimizer():
     :type gen_number: integer
     '''
     
-    def __init__(self, initial_grid, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, gen_number = 10):
+    def __init__(self, source_file, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, gen_number = 10):
         '''Constructor
         '''
 
-        self.__initial_grid = initial_grid
+        self.__source_file = source_file
         self.__pop_size = pop_size
 
         #Check the cross probability is between 0 and 1
@@ -54,8 +54,9 @@ class GeneticPGCSOptimizer():
 
         self.__gen_number = gen_number
 
-        #Toolbox initialization
+        #Genetic objects initialization
         self.__toolbox = base.Toolbox()
+        self.init_genetic_objects()
 
         #Display informations
         print("####### Genetic Pictogram Grid Communication Optimizer ######\n")
@@ -64,14 +65,14 @@ class GeneticPGCSOptimizer():
         print("  MUTATION RATE : "+ str(self.__mutation_proba * 100)+"%\n")
         print("  NUMBER OF GENERATION : "+ str(self.__gen_number)+"\n")
 
-    def get_initial_grid(self):
-      '''Getter for the initial grid
+    def get_source_file(self):
+      '''Getter for the source file
       
-      :return: Returns the grid given as input
-      :rtype: class: Grid
+      :return: Returns the source file name given as input
+      :rtype: string
       '''
 
-      return self.__initial_grid
+      return self.__source_file
 
     def get_pop_size(self):
       '''Getter for the size of the initial population
@@ -109,14 +110,14 @@ class GeneticPGCSOptimizer():
 
       return self.__gen_number
 
-    def set_initial_grid(self,initial_grid):
-      '''Setter for the initial grid
+    def set_source_file(self,source_file):
+      '''Setter for the source file name
       
-      :param: New initial grid given to the optimizer
-      :type: class: Grid
+      :param: New source file name given to the optimizer
+      :type: string
       '''
 
-      self.__initial_grid = initial_grid
+      self.__source_file = source_file
 
     def set_pop_size(self,pop_size):
       '''Setter for the size of the population
@@ -160,16 +161,37 @@ class GeneticPGCSOptimizer():
 
       self.__gen_number = gen_number
 
+    def init_individual(self,container):
+      '''Method to initialize one individual (Grid) for the Optimizer
+      
+      :param container: Encapsulation structure for the Grid.
+      :type container: container
+      :return: returns a container
+      :rtype container: container
+      '''
+      #Create an encapsulated grid in the container to fit with the DEAP framework
+      return container(self.get_source_file(),"accueil",randomizer = True, dynamic_size = True)
+
     def init_genetic_objects(self):
-        '''Method that will initialize the objects for the genetic algorithm
-        '''
+      '''Method that will initialize the objects for the genetic algorithm
+      '''
 
-        #Creator for the fitness and the individual
-        creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-        creator.create("Individual", Grid, fitness=creator.FitnessMin)
+      #Creator for the fitness and the individual types
+      creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
+      creator.create("Individual", Grid, fitness=creator.FitnessMin)
         
-        #Individual definition
-        self.__toolbox.register("individual", tools.initRepeat, creator.Individual)
+      #Individual definition
+      self.__toolbox.register("individual", self.init_individual, creator.Individual)
 
-        #Population definition
-        self.__toolbox.register("population", tools.initRepeat, list, self.__toolbox.individual)
+      #Population definition (using initRepeat, we will generate a list of individual)
+      self.__toolbox.register("population", tools.initRepeat, list, self.__toolbox.individual)
+
+    def genetic_algorithm(self):
+
+      #Initialization of the population
+      pop = self.__toolbox.population(self.get_pop_size())
+
+      #Print the population
+      for i in range(self.get_pop_size()):
+        print(pop[i].__str__())
+
