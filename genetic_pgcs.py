@@ -12,6 +12,7 @@
 # %matplotlib
 from mimetypes import init
 from communication_grid import Grid
+from evaluation_cost import *
 
 #DEAP Framework (Genetic Algorithm)
 from deap import base
@@ -57,6 +58,9 @@ class GeneticPGCSOptimizer():
         #Genetic objects initialization
         self.__toolbox = base.Toolbox()
         self.init_genetic_objects()
+
+        #Genetic operations initialization
+        self.init_operations()
 
         #Display informations
         print("####### Genetic Pictogram Grid Communication Optimizer ######\n")
@@ -186,12 +190,52 @@ class GeneticPGCSOptimizer():
       #Population definition (using initRepeat, we will generate a list of individual)
       self.__toolbox.register("population", tools.initRepeat, list, self.__toolbox.individual)
 
+    def production_cost(self,individual):
+      '''Method used by the optimizer to evaluate one individual by using the production cost
+
+      :param individual: The inidividual the optimizer will evaluate
+      :type individual: individual
+      '''
+
+      return grid_cost(individual, "input_cost.txt"),
+
+
+    def init_operations(self):
+      '''Method that will initialize operations used by the genetic algorithm (evaluation, selection, crossover, mutation)
+      '''
+
+      #Evaluation definition
+      self.__toolbox.register("evaluation", self.production_cost)
+
+      #Selection definition
+
+      #Crossover definition
+
+      #Mutation definition
+  
+
     def genetic_algorithm(self):
+      '''Method that will use a genetic algorithm to generate an optimal grid starting from a random generation.
+      '''
+
+      #====INITIAL GENERATION====
 
       #Initialization of the population
       pop = self.__toolbox.population(self.get_pop_size())
 
-      #Print the population
-      for i in range(self.get_pop_size()):
-        print(pop[i].__str__())
+      #Evaluation of the initial population
+      fitnesses = list(map(self.__toolbox.evaluation,pop))
+
+      #For each individual in the population, associate the fitness to the individual
+      for ind, fit in zip(pop, fitnesses):
+        ind.fitness.values = fit
+
+      print("GENERATION 0 (initial) :    fitnesses " + str(fitnesses))
+
+      #==ITERATION OVER GENERATIONS==
+
+      #Iterative process : For each generation
+      for gen in range(1,self.get_gen_number()+1):
+        print("GENERATION " + str(gen))
+
 
