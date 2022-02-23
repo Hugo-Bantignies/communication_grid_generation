@@ -32,11 +32,13 @@ class GeneticPGCSOptimizer():
     :type cross_proba: float ([0,1])
     :mutation_proba: probability of having a mutation for one individual, optional (0.5 by default)
     :type mutation_proba: float ([0,1])
+    :select_number: number of individual to select during the selection, optional (2 by default)
+    :type select_number: integer
     :gen_number: number of generation the optimizer will process, optional (10 by default)
     :type gen_number: integer
     '''
     
-    def __init__(self, source_file, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, gen_number = 10):
+    def __init__(self, source_file, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, select_number = 2, gen_number = 10):
         '''Constructor
         '''
 
@@ -52,6 +54,8 @@ class GeneticPGCSOptimizer():
         if(mutation_proba < 0 or cross_proba > 1):
             raise Exception("Unexpected mutation probability (not between 0 and 1) !") 
         self.__mutation_proba = mutation_proba
+
+        self.__select_number = select_number
 
         self.__gen_number = gen_number
 
@@ -105,11 +109,20 @@ class GeneticPGCSOptimizer():
 
       return self.__mutation_proba
 
+    def get_select_number(self):
+      '''Getter for the number of individual to select during the selection operation
+      
+      :return: Returns the selection number.
+      :rtype: integer
+      '''
+
+      return self.__select_number
+
     def get_gen_number(self):
       '''Getter for the number of generation the optimizer will process
       
       :return: Returns the number of generations
-      :rtype: intger
+      :rtype: integer
       '''
 
       return self.__gen_number
@@ -156,7 +169,16 @@ class GeneticPGCSOptimizer():
         raise Exception("Unexpected mutation probability (not between 0 and 1) !")
       self.__cross_proba = mutation_proba
 
-    def set_pop_size(self,gen_number):
+    def set_select_number(self,select_number):
+      '''Setter for the number of individual to select during the selection operation
+      
+      :param: New select number
+      :type: integer
+      '''
+
+      self.__select_number = select_number
+
+    def set_gen_number(self,gen_number):
       '''Setter for the number of generation the optimizer will process
       
       :param: New number of generation
@@ -209,6 +231,9 @@ class GeneticPGCSOptimizer():
 
       #Selection definition
 
+      #Using tools.selBest (select the k best individuals following the fitness)
+      self.__toolbox.register("selection", tools.selBest) 
+
       #Crossover definition
 
       #Mutation definition
@@ -228,9 +253,10 @@ class GeneticPGCSOptimizer():
 
       #For each individual in the population, associate the fitness to the individual
       for ind, fit in zip(pop, fitnesses):
-        ind.fitness.values = fit
+        ind.fitness.values = fit + (1,)
 
-      print("GENERATION 0 (initial) :    fitnesses " + str(fitnesses))
+      print("GENERATION 0 (initial)")
+      print("fitnesses " + str(fitnesses) + "\n")
 
       #==ITERATION OVER GENERATIONS==
 
@@ -238,4 +264,24 @@ class GeneticPGCSOptimizer():
       for gen in range(1,self.get_gen_number()+1):
         print("GENERATION " + str(gen))
 
+        #SELECTION
+
+        #Select the k best individuals of the current generation
+        offspring = self.__toolbox.selection(pop,self.get_select_number())
+        print(offspring)
+
+        #CROSSOVER
+
+        #MUTATION
+
+        #EVALUATION
+
+        #Evaluation of the population
+        fitnesses = list(map(self.__toolbox.evaluation,pop))
+
+        #For each individual in the population, associate the fitness to the individual
+        for ind, fit in zip(pop, fitnesses):
+          ind.fitness.values = fit
+
+        print("fitnesses " + str(fitnesses) + "\n")
 
