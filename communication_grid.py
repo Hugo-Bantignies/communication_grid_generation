@@ -495,7 +495,6 @@ class Grid():
     self.__root_name = root_name
     self.__pages = {}
     self.__pageCounter = 0     
-    self.__fusion_id = 0
     self.__randomizer = randomizer
     self.__dynamic_size = dynamic_size
     self.__generate_grid(input_file)
@@ -673,7 +672,7 @@ class Grid():
     :rtype: classe: `Page`
     '''
 
-    page = Page(name_page, self.__row_size, self.__col_size)    
+    page = Page(name_page, self.get_row_size(), self.get_col_size())    
     self.__pages[name_page] = page
     self.__pageCounter += 1 
 
@@ -688,17 +687,18 @@ class Grid():
     :type input_file: file
     :raises Exception: Not accepted file format !
     '''
+
+    #'AugCom' file (dictionary)
+    if isinstance(input_file, dict):
+      self.__generate_grid_dict(input_file)
+
     #'.txt' file
-    if(input_file.endswith('.txt')):
+    elif(input_file.endswith('.txt')):
       self.__generate_grid_txt(input_file)
 
     #'.csv' file
     elif(input_file.endswith('.tsv')):
       self.__generate_grid_csv(input_file)
-
-    #'AugCom' file (dictionary)
-    elif isinstance(input_file, dict):
-      self.__generate_grid_dict(input_file)
 
     #File format not accepted
     else:

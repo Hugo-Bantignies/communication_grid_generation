@@ -10,6 +10,7 @@
 
 
 # %matplotlib
+import random
 from mimetypes import init
 from communication_grid import Grid
 from evaluation_cost import *
@@ -195,7 +196,7 @@ class GeneticPGCSOptimizer():
       :return: returns a container
       :rtype container: container
       '''
-      #Create an encapsulated grid in the container to fit with the DEAP framework
+      #Create an encapsulated grid in the container to fit with the DEAP framework (from the source file)
       return container(self.get_source_file(),"accueil",randomizer = True, dynamic_size = True)
 
     def init_genetic_objects(self):
@@ -221,6 +222,16 @@ class GeneticPGCSOptimizer():
 
       return grid_cost(individual, "input_cost.txt"),
 
+    def pgcs_crossover(self,ind_a, ind_b):
+      '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
+      '''
+
+      new_voc = ind_a.get_core_voc()
+      #self.set_source_file(new_voc)
+      new_ind = self.__toolbox.individual()
+  
+      return new_ind
+
 
     def init_operations(self):
       '''Method that will initialize operations used by the genetic algorithm (evaluation, selection, crossover, mutation)
@@ -235,6 +246,7 @@ class GeneticPGCSOptimizer():
       self.__toolbox.register("selection", tools.selBest) 
 
       #Crossover definition
+      self.__toolbox.register("crossover",self.pgcs_crossover)
 
       #Mutation definition
   
@@ -256,7 +268,6 @@ class GeneticPGCSOptimizer():
         ind.fitness.values = fit + (1,)
 
       print("GENERATION 0 (initial)")
-      print("fitnesses " + str(fitnesses) + "\n")
 
       #==ITERATION OVER GENERATIONS==
 
@@ -268,9 +279,14 @@ class GeneticPGCSOptimizer():
 
         #Select the k best individuals of the current generation
         offspring = self.__toolbox.selection(pop,self.get_select_number())
-        print(offspring)
 
         #CROSSOVER
+        for ind1,ind2 in zip(offspring[::2], offspring[1::2]):
+
+          #Probability to perform the crossover
+          if(random.random() < self.get_cross_proba()):
+            #Crossover operation to generate the new individual
+            new_ind = self.__toolbox.crossover(ind1,ind2)
 
         #MUTATION
 
@@ -282,6 +298,4 @@ class GeneticPGCSOptimizer():
         #For each individual in the population, associate the fitness to the individual
         for ind, fit in zip(pop, fitnesses):
           ind.fitness.values = fit
-
-        print("fitnesses " + str(fitnesses) + "\n")
 
