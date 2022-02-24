@@ -235,22 +235,36 @@ class GeneticPGCSOptimizer():
 
       :param individual: The inidividual the optimizer will evaluate
       :type individual: individual
+      :return: returns the production cost of the grid
+      :rtype: (float,)
       '''
 
       return grid_cost(individual, "input_cost.txt"),
 
-    def pgcs_crossover(self,ind_a, ind_b):
+    def pgcs_crossover(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
+
+      :param ind_x: The first individual for the crossover (parent x)
+      :type ind_x: individual
+      :param ind_y: The second individual for the crossover (parent y)
+      :type ind_y: individual
+      :return: returns the child of the two parents (crossover result)
+      :rtype: individual
       '''
 
-      voc_a = ind_a.get_core_voc()
-      voc_b = ind_b.get_core_voc()
+      voc_x = ind_x.get_core_voc()
+      voc_y = ind_y.get_core_voc()
 
-      new_ind = self.__toolbox.individual(voc_a)
+      new_ind = self.__toolbox.individual(voc_x)
       return new_ind
 
     def pgcs_mutation_swap(self,ind):
       '''Method used by the optimizer to perform a mutation on one individual
+
+      :param ind: the individual subject to the mutation
+      :type ind: individual
+      :return: returns the individual after the mutation
+      :rtype: individual
       '''
       #Get the vocabulary of the individual
       voc = ind.get_core_voc()
