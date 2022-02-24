@@ -27,6 +27,8 @@ class GeneticPGCSOptimizer():
 
     :source_file: source_file name from the one the optimizer will generate an optimal grid (`.txt`,`.csv`, Augcom)
     :type source_file: string
+    :eval_file: evalutation file name to evaluate the generated grids.
+    :type source_file: string
     :pop_size: size of the initial population, optional (10 by default)
     :type pop_size: integer
     :cross_proba: probability of having a crossover between two individuals, optional (0.5 by default)
@@ -37,15 +39,24 @@ class GeneticPGCSOptimizer():
     :type select_number: integer
     :gen_number: number of generation the optimizer will process, optional (10 by default)
     :type gen_number: integer
-    :randomizer: if True, the initial population of the grid will contain random grids, else the grids will follow the source_file
+    :randomizer: if True, the initial population of the grid will contain random grids, else the grids will follow the source_file, optional (True by default)
     :type gen_number: boolean
     '''
     
-    def __init__(self, source_file, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True):
+    def __init__(self, source_file, eval_file, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True):
         '''Constructor
         '''
 
         self.__source_file = source_file
+        
+        #The evaluation file has to be a .txt file.
+        if(eval_file.endswith('.txt')):
+            self.__eval_file = eval_file
+
+        #File format not accepted
+        else:
+            raise Exception("Not accepted evaluation file format !")
+
         self.__pop_size = pop_size
 
         #Check the cross probability is between 0 and 1
@@ -70,13 +81,9 @@ class GeneticPGCSOptimizer():
 
         #Genetic operations initialization
         self.init_operations()
-
-        #Display informations
-        print("####### Genetic Pictogram Grid Communication Optimizer ######\n")
-        print("  INITIAL POPULATION SIZE : "+ str(self.__pop_size)+"\n")
-        print("  CROSSOVER RATE : "+ str(self.__cross_proba * 100)+"%\n")
-        print("  MUTATION RATE : "+ str(self.__mutation_proba * 100)+"%\n")
-        print("  NUMBER OF GENERATION : "+ str(self.__gen_number)+"\n")
+      
+        #Display the configuration of the optimizer
+        self.display_config()
 
     def get_source_file(self):
       '''Getter for the source file
@@ -86,6 +93,15 @@ class GeneticPGCSOptimizer():
       '''
 
       return self.__source_file
+
+    def get_eval_file(self):
+      '''Getter for the evaluation file
+      
+      :return: Returns the evaluation file name given as input
+      :rtype: string
+      '''
+
+      return self.__eval_file
 
     def get_pop_size(self):
       '''Getter for the size of the initial population
@@ -261,7 +277,7 @@ class GeneticPGCSOptimizer():
       :rtype: (float,)
       '''
 
-      return grid_cost(individual, "output_text.txt"),
+      return grid_cost(individual, self.get_eval_file()),
 
     def pgcs_crossover(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
@@ -422,4 +438,15 @@ class GeneticPGCSOptimizer():
       #Final best grid
       final_ind = self.__toolbox.selection(pop,1)
       return Grid(final_ind[0].get_core_voc())
+
+
+    def display_config(self):
+      #Display informations
+      print("####### Genetic Pictogram Grid Communication Optimizer ######\n")
+      print("Source file : " + str(self.get_source_file()) + "     Evaluation file : " + str(self.get_eval_file()) + "\n")
+      print("  INITIAL POPULATION SIZE : "+ str(self.get_pop_size())+"\n")
+      print("  CROSSOVER RATE : "+ str(self.get_cross_proba() * 100)+"%\n")
+      print("  MUTATION RATE : "+ str(self.get_mutation_proba() * 100)+"%\n")
+      print("  NUMBER OF GENERATION : "+ str(self.get_gen_number())+"\n")
+
 

@@ -36,7 +36,7 @@ class TextGenerator():
             raise Exception("Not accepted source file format !")
 
         #The output file has to be a .txt file.
-        if(source_file.endswith('.txt')):
+        if(output_file.endswith('.txt')):
             self.__output_file = output_file
 
         #File format not accepted
