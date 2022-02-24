@@ -249,22 +249,37 @@ class GeneticPGCSOptimizer():
       new_ind = self.__toolbox.individual(voc_a)
       return new_ind
 
-    def pgcs_mutation(self,ind):
+    def pgcs_mutation_swap(self,ind):
       '''Method used by the optimizer to perform a mutation on one individual
       '''
       #Get the vocabulary of the individual
-      voc = ind.get_core_voc().values()
+      voc = ind.get_core_voc()
 
       #Initialization of empty lists to store the vocabulary
       list_voc = []
       identifiers = []
 
       #Store the dictionary in list format
-      for picto in voc:
+      for picto in voc.values():
         list_voc.append(picto)
       
-      #Random shuffle the list (mutation)
-      random.shuffle(list_voc)
+      #Get two random position of pictogram to swap
+      slot_a = random.randint(0,len(list_voc) - 1)
+      slot_b = random.randint(0,len(list_voc) - 1)
+
+      #Get the two pictograms
+      picto_a = list_voc[slot_a]
+      picto_b = list_voc[slot_b]
+
+      #Swap the real position of the pictogram (row,col values)
+      tmp = (picto_a[1],picto_a[2])
+      picto_a[1] = picto_b[1]
+      picto_a[2] = picto_b[2]
+      picto_b[1] = tmp[0]
+      picto_b[2] = tmp[1]
+
+      #Swap the pictogram in the grid
+      list_voc[slot_a], list_voc[slot_b] = list_voc[slot_b], list_voc[slot_a]
 
       #Store the identifiers of each pictogram
       for picto in list_voc:
@@ -294,7 +309,7 @@ class GeneticPGCSOptimizer():
       self.__toolbox.register("crossover",self.pgcs_crossover)
 
       #--Mutation definition--
-      self.__toolbox.register("mutation",self.pgcs_mutation)
+      self.__toolbox.register("mutation",self.pgcs_mutation_swap)
   
 
     def genetic_algorithm(self):
@@ -306,12 +321,15 @@ class GeneticPGCSOptimizer():
       #Initialization of the population
       pop = self.__toolbox.population(self.get_source_file())
 
+      for p in pop:
+        print(p.__str__())
+
       #Evaluation of the initial population
       fitnesses = list(map(self.__toolbox.evaluation,pop))
 
       #For each individual in the population, associate the fitness to the individual
       for ind, fit in zip(pop, fitnesses):
-        ind.fitness.values = fit + (1,)
+        ind.fitness.values = fit
 
       print("GENERATION 0 (initial)")
       print("fitnesses :" + str(fitnesses))
@@ -326,6 +344,8 @@ class GeneticPGCSOptimizer():
 
         #Select the k best individuals of the current generation
         offspring = self.__toolbox.selection(pop,self.get_select_number())
+        # Clone the selected individuals
+        offspring = list(map(self.__toolbox.clone, offspring))
 
         #--CROSSOVER--
         for ind1,ind2 in zip(offspring[::2], offspring[1::2]):
@@ -343,17 +363,20 @@ class GeneticPGCSOptimizer():
           if(random.random() < self.get_mutation_proba()):
             #Mutation operation to modify the individual
             offspring.remove(ind)
-            modified_ind = self.__toolbox.mutation(ind)
-            offspring.append(modified_ind)
+            mutant = self.__toolbox.mutation(ind)
+            offspring.append(mutant)
 
         #--EVALUATION--
 
+        #Avoid useless computation
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+
         #Evaluation of the population
-        fitnesses = list(map(self.__toolbox.evaluation,offspring))
+        fitnesses = list(map(self.__toolbox.evaluation,invalid_ind))
         print("fitnesses :" + str(fitnesses))
 
-        #For each individual in the population, associate the fitness to the individual
-        for ind, fit in zip(offspring, fitnesses):
+        #For each new individual in the population, associate the fitness to the individual
+        for ind, fit in zip(invalid_ind, fitnesses):
           ind.fitness.values = fit
 
         #--NEW GENERATION--

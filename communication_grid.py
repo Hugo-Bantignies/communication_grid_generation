@@ -833,7 +833,7 @@ class Grid():
     if isinstance(input_file, dict):
       
       #Copy of the dictionary in the core_voc.
-      self.__core_voc = dict(input_file)
+      self.__core_voc = input_file
 
     #The source file is not a 'AugCom' file (dictionary)
     else:
