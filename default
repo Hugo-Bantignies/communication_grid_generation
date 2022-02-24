@@ -1,5 +1,5 @@
 // Test
 digraph {
 	node [shape=record]
-	accueil [label="{  { <0>souris |<1>la |<2>car |<3>veut |<4>fromage } | { <5>un |<6>sans |<7>il |<8>oiseaux |<9>peur } | { <10>on |<11>manger |<12>observe |<13>avoir |<14>bout } | { <15>engloutir |<16>aimerait |<17>est |<18>elle |<19>de } | { <20>content |<21>les |<22>chat |<23>petit |<24>le }  }"]
+	accueil [label="{  { <0>aimerait |<1>chat |<2>manger |<3>fromage |<4>oiseaux } | { <5>veut |<6>le |<7>on |<8>est |<9>elle } | { <10>il |<11>souris |<12>un |<13>car |<14>peur } | { <15>de |<16>bout |<17>content |<18>la |<19>les } | { <20>avoir |<21>sans |<22>engloutir |<23>observe |<24>petit }  }"]
 }

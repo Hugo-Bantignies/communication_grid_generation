@@ -314,6 +314,9 @@ class GeneticPGCSOptimizer():
 
     def genetic_algorithm(self):
       '''Method that will use a genetic algorithm to generate an optimal grid starting from a random generation.
+
+      :return: Returns the best individual of the last generation (optimized grid)
+      :rtype: class: Grid
       '''
 
       #====INITIAL GENERATION====
@@ -331,14 +334,14 @@ class GeneticPGCSOptimizer():
       for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
 
-      print("GENERATION 0 (initial)")
+      print("***GENERATION 0 (initial)***")
       print("fitnesses :" + str(fitnesses))
 
       #==ITERATION OVER GENERATIONS==
 
       #Iterative process : For each generation
       for gen in range(1,self.get_gen_number()+1):
-        print("GENERATION " + str(gen))
+        print("***GENERATION***" + str(gen))
 
         #--SELECTION--
 
@@ -382,6 +385,7 @@ class GeneticPGCSOptimizer():
         #--NEW GENERATION--
         pop[:] = offspring
       
-      #Final population
-      return pop
+      #Final best grid
+      final_ind = self.__toolbox.selection(pop,1)
+      return Grid(final_ind[0].get_core_voc())
 
