@@ -445,14 +445,14 @@ class GeneticPGCSOptimizer():
       for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
 
-      print("***GENERATION 0 (initial)***")
-      print("fitnesses :" + str(fitnesses))
+      print("***GENERATION 0 (initial)***\n")
+      print("INTIAL MAX FITNESS :" + str(max(fitnesses)) + "\n")
 
       #==ITERATION OVER GENERATIONS==
 
       #Iterative process : For each generation
       for gen in range(1,self.get_gen_number()+1):
-        print("***GENERATION " + str(gen) + "***")
+        print("***GENERATION " + str(gen) + "***\n")
 
         #--SELECTION--
 

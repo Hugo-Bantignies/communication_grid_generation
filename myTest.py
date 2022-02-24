@@ -11,7 +11,8 @@ textgen = TextGenerator(source_file = source_f,sentence_number=100,sentence_leng
 textgen.generation()
 
 #New genetic optimizer
-genopti = GeneticPGCSOptimizer(source_f,eval_f,pop_size = 100,gen_number = 50,select_number = 20,randomizer = False)
+genopti = GeneticPGCSOptimizer(source_f,eval_f,pop_size = 100,gen_number = 100,select_number = 20,randomizer = False)
 optimal_grid = genopti.genetic_algorithm()
+optimal_grid.display()
 
 
