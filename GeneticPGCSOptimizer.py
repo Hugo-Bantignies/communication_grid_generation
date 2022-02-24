@@ -37,9 +37,11 @@ class GeneticPGCSOptimizer():
     :type select_number: integer
     :gen_number: number of generation the optimizer will process, optional (10 by default)
     :type gen_number: integer
+    :randomizer: if True, the initial population of the grid will contain random grids, else the grids will follow the source_file
+    :type gen_number: boolean
     '''
     
-    def __init__(self, source_file, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, select_number = 2, gen_number = 10):
+    def __init__(self, source_file, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True):
         '''Constructor
         '''
 
@@ -59,6 +61,8 @@ class GeneticPGCSOptimizer():
         self.__select_number = select_number
 
         self.__gen_number = gen_number
+
+        self.__randomizer = randomizer
 
         #Genetic objects initialization
         self.__toolbox = base.Toolbox()
@@ -128,6 +132,15 @@ class GeneticPGCSOptimizer():
 
       return self.__gen_number
 
+    def get_randomizer(self):
+      '''Getter for the randomizer telling if the generation of the initial grids in the initial population has to be random or not
+      
+      :return: Returns the randomizer
+      :rtype: boolean
+      '''
+
+      return self.__randomizer
+
     def set_source_file(self,source_file):
       '''Setter for the source file name
       
@@ -188,6 +201,15 @@ class GeneticPGCSOptimizer():
 
       self.__gen_number = gen_number
 
+    def set_randomizer(self,randomizer):
+      '''Setter for the randomizer of the optimizer
+      
+      :param: New randomizer value
+      :type: boolean
+      '''
+
+      self.__randomizer = randomizer
+
     def init_individual(self,container,source_file):
       '''Method to initialize one individual (Grid) for the Optimizer
       
@@ -199,7 +221,7 @@ class GeneticPGCSOptimizer():
       :rtype container: container
       '''
       #Create an encapsulated grid in the container to fit with the DEAP framework (from the source file)
-      return container(source_file,root_name = "accueil",randomizer = True, dynamic_size = True)
+      return container(source_file,root_name = "accueil",randomizer = self.get_randomizer(), dynamic_size = True)
 
     def init_population(self,container,func,source_file):
       '''Method to initialize the population of the Optimizer
@@ -239,7 +261,7 @@ class GeneticPGCSOptimizer():
       :rtype: (float,)
       '''
 
-      return grid_cost(individual, "input_cost.txt"),
+      return grid_cost(individual, "output_text.txt"),
 
     def pgcs_crossover(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
@@ -260,6 +282,7 @@ class GeneticPGCSOptimizer():
 
     def pgcs_mutation_swap(self,ind):
       '''Method used by the optimizer to perform a mutation on one individual
+      The mutation will swap randomly two pictograms in the grid.
 
       :param ind: the individual subject to the mutation
       :type ind: individual
@@ -337,9 +360,6 @@ class GeneticPGCSOptimizer():
 
       #Initialization of the population
       pop = self.__toolbox.population(self.get_source_file())
-
-      for p in pop:
-        print(p.__str__())
 
       #Evaluation of the initial population
       fitnesses = list(map(self.__toolbox.evaluation,pop))
