@@ -279,7 +279,7 @@ class GeneticPGCSOptimizer():
 
       return grid_cost(individual, self.get_eval_file()),
 
-    def pgcs_crossover(self,ind_x, ind_y):
+    def pgcs_crossover_swap(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
 
       :param ind_x: The first individual for the crossover (parent x)
@@ -290,10 +290,71 @@ class GeneticPGCSOptimizer():
       :rtype: individual
       '''
 
+      #Get the two vocabulary from the two individual, respectively x and y
       voc_x = ind_x.get_core_voc()
       voc_y = ind_y.get_core_voc()
 
-      new_ind = self.__toolbox.individual(voc_x)
+      #Initialization of empty lists to store the vocabulary in list
+      list_voc_x = []
+      list_voc_y = []
+      identifiers = []
+
+      #Store the dictionary from the first individual (x)
+      for picto_x in voc_x.values():
+        list_voc_x.append(picto_x)
+
+      #Store the dictionary from the second individual (y)
+      for picto_y in voc_y.values():
+        list_voc_y.append(picto_y)
+
+      #Get the random position of the information provided by the second individual (y)
+      slot_y = random.randint(0,len(list_voc_y) - 1)
+
+      #Save the word and the new position of the target pictogram
+      target_word = list_voc_y[slot_y][0]
+      new_row = list_voc_y[slot_y][1]
+      new_col = list_voc_y[slot_y][2]
+
+      #Find the position of this information in the first individual (x)
+      i = 0
+      for picto in list_voc_x:
+        #Position of the target in x is found
+        if(picto[0] == target_word):
+
+          #Save position of the target in x
+          target_row = picto[1]
+          target_col = picto[2]
+          target_save = picto
+          #Save the slot
+          slot_x = i
+
+        #Position of the pictogram to swap
+        if(picto[1] == new_row and picto[2] == new_col):
+
+          picto_save = picto
+
+        #Counter over the iterations
+        i = i + 1
+
+      #Swap of the two pictograms positions          
+      picto_save[1] = target_row
+      picto_save[2] = target_col
+      target_save[1] = new_row
+      target_save[2] = new_col
+
+      #Swap the pictogram in the grid
+      list_voc_x[slot_x], list_voc_x[slot_y] = list_voc_x[slot_y], list_voc_x[slot_x]
+
+      #Store the identifiers of each pictogram
+      for picto in list_voc_x:
+        identifiers.append(picto[4])
+
+      #Build the new vocabulary
+      new_voc = dict(zip(identifiers,list_voc_x))
+
+      #Modify the individual
+      new_ind = self.__toolbox.individual(new_voc)
+
       return new_ind
 
     def pgcs_mutation_swap(self,ind):
@@ -359,7 +420,7 @@ class GeneticPGCSOptimizer():
       self.__toolbox.register("selection", tools.selBest) 
 
       #--Crossover definition--
-      self.__toolbox.register("crossover",self.pgcs_crossover)
+      self.__toolbox.register("crossover",self.pgcs_crossover_swap)
 
       #--Mutation definition--
       self.__toolbox.register("mutation",self.pgcs_mutation_swap)
@@ -391,7 +452,7 @@ class GeneticPGCSOptimizer():
 
       #Iterative process : For each generation
       for gen in range(1,self.get_gen_number()+1):
-        print("***GENERATION***" + str(gen))
+        print("***GENERATION " + str(gen) + "***")
 
         #--SELECTION--
 
@@ -426,7 +487,6 @@ class GeneticPGCSOptimizer():
 
         #Evaluation of the population
         fitnesses = list(map(self.__toolbox.evaluation,invalid_ind))
-        print("fitnesses :" + str(fitnesses))
 
         #For each new individual in the population, associate the fitness to the individual
         for ind, fit in zip(invalid_ind, fitnesses):
@@ -437,10 +497,15 @@ class GeneticPGCSOptimizer():
       
       #Final best grid
       final_ind = self.__toolbox.selection(pop,1)
+      print("Best fitness : " + str(self.__toolbox.evaluation(final_ind[0])))
+
       return Grid(final_ind[0].get_core_voc())
 
 
     def display_config(self):
+      '''Method to display the configuration of the optimizer
+      '''
+
       #Display informations
       print("####### Genetic Pictogram Grid Communication Optimizer ######\n")
       print("Source file : " + str(self.get_source_file()) + "     Evaluation file : " + str(self.get_eval_file()) + "\n")

@@ -407,6 +407,7 @@ def grid_cost(grid,input_file,root_name = "accueil"):
       with open(input_file,"r") as rawFile:
 
         cost = 0
+        
         #For each line in the file, split the line
         for line in rawFile:
             line = line.strip()
