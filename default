@@ -1,5 +1,0 @@
-// Test
-digraph {
-	node [shape=record]
-	accueil [label="{  { <0>on |<1>est |<2>fromage |<3>souris |<4>oiseaux } | { <5>aimerait |<6>le |<7>content |<8>elle |<9>sans } | { <10>petit |<11>il |<12>chat |<13>manger |<14>de } | { <15>observe |<16>un |<17>avoir |<18>peur |<19>engloutir } | { <20>veut |<21>la |<22>les |<23>bout |<24>car }  }"]
-}
