@@ -41,6 +41,8 @@ class GeneticPGCSOptimizer():
     :type gen_number: integer
     :randomizer: if True, the initial population of the grid will contain random grids, else the grids will follow the source_file, optional (True by default)
     :type gen_number: boolean
+    :fitness_history: save all fitnesses during the genetic algorithm
+    :type fitness_history: dict
     '''
     
     def __init__(self, source_file, eval_file, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True):
@@ -74,6 +76,8 @@ class GeneticPGCSOptimizer():
         self.__gen_number = gen_number
 
         self.__randomizer = randomizer
+
+        self.__fitness_history = dict()
 
         #Genetic objects initialization
         self.__toolbox = base.Toolbox()
@@ -157,11 +161,20 @@ class GeneticPGCSOptimizer():
 
       return self.__randomizer
 
+    def get_fitness_history(self):
+      '''Getter for the fitness history
+      
+      :return: Returns the fitness history
+      :rtype: dict
+      '''
+
+      return self.__fitness_history
+
     def set_source_file(self,source_file):
       '''Setter for the source file name
       
-      :param: New source file name given to the optimizer
-      :type: string
+      :param source_file: New source file name given to the optimizer
+      :type source_file: string
       '''
 
       self.__source_file = source_file
@@ -169,8 +182,8 @@ class GeneticPGCSOptimizer():
     def set_pop_size(self,pop_size):
       '''Setter for the size of the population
       
-      :param: New population size
-      :type: integer
+      :param pop_size: New population size
+      :type pop_size: integer
       '''
 
       self.__pop_size = pop_size
@@ -178,8 +191,8 @@ class GeneticPGCSOptimizer():
     def set_cross_proba(self,cross_proba):
       '''Setter for the cross probability
       
-      :param: New cross probability ([0,1])
-      :type: float
+      :param cross_proba: New cross probability ([0,1])
+      :type cross_proba: float
       '''
 
       #Check the cross probability is between 0 and 1
@@ -190,8 +203,8 @@ class GeneticPGCSOptimizer():
     def set_mutation_proba(self,mutation_proba):
       '''Setter for the mutation probability
       
-      :param: New mutation probability ([0,1])
-      :type: float
+      :param mutation_proba: New mutation probability ([0,1])
+      :type mutation_proba: float
       '''
 
       #Check the mutation probability is between 0 and 1
@@ -202,8 +215,8 @@ class GeneticPGCSOptimizer():
     def set_select_number(self,select_number):
       '''Setter for the number of individual to select during the selection operation
       
-      :param: New select number
-      :type: integer
+      :param select_number: New select number
+      :type select_number: integer
       '''
 
       self.__select_number = select_number
@@ -211,8 +224,8 @@ class GeneticPGCSOptimizer():
     def set_gen_number(self,gen_number):
       '''Setter for the number of generation the optimizer will process
       
-      :param: New number of generation
-      :type: integer
+      :param gen_number: New number of generation
+      :type gen_number: integer
       '''
 
       self.__gen_number = gen_number
@@ -220,11 +233,22 @@ class GeneticPGCSOptimizer():
     def set_randomizer(self,randomizer):
       '''Setter for the randomizer of the optimizer
       
-      :param: New randomizer value
-      :type: boolean
+      :param randomizer: New randomizer value
+      :type randomizer: boolean
       '''
 
       self.__randomizer = randomizer
+
+    def fitness_history_record(self,fitnesses,gen_idx):
+      '''Update the fitness history with a new fitness record and the corresponding generation as key
+      
+      :param fitnesses: Value added to the history. List containing the fitnesses of the new individuals of the generation (new fitnesses) 
+      :type fitnesses: list
+      :param gen_idx: Key added to the history. Number of the corresponding generation
+      :type gen_idx: integer
+      '''
+
+      self.__fitness_history.update({gen_idx:fitnesses})
 
     def init_individual(self,container,source_file):
       '''Method to initialize one individual (Grid) for the Optimizer
@@ -438,8 +462,13 @@ class GeneticPGCSOptimizer():
       #Initialization of the population
       pop = self.__toolbox.population(self.get_source_file())
 
+      #Initialization of the best individual
+      best_ind = pop[0]
+
       #Evaluation of the initial population
       fitnesses = list(map(self.__toolbox.evaluation,pop))
+      #Recording fitnesses
+      self.fitness_history_record(fitnesses,0)
 
       #For each individual in the population, associate the fitness to the individual
       for ind, fit in zip(pop, fitnesses):
@@ -487,6 +516,8 @@ class GeneticPGCSOptimizer():
 
         #Evaluation of the population
         fitnesses = list(map(self.__toolbox.evaluation,invalid_ind))
+        #Recording fitnesses
+        self.fitness_history_record(fitnesses,gen)
 
         #For each new individual in the population, associate the fitness to the individual
         for ind, fit in zip(invalid_ind, fitnesses):
@@ -494,12 +525,17 @@ class GeneticPGCSOptimizer():
 
         #--NEW GENERATION--
         pop[:] = offspring
+
+        #Save the best individual of the population
+        for ind in pop:
+          if(ind.fitness.values < best_ind.fitness.values):
+            best_ind = ind
       
       #Final best grid
       final_ind = self.__toolbox.selection(pop,1)
-      print("Best fitness : " + str(self.__toolbox.evaluation(final_ind[0])))
+      print("Best fitness : " + str(self.__toolbox.evaluation(best_ind)))
 
-      return Grid(final_ind[0].get_core_voc())
+      return Grid(best_ind.get_core_voc())
 
 
     def display_config(self):
@@ -513,5 +549,27 @@ class GeneticPGCSOptimizer():
       print("  CROSSOVER RATE : "+ str(self.get_cross_proba() * 100)+"%\n")
       print("  MUTATION RATE : "+ str(self.get_mutation_proba() * 100)+"%\n")
       print("  NUMBER OF GENERATION : "+ str(self.get_gen_number())+"\n")
+
+
+    def fitness_history(self,only_best = True):
+      '''Methods returning the fitness history depending on the request from the user (parameters)
+
+      :param only_best: If True, the history will contain only the best fitness of each generation, optional (True by default)
+      :type: boolean
+      :return: Returns the prepared history depending of the options and the request from the user.
+      :rtype: list
+      '''
+
+      history = []
+
+      #Prepare only the best fitness from each generation
+      if(only_best):
+        for fitnesses in self.get_fitness_history().values():
+          history.append(min(fitnesses)[0])
+      
+      return history
+
+
+
 
 
