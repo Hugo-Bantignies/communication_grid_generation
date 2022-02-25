@@ -476,8 +476,7 @@ class GeneticPGCSOptimizer():
       for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
 
-      print("GENERATION 0 (initial)\n")
-      print("INTIAL BEST FITNESS :" + str(min(fitnesses)) + "\n")
+      print("GENERATION 0 (initial) --> Best fitness :" + str(min(fitnesses)) + "\n")
 
       #==ITERATION OVER GENERATIONS==
 
@@ -545,11 +544,14 @@ class GeneticPGCSOptimizer():
 
       #Display informations
       print("####### Genetic Pictogram Grid Communication Optimizer ######\n")
+      print("## Optimizer Parameters ##")
+      print("--------------------------------------------------------------------------")
       print("Source file : " + str(self.get_source_file()) + "     Evaluation file : " + str(self.get_eval_file()) + "\n")
       print("  INITIAL POPULATION SIZE : "+ str(self.get_pop_size())+"\n")
       print("  CROSSOVER RATE : "+ str(self.get_cross_proba() * 100)+"%\n")
       print("  MUTATION RATE : "+ str(self.get_mutation_proba() * 100)+"%\n")
       print("  NUMBER OF GENERATION : "+ str(self.get_gen_number())+"\n")
+      print("--------------------------------------------------------------------------\n")
 
 
     def fitness_history(self,only_best = True):
