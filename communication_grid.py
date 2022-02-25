@@ -844,9 +844,14 @@ class Grid():
 
 
   def __add_core_voc(self):
-    '''From the initial grid (tsv format), set the entire grid and all its pages.
+    '''From the initial grid (tsv format) or a dictionary, set the entire grid and all its pages.
     
-    Generates pages and slots of the grid following the file format (csv,tsv)'''
+    Generates pages and slots of the grid following the file format (csv,tsv) or the dictionary'''
+
+    #If the size of the grid is dynamic, resize the grid size
+    if(self.get_dynamic_size() == True):
+      self.set_row_size(int(math.ceil(math.sqrt(len(self.__core_voc.values())))))
+      self.set_col_size(int(math.ceil(math.sqrt(len(self.__core_voc.values())))))
     
     #Exploring the entire core vocabulary to store its pictogram
     for picto in self.__core_voc.values():

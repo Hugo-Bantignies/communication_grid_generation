@@ -10,10 +10,12 @@
 
 
 # %matplotlib
+from queue import Empty
 import random
 from mimetypes import init
 from communication_grid import Grid
 from evaluation_cost import *
+from tqdm import tqdm
 
 #DEAP Framework (Genetic Algorithm)
 from deap import base
@@ -474,14 +476,13 @@ class GeneticPGCSOptimizer():
       for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
 
-      print("***GENERATION 0 (initial)***\n")
-      print("INTIAL MAX FITNESS :" + str(max(fitnesses)) + "\n")
+      print("GENERATION 0 (initial)\n")
+      print("INTIAL BEST FITNESS :" + str(min(fitnesses)) + "\n")
 
       #==ITERATION OVER GENERATIONS==
 
       #Iterative process : For each generation
-      for gen in range(1,self.get_gen_number()+1):
-        print("***GENERATION " + str(gen) + "***\n")
+      for gen in tqdm(range(1,self.get_gen_number()+1),desc = "GENERATION"):
 
         #--SELECTION--
 
@@ -566,7 +567,8 @@ class GeneticPGCSOptimizer():
       #Prepare only the best fitness from each generation
       if(only_best):
         for fitnesses in self.get_fitness_history().values():
-          #Append the best fitness for each generation in the history to return
-          history.append(min(fitnesses)[0])
+          #Append the best fitness for each generation in the history to return (if the list is not empty)
+          if(fitnesses):
+            history.append(min(fitnesses)[0])
       
       return history

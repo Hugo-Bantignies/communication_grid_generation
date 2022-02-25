@@ -1,0 +1,5 @@
+// Test
+digraph {
+	node [shape=record]
+	accueil [label="{  { <0>poisson |<1>girafe |<2>morceau |<3>banquise |<4>dauphin |<5>du |<6>pingouin |<7>une } | { <8>lionne |<9>faim |<10>un |<11>la |<12>pour |<13>animal |<14>elle |<15>glisser } | { <16>se |<17>douce |<18>aime |<19>quadripede |<20>sur |<21>nourrit |<22>bananes |<23>chasse } | { <24>rongeur |<25>le |<26>peur |<27>savane |<28>mange |<29>eau |<30>mammifere |<31>glace } | { <32>domestique |<33>souris |<34>est |<35>manger |<36>marin |<37>dans |<38>en |<39>fromage } | { <40>vit |<41>a |<42>gorille |<43>froide |<44>des |<45>intelligent |<46>chat |<47>terrestre } | { <48>veut |<49>gazelle |<50>singe |<51>de |<52>trop |<53> |<54> |<55> } | { <56> |<57> |<58> |<59> |<60> |<61> |<62> |<63> }  }"]
+}
