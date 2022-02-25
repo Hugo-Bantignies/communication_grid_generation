@@ -560,16 +560,13 @@ class GeneticPGCSOptimizer():
       :rtype: list
       '''
 
+      #Initialization of the history
       history = []
 
       #Prepare only the best fitness from each generation
       if(only_best):
         for fitnesses in self.get_fitness_history().values():
+          #Append the best fitness for each generation in the history to return
           history.append(min(fitnesses)[0])
       
       return history
-
-
-
-
-
