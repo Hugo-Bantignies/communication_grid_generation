@@ -376,43 +376,46 @@ class GeneticPGCSOptimizer():
       for picto_y in voc_y.values():
         list_voc_y.append(picto_y)
 
-      #Get the random position of the information provided by the second individual (y)
-      slot_y = random.randint(0,len(list_voc_y) - 1)
+      #For every pictograms in the second individual (y)
+      for slot_y in range(len(list_voc_y)):
 
-      #Save the word and the new position of the target pictogram
-      target_word = list_voc_y[slot_y][0]
-      new_row = list_voc_y[slot_y][1]
-      new_col = list_voc_y[slot_y][2]
+        #Compute an independent probability to know if we have to give the information of the pictogram from y to x.
+        if(random.random() < self.get_cross_info_rate()):
 
-      #Find the position of this information in the first individual (x)
-      i = 0
-      for picto in list_voc_x:
-        #Position of the target in x is found
-        if(picto[0] == target_word):
+          #Save the word and the new position of the target pictogram
+          target_word = list_voc_y[slot_y][0]
+          new_row = list_voc_y[slot_y][1]
+          new_col = list_voc_y[slot_y][2]
 
-          #Save position of the target in x
-          target_row = picto[1]
-          target_col = picto[2]
-          target_save = picto
-          #Save the slot
-          slot_x = i
+          #Find the position of this information in the first individual (x)
+          i = 0
+          for picto in list_voc_x:
+            #Position of the target in x is found
+            if(picto[0] == target_word):
 
-        #Position of the pictogram to swap
-        if(picto[1] == new_row and picto[2] == new_col):
+              #Save position of the target in x
+              target_row = picto[1]
+              target_col = picto[2]
+              target_save = picto
+              #Save the slot
+              slot_x = i
 
-          picto_save = picto
+            #Position of the pictogram to swap
+            if(picto[1] == new_row and picto[2] == new_col):
 
-        #Counter over the iterations
-        i = i + 1
+              picto_save = picto
 
-      #Swap of the two pictograms positions          
-      picto_save[1] = target_row
-      picto_save[2] = target_col
-      target_save[1] = new_row
-      target_save[2] = new_col
+            #Counter over the iterations
+            i = i + 1
 
-      #Swap the pictogram in the grid
-      list_voc_x[slot_x], list_voc_x[slot_y] = list_voc_x[slot_y], list_voc_x[slot_x]
+          #Swap of the two pictograms positions          
+          picto_save[1] = target_row
+          picto_save[2] = target_col
+          target_save[1] = new_row
+          target_save[2] = new_col
+
+          #Swap the pictogram in the grid
+          list_voc_x[slot_x], list_voc_x[slot_y] = list_voc_x[slot_y], list_voc_x[slot_x]
 
       #Store the identifiers of each pictogram
       for picto in list_voc_x:
