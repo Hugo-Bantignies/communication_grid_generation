@@ -407,15 +407,16 @@ def grid_cost(grid,input_file,root_name = "accueil"):
       with open(input_file,"r") as rawFile:
 
         cost = 0
-        
+        n = 0
         #For each line in the file, split the line
         for line in rawFile:
             line = line.strip()
             #Cost computation
             result = compute_cost(line,arcs,root_name)
             cost+=result[0][1]
+            n = n + 1
 
-        return cost
+        return (cost / n)
     
     #The source file is not a '.txt' file
     else:

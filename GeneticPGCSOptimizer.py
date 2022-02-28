@@ -35,6 +35,8 @@ class GeneticPGCSOptimizer():
     :type pop_size: integer
     :cross_proba: probability of having a crossover between two individuals, optional (0.5 by default)
     :type cross_proba: float ([0,1])
+    :cross_info_rate: rate of information the selected individual will provide to the child after a crossover, optional (0.5 by default)
+    :type cross_info_rate: float ([0,1])
     :mutation_proba: probability of having a mutation for one individual, optional (0.5 by default)
     :type mutation_proba: float ([0,1])
     :select_number: number of individual to select during the selection, optional (2 by default)
@@ -47,7 +49,8 @@ class GeneticPGCSOptimizer():
     :type fitness_history: dict
     '''
     
-    def __init__(self, source_file, eval_file, pop_size = 10, cross_proba = 0.5, mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True):
+    def __init__(self, source_file, eval_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
+                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True):
         '''Constructor
         '''
 
@@ -68,8 +71,13 @@ class GeneticPGCSOptimizer():
             raise Exception("Unexpected crossover probability (not between 0 and 1) !")
         self.__cross_proba = cross_proba
 
+        #Check the cross rate is between 0 and 1
+        if(cross_info_rate < 0 or cross_info_rate > 1):
+            raise Exception("Unexpected crossover information rate (not between 0 and 1) !") 
+        self.__cross_info_rate = cross_info_rate
+
         #Check the mutation probability is between 0 and 1
-        if(mutation_proba < 0 or cross_proba > 1):
+        if(mutation_proba < 0 or mutation_proba > 1):
             raise Exception("Unexpected mutation probability (not between 0 and 1) !") 
         self.__mutation_proba = mutation_proba
 
@@ -126,6 +134,15 @@ class GeneticPGCSOptimizer():
       '''
 
       return self.__cross_proba
+
+    def get_cross_info_rate(self):
+      '''Getter for the crossover information rate of the optimizer
+      
+      :return: Returns the crossover information rate
+      :rtype: float
+      '''
+
+      return self.__cross_info_rate
     
     def get_mutation_proba(self):
       '''Getter for the mutation probability of the optimizer
@@ -201,6 +218,18 @@ class GeneticPGCSOptimizer():
       if(cross_proba < 0 or cross_proba > 1):
         raise Exception("Unexpected crossover probability (not between 0 and 1) !")
       self.__cross_proba = cross_proba
+
+    def set_cross_info_rate(self,cross_info_rate):
+      '''Setter for the cross information rate
+      
+      :param cross_info_rate: New cross information rate ([0,1])
+      :type cross_info_rate: float
+      '''
+
+      #Check the cross probability is between 0 and 1
+      if(cross_info_rate < 0 or cross_info_rate > 1):
+        raise Exception("Unexpected crossover information rate (not between 0 and 1) !") 
+      self.__cross_info_rate = cross_info_rate
 
     def set_mutation_proba(self,mutation_proba):
       '''Setter for the mutation probability
@@ -466,6 +495,7 @@ class GeneticPGCSOptimizer():
 
       #Initialization of the best individual
       best_ind = pop[0]
+      best_gen = 0
 
       #Evaluation of the initial population
       fitnesses = list(map(self.__toolbox.evaluation,pop))
@@ -476,7 +506,7 @@ class GeneticPGCSOptimizer():
       for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
 
-      print("GENERATION 0 (initial) --> Best fitness :" + str(min(fitnesses)) + "\n")
+      print("INITIAL GENERATION (0) --> Best fitness : " + str(min(fitnesses[0])) + "\n")
 
       #==ITERATION OVER GENERATIONS==
 
@@ -530,10 +560,11 @@ class GeneticPGCSOptimizer():
         for ind in pop:
           if(ind.fitness.values < best_ind.fitness.values):
             best_ind = ind
+            best_gen = gen
       
       #Final best grid
       final_ind = self.__toolbox.selection(pop,1)
-      print("Best fitness : " + str(self.__toolbox.evaluation(best_ind)))
+      print("Best individual coming from the generation " + str(best_gen) + " with a fitness of " + str((self.__toolbox.evaluation(best_ind))[0]))
 
       return Grid(best_ind.get_core_voc())
 
@@ -549,16 +580,18 @@ class GeneticPGCSOptimizer():
       print("Source file : " + str(self.get_source_file()) + "     Evaluation file : " + str(self.get_eval_file()) + "\n")
       print("  INITIAL POPULATION SIZE : "+ str(self.get_pop_size())+"\n")
       print("  CROSSOVER RATE : "+ str(self.get_cross_proba() * 100)+"%\n")
+      print("  CROSSOVER INFORMATION RATE : "+ str(self.get_cross_info_rate() * 100)+"%\n")
       print("  MUTATION RATE : "+ str(self.get_mutation_proba() * 100)+"%\n")
       print("  NUMBER OF GENERATION : "+ str(self.get_gen_number())+"\n")
       print("--------------------------------------------------------------------------\n")
 
 
-    def fitness_history(self,only_best = True):
+    def fitness_history(self,option = "best"):
       '''Methods returning the fitness history depending on the request from the user (parameters)
 
-      :param only_best: If True, the history will contain only the best fitness of each generation, optional (True by default)
-      :type: boolean
+      :param option: Option to know what the history will contain, optional ("best" by default)
+      Possible options : "best", "average", "all"
+      :type: string
       :return: Returns the prepared history depending of the options and the request from the user.
       :rtype: list
       '''
@@ -567,10 +600,25 @@ class GeneticPGCSOptimizer():
       history = []
 
       #Prepare only the best fitness from each generation
-      if(only_best):
+      if(option == "best"):
         for fitnesses in self.get_fitness_history().values():
           #Append the best fitness for each generation in the history to return (if the list is not empty)
           if(fitnesses):
             history.append(min(fitnesses)[0])
+
+      #Prepare the average fitness from each generation
+      elif(option == "average"):
+        for fitnesses in self.get_fitness_history().values():
+          #Append the average of the fitness for the generation in the history to return (if the list is not empty)
+          if(fitnesses):
+            history.append((sum(fitnesses[0]) / len(fitnesses[0])))
+
+      #Prepare all fitnesses from each generation
+      elif(option == "all"):
+        for fitnesses in self.get_fitness_history().values():
+          #Append the average of the fitness for the generation in the history to return (if the list is not empty)
+          if(fitnesses):
+            for fitness in fitnesses:
+              history.append(fitness[0])
       
       return history
