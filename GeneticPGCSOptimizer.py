@@ -499,6 +499,7 @@ class GeneticPGCSOptimizer():
 
       #Evaluation of the initial population
       fitnesses = list(map(self.__toolbox.evaluation,pop))
+
       #Recording fitnesses
       self.fitness_history_record(fitnesses,0)
 
@@ -546,6 +547,7 @@ class GeneticPGCSOptimizer():
 
         #Evaluation of the population
         fitnesses = list(map(self.__toolbox.evaluation,invalid_ind))
+        
         #Recording fitnesses
         self.fitness_history_record(fitnesses,gen)
 
@@ -564,7 +566,7 @@ class GeneticPGCSOptimizer():
       
       #Final best grid
       final_ind = self.__toolbox.selection(pop,1)
-      print("Best individual coming from the generation " + str(best_gen) + " with a fitness of " + str((self.__toolbox.evaluation(best_ind))[0]))
+      print("Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str((self.__toolbox.evaluation(best_ind))[0]))
 
       return Grid(best_ind.get_core_voc())
 
@@ -620,5 +622,8 @@ class GeneticPGCSOptimizer():
           if(fitnesses):
             for fitness in fitnesses:
               history.append(fitness[0])
+
+      else:
+        raise Exception("Invalid provided option") 
       
       return history
