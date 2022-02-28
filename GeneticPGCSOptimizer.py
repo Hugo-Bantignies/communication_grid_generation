@@ -45,12 +45,15 @@ class GeneticPGCSOptimizer():
     :type gen_number: integer
     :randomizer: if True, the initial population of the grid will contain random grids, else the grids will follow the source_file, optional (True by default)
     :type gen_number: boolean
+    :cost_average: if True, the computed cost will be the average of the sum of the costs, 
+                   else the computed cost will be the sum of the costs, optional (True by default)
+    :type cost_average: boolean
     :fitness_history: save all fitnesses during the genetic algorithm
     :type fitness_history: dict
     '''
     
     def __init__(self, source_file, eval_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
-                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True):
+                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, cost_average = True):
         '''Constructor
         '''
 
@@ -86,6 +89,8 @@ class GeneticPGCSOptimizer():
         self.__gen_number = gen_number
 
         self.__randomizer = randomizer
+
+        self.__cost_average = cost_average
 
         self.__fitness_history = dict()
 
@@ -179,6 +184,15 @@ class GeneticPGCSOptimizer():
       '''
 
       return self.__randomizer
+
+    def get_cost_average(self):
+      '''Getter for the cost average indicator of the optimizer
+      
+      :return: Returns the cost average indicator
+      :rtype: boolean
+      '''
+
+      return self.__cost_average
 
     def get_fitness_history(self):
       '''Getter for the fitness history
@@ -332,7 +346,7 @@ class GeneticPGCSOptimizer():
       :rtype: (float,)
       '''
 
-      return grid_cost(individual, self.get_eval_file()),
+      return grid_cost(individual, self.get_eval_file(), average_option = self.get_cost_average()),
 
     def pgcs_crossover_swap(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
@@ -578,14 +592,14 @@ class GeneticPGCSOptimizer():
       #Display informations
       print("####### Genetic Pictogram Grid Communication Optimizer ######\n")
       print("## Optimizer Parameters ##")
-      print("--------------------------------------------------------------------------")
+      print("========================================================================")
       print("Source file : " + str(self.get_source_file()) + "     Evaluation file : " + str(self.get_eval_file()) + "\n")
       print("  INITIAL POPULATION SIZE : "+ str(self.get_pop_size())+"\n")
       print("  CROSSOVER RATE : "+ str(self.get_cross_proba() * 100)+"%\n")
       print("  CROSSOVER INFORMATION RATE : "+ str(self.get_cross_info_rate() * 100)+"%\n")
       print("  MUTATION RATE : "+ str(self.get_mutation_proba() * 100)+"%\n")
       print("  NUMBER OF GENERATION : "+ str(self.get_gen_number())+"\n")
-      print("--------------------------------------------------------------------------\n")
+      print("========================================================================\n")
 
 
     def fitness_history(self,option = "best"):

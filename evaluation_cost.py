@@ -386,7 +386,7 @@ def compute_cost(input_sentence, distances, root_name):
   return result
 
 
-def grid_cost(grid,input_file,root_name = "accueil"):
+def grid_cost(grid,input_file,root_name = "accueil", average_option = True):
 
     '''Main function to compute the cost of a given grid and a source file.
 
@@ -416,7 +416,13 @@ def grid_cost(grid,input_file,root_name = "accueil"):
             cost+=result[0][1]
             n = n + 1
 
-        return (cost / n)
+        #Return the average cost
+        if(average_option):
+            return (cost / n)
+            
+        #Return the cost
+        else:
+            return cost
     
     #The source file is not a '.txt' file
     else:
