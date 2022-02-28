@@ -529,7 +529,7 @@ class GeneticPGCSOptimizer():
       #==ITERATION OVER GENERATIONS==
 
       #Iterative process : For each generation
-      for gen in tqdm(range(1,self.get_gen_number()+1),desc = "GENERATION"):
+      for gen in tqdm(range(1,self.get_gen_number()+1),desc = "** Optimization **",unit = "generation"):
 
         #--SELECTION--
 
@@ -543,8 +543,9 @@ class GeneticPGCSOptimizer():
 
           #Probability to perform the crossover
           if(random.random() < self.get_cross_proba()):
+
             #Crossover operation to generate the new individual
-            new_ind = self.__toolbox.crossover(ind1,ind2)
+            new_ind = self.__toolbox.crossover(ind2,ind1)
             offspring.append(new_ind)
 
         #--MUTATION--
@@ -552,6 +553,7 @@ class GeneticPGCSOptimizer():
 
           #Probability to perform a mutation
           if(random.random() < self.get_mutation_proba()):
+
             #Mutation operation to modify the individual
             offspring.remove(ind)
             mutant = self.__toolbox.mutation(ind)
