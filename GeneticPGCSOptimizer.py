@@ -13,6 +13,7 @@
 from queue import Empty
 import random
 from mimetypes import init
+from typing import final
 from communication_grid import Grid
 from evaluation_cost import *
 from tqdm import tqdm
@@ -93,6 +94,8 @@ class GeneticPGCSOptimizer():
         self.__cost_average = cost_average
 
         self.__fitness_history = dict()
+
+        self.__best_history = []
 
         #Genetic objects initialization
         self.__toolbox = base.Toolbox()
@@ -203,6 +206,15 @@ class GeneticPGCSOptimizer():
 
       return self.__fitness_history
 
+    def get_best_history(self):
+      '''Getter for the best fitness history
+      
+      :return: Returns the best fitness history
+      :rtype: list
+      '''
+
+      return self.__best_history
+
     def set_source_file(self,source_file):
       '''Setter for the source file name
       
@@ -294,6 +306,15 @@ class GeneticPGCSOptimizer():
       '''
 
       self.__fitness_history.update({gen_idx:fitnesses})
+
+    def fitness_best_record(self,fitness):
+      '''Update the best fitness history with the record of the best fitness ever. 
+      
+      :param fitness: Value added to the history. List containing the fitnesses of the new individuals of the generation (new fitnesses) 
+      :type fitness: float
+      '''
+
+      self.__best_history.append(fitness)
 
     def init_individual(self,container,source_file):
       '''Method to initialize one individual (Grid) for the Optimizer
@@ -524,6 +545,9 @@ class GeneticPGCSOptimizer():
       for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
 
+      #Record of the best fitness
+      self.fitness_best_record(best_ind.fitness.values[0])
+
       print("INITIAL GENERATION (0) --> Best fitness : " + str(min(fitnesses[0])) + "\n")
 
       #==ITERATION OVER GENERATIONS==
@@ -583,9 +607,11 @@ class GeneticPGCSOptimizer():
           if(ind.fitness.values < best_ind.fitness.values):
             best_ind = ind
             best_gen = gen
+
+        #Record of the best fitness
+        self.fitness_best_record(best_ind.fitness.values[0])
       
       #Final best grid
-      final_ind = self.__toolbox.selection(pop,1)
       print("Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str((self.__toolbox.evaluation(best_ind))[0]))
 
       return Grid(best_ind.get_core_voc())
@@ -612,7 +638,7 @@ class GeneticPGCSOptimizer():
       '''Methods returning the fitness history depending on the request from the user (parameters)
 
       :param option: Option to know what the history will contain, optional ("best" by default)
-      Possible options : "best", "average", "all"
+      Possible options : "gen_best", "only_best", "average", "all"
       :type: string
       :return: Returns the prepared history depending of the options and the request from the user.
       :rtype: list
@@ -621,12 +647,19 @@ class GeneticPGCSOptimizer():
       #Initialization of the history
       history = []
 
-      #Prepare only the best fitness from each generation
-      if(option == "best"):
+      #Prepare the best fitness from each generation
+      if(option == "gen_best"):
         for fitnesses in self.get_fitness_history().values():
           #Append the best fitness for each generation in the history to return (if the list is not empty)
           if(fitnesses):
             history.append(min(fitnesses)[0])
+
+      #Prepare the best fitness evolution
+      elif(option == "only_best"):
+        #Append all recorded fitnesses.
+        for fitness in self.get_best_history():
+          if(fitness):
+            history.append(fitness)
 
       #Prepare the average fitness from each generation
       elif(option == "average"):
@@ -638,7 +671,7 @@ class GeneticPGCSOptimizer():
       #Prepare all fitnesses from each generation
       elif(option == "all"):
         for fitnesses in self.get_fitness_history().values():
-          #Append the average of the fitness for the generation in the history to return (if the list is not empty)
+          #Append all fitnesses for the generation in the history to return (if the list is not empty)
           if(fitnesses):
             for fitness in fitnesses:
               history.append(fitness[0])
