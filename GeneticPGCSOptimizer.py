@@ -355,8 +355,8 @@ class GeneticPGCSOptimizer():
       :type ind_x: individual
       :param ind_y: The second individual for the crossover (parent y)
       :type ind_y: individual
-      :return: returns the child of the two parents (crossover result)
-      :rtype: individual
+      :return: returns the childs of the two parents (crossover result)
+      :rtype: individual,individual
       '''
 
       #Get the two vocabulary from the two individual, respectively x and y
@@ -427,7 +427,7 @@ class GeneticPGCSOptimizer():
       #Modify the individual
       new_ind = self.__toolbox.individual(new_voc)
 
-      return new_ind
+      return new_ind,new_ind
 
     def pgcs_mutation_swap(self,ind):
       '''Method used by the optimizer to perform a mutation on one individual
@@ -545,8 +545,9 @@ class GeneticPGCSOptimizer():
           if(random.random() < self.get_cross_proba()):
 
             #Crossover operation to generate the new individual
-            new_ind = self.__toolbox.crossover(ind2,ind1)
-            offspring.append(new_ind)
+            new_ind1,new_ind2 = self.__toolbox.crossover(ind2,ind1)
+            offspring.append(new_ind1)
+            offspring.append(new_ind2)
 
         #--MUTATION--
         for ind in offspring:
