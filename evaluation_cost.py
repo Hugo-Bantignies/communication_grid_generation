@@ -17,6 +17,7 @@ import sys
 import networkx as nx
 from networkx import *
 import pickle
+import codecs
 from communication_grid import Grid
 
 #=========================================================================================================================
@@ -284,7 +285,7 @@ def shortestPath(initialNode, sentance, nodeList, edgeList, G, root_name):
         totalWeight += minWeight
     
     # New computaton of the shortest path in the sub graph.
-    try:        
+    try:      
         shortestpath = nx.shortest_path(coupleGraphe, source=root_name, target="end")
     except nx.NetworkXNoPath:
 
@@ -404,7 +405,7 @@ def grid_cost(grid,input_file,root_name = "accueil", average_option = True):
     if(input_file.endswith('.txt')):
 
       #Source file opening
-      with open(input_file,"r") as rawFile:
+      with codecs.open(input_file,"r","utf-8") as rawFile:
 
         cost = 0
         n = 0

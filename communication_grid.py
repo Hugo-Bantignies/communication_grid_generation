@@ -19,6 +19,8 @@ from graphviz import Digraph
 import networkx as nx
 from networkx import *
 
+from utils import *
+
 class Pictogram:
     '''Object that will be stored in a slot. It contains several informations.
 
@@ -710,67 +712,46 @@ class Grid():
 
     :param input_file: source text file containing the corpus
     :type input_file: `.txt` file
-    :raises Exception: Incorrect file format !
     '''
-    #Vocabulary of the corpus
-    rawVoc = []
+    #Get the vocabulary of the corpus
+    rawVoc = get_vocabulary_from_txt(input_file)
 
-    #The source file is a '.txt' file
-    if(input_file.endswith('.txt')):
+    #If the size of the grid is dynamic
+    if(self.get_dynamic_size() == True):
+      self.set_row_size(int(math.ceil(math.sqrt(len(rawVoc)))))
+      self.set_col_size(int(math.ceil(math.sqrt(len(rawVoc)))))
 
-      #Source file opening
-      with open(input_file,"r") as rawFile:
+    #Creating the root page   
+    self.add_new_page(self.get_root_name())
+    page = self.get_root_page()
+    pageName = page.get_name()
 
-        #For each line in the file, split the line
-        for line in rawFile:
-          sentence = line.strip()
-          splittedLine = sentence.split(" ")
+    #Transform each word into a pictogram in the page
+    for i in range(len(rawVoc)):
 
-          #For each word in the splitted line, store it in the vocabulary of the corpus
-          for word in splittedLine:
-            if(word not in rawVoc):
-              rawVoc.append(word)
+      #Random generation
+      if(self.get_randomizer()):
+        ridx = random.randint(0,len(rawVoc) - 1)
+        word = rawVoc[ridx]
+        rawVoc.pop(ridx)
+      #Not random generation
+      else:
+        word = rawVoc[i]
 
-        #If the size of the grid is dynamic
-        if(self.get_dynamic_size() == True):
-          self.set_row_size(int(math.ceil(math.sqrt(len(rawVoc)))))
-          self.set_col_size(int(math.ceil(math.sqrt(len(rawVoc)))))
+      #If there is an empty slot in the page
+      if page.page_is_full() == False:
+          #Get the row and col of the next empty slot
+          slot_row,slot_col = page.get_empty_slot()
 
-        #Creating the root page   
-        self.add_new_page(self.get_root_name())
-        page = self.get_root_page()
-        pageName = page.get_name()
+          #Create the pictogram
+          id = str(word)+"@"+str(pageName)
+          picto = Pictogram(word,slot_row,slot_col,pageName,id)
 
-        #Transform each word into a pictogram in the page
-        for i in range(len(rawVoc)):
+          #Store the pictogram in the vocabulary
+          self.__core_voc[id] = picto.get_pictogram_in_list()
 
-          #Random generation
-          if(self.get_randomizer()):
-            ridx = random.randint(0,len(rawVoc) - 1)
-            word = rawVoc[ridx]
-            rawVoc.pop(ridx)
-          #Not random generation
-          else:
-            word = rawVoc[i]
-
-          #If there is an empty slot in the page
-          if page.page_is_full() == False:
-              #Get the row and col of the next empty slot
-              slot_row,slot_col = page.get_empty_slot()
-
-              #Create the pictogram
-              id = str(word)+"@"+str(pageName)
-              picto = Pictogram(word,slot_row,slot_col,pageName,id)
-
-              #Store the pictogram in the vocabulary
-              self.__core_voc[id] = picto.get_pictogram_in_list()
-
-              # Create the slot and add it to the page
-              page.add_pictogram(picto,True,None)
-
-    #The source file is not a '.txt' file
-    else:
-      raise Exception("Incorrect file format !")
+          # Create the slot and add it to the page
+          page.add_pictogram(picto,True,None)
 
   def __generate_grid_csv(self, input_file):
     '''Generate a grid from a .csv input file.
