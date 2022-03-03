@@ -419,7 +419,7 @@ def manhattan_dist(x1,y1,x2,y2):
     '''
     return abs((x1 - x2)) + abs((y1 - y2))
 
-def sentence_cost(grid, sentence, distance_mode, movement_factor = 1):
+def sentence_cost(grid, sentence, distance_mode, movement_factor = 1, selection_factor = 1):
     '''Function to compute the cost of a grid (with only one main page)
     :param grid: grid from which the cost will be computed
     :type: class: Grid
@@ -435,7 +435,7 @@ def sentence_cost(grid, sentence, distance_mode, movement_factor = 1):
 
     #Initialization
     grid_voc = grid.get_core_voc()
-    cost = 0
+    cost = 1
     picto_start = None
     picto_end = None
 
@@ -452,6 +452,7 @@ def sentence_cost(grid, sentence, distance_mode, movement_factor = 1):
 
     #For each word in the sentence
     for i in range(len(picto_list)):
+        
         #Condition to not go beyond the limits
         if(i < len(picto_list) - 1):
             picto_start = picto_list[i]
@@ -461,11 +462,11 @@ def sentence_cost(grid, sentence, distance_mode, movement_factor = 1):
 
                 #Euclidean distance
                 if(distance_mode == "euclidean"):
-                    cost = cost + euclidean_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
+                    cost = cost + selection_factor + euclidean_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
 
                 #Manhattan distance
                 elif(distance_mode == "manhattan"):
-                    cost = cost + manhattan_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
+                    cost = cost + selection_factor + manhattan_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
     return cost
 
 

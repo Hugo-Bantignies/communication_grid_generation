@@ -49,12 +49,15 @@ class GeneticPGCSOptimizer():
     :cost_average: if True, the computed cost will be the average of the sum of the costs, 
                    else the computed cost will be the sum of the costs, optional (True by default)
     :type cost_average: boolean
+    :distance_formula: formula the optimizer will use to compute the cost, optional ("euclidean" by default)
+                       available formulas : "euclidean", "manhattan"
+    :type source_file: string
     :fitness_history: save all fitnesses during the genetic algorithm
     :type fitness_history: dict
     '''
     
     def __init__(self, source_file, eval_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
-                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, cost_average = True):
+                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, cost_average = True, distance_formula = "euclidean"):
         '''Constructor
         '''
 
@@ -92,6 +95,12 @@ class GeneticPGCSOptimizer():
         self.__randomizer = randomizer
 
         self.__cost_average = cost_average
+
+        #Check the distance formula the optimizer will use to compute the cost
+        if(distance_formula != "euclidean" and distance_formula != "manhattan"):
+          raise Exception("Unexpected distance fomula (euclidean or manhattan) !")
+        self.__distance_formula = distance_formula
+        
 
         self.__fitness_history = dict()
 
@@ -196,6 +205,15 @@ class GeneticPGCSOptimizer():
       '''
 
       return self.__cost_average
+
+    def get_distance_formula(self):
+      '''Getter for the distance formula the optimizer will use to compute the cost
+      
+      :return: Returns the distance formula
+      :rtype: string
+      '''
+
+      return self.__distance_formula
 
     def get_fitness_history(self):
       '''Getter for the fitness history
@@ -366,7 +384,7 @@ class GeneticPGCSOptimizer():
       :return: returns the production cost of the grid
       :rtype: (float,)
       '''
-      return grid_cost(individual, self.get_eval_file(), average_option = self.get_cost_average()),
+      return grid_cost(individual, self.get_eval_file(), average_option = self.get_cost_average(), distance_mode = self.get_distance_formula()),
 
     def pgcs_crossover_swap(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
@@ -536,6 +554,7 @@ class GeneticPGCSOptimizer():
 
       #Evaluation of the initial population
       fitnesses = list(map(self.__toolbox.evaluation,pop))
+      min_init_fit = fitnesses[0]
 
       #Recording fitnesses
       self.fitness_history_record(fitnesses,0)
@@ -544,10 +563,15 @@ class GeneticPGCSOptimizer():
       for ind, fit in zip(pop, fitnesses):
         ind.fitness.values = fit
 
+        #Keep the best individual of the initial population
+        if(fit < min_init_fit):
+           min_init_fit = fit
+           best_ind = ind
+
       #Record of the best fitness
       self.fitness_best_record(best_ind.fitness.values[0])
 
-      print("INITIAL GENERATION (0) --> Best fitness : " + str(min(fitnesses[0])) + "\n")
+      print("INITIAL GENERATION (0) --> Best fitness : " + str(best_ind.fitness.values[0]) + "\n")
 
       #==ITERATION OVER GENERATIONS==
 
@@ -626,10 +650,10 @@ class GeneticPGCSOptimizer():
       print("========================================================================")
       print("Source file : " + str(self.get_source_file()) + "     Evaluation file : " + str(self.get_eval_file()) + "\n")
       print("  INITIAL POPULATION SIZE : "+ str(self.get_pop_size())+"\n")
-      print("  CROSSOVER RATE : "+ str(self.get_cross_proba() * 100)+"%\n")
-      print("  CROSSOVER INFORMATION RATE : "+ str(self.get_cross_info_rate() * 100)+"%\n")
-      print("  MUTATION RATE : "+ str(self.get_mutation_proba() * 100)+"%\n")
       print("  NUMBER OF GENERATION : "+ str(self.get_gen_number())+"\n")
+      print("  CROSSOVER RATE : "+ str(self.get_cross_proba() * 100)+"%     MUTATION RATE : "+ str(self.get_mutation_proba() * 100)+"%\n")
+      print("  CROSSOVER INFORMATION RATE : "+ str(self.get_cross_info_rate() * 100)+"%\n")
+      print("  DISTANCE FORMULA (COST) : "+ str(self.get_distance_formula().upper()) + "\n")
       print("========================================================================\n")
 
 

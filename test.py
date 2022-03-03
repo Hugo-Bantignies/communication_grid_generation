@@ -21,7 +21,7 @@ eval_f = "input_evaluation/chat_souris_eval.txt"
 g = Grid(source_f,randomizer = False)
 g.display()
 
-s = ['le','oiseaux','souris','le']
+s = ['le','oiseaux']
 
 c = sentence_cost(g,s,"manhattan")
 
