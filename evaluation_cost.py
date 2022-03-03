@@ -387,7 +387,90 @@ def compute_cost(input_sentence, distances, root_name):
   return result
 
 
-def grid_cost(grid,input_file,root_name = "accueil", average_option = True):
+def euclidean_dist(x1,y1,x2,y2):
+    '''Function that computes the Euclidean distance between two elements
+    :param x1: x position of the first element
+    :type: integer
+    :param y1: y position of the first element
+    :type: integer
+    :param x2: x position of the second element
+    :type: integer
+    :param y2: y position of the second element
+    :type: integer
+    :return: Euclidean distance between element 1 and element 2
+    :rtype: float
+    '''
+
+    return math.sqrt(pow((x1 - x2), 2) + pow((y1 - y2), 2))
+
+
+def manhattan_dist(x1,y1,x2,y2):
+    '''Function that computes the Manhattan distance between two elements
+    :param x1: x position of the first element
+    :type: integer
+    :param y1: y position of the first element
+    :type: integer
+    :param x2: x position of the second element
+    :type: integer
+    :param y2: y position of the second element
+    :type: integer
+    :return: Manhattan distance between element 1 and element 2
+    :rtype: intger
+    '''
+    return abs((x1 - x2)) + abs((y1 - y2))
+
+def sentence_cost(grid, sentence, distance_mode, movement_factor = 1):
+    '''Function to compute the cost of a grid (with only one main page)
+    :param grid: grid from which the cost will be computed
+    :type: class: Grid
+    :param sentence: sentence use to compute the cost
+    :type: list of string
+    :param distance_mode: way of computing the distance (euclidean or manhattan)
+    :type: string
+    :movement_factor: returns
+    :type: integer
+    :return: returns the cost of the sentence for the grid
+    :rtype: float or integer
+    '''
+
+    #Initialization
+    grid_voc = grid.get_core_voc()
+    cost = 0
+    picto_start = None
+    picto_end = None
+
+    picto_list = []
+
+    #For each word in the sentence
+    for word in sentence:
+        
+        #For each pictogram in the grid
+        for picto in grid_voc.values():
+            if(picto[0] == word):
+                picto_list.append(picto)
+                break
+
+    #For each word in the sentence
+    for i in range(len(picto_list)):
+        #Condition to not go beyond the limits
+        if(i < len(picto_list) - 1):
+            picto_start = picto_list[i]
+            picto_end = picto_list[i + 1]
+
+            if(picto_start and picto_end):
+
+                #Euclidean distance
+                if(distance_mode == "euclidean"):
+                    cost = cost + euclidean_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
+
+                #Manhattan distance
+                elif(distance_mode == "manhattan"):
+                    cost = cost + manhattan_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
+    return cost
+
+
+
+def grid_cost(grid,input_file,root_name = "accueil", average_option = True, distance_mode = "euclidean"):
 
     '''Main function to compute the cost of a given grid and a source file.
 
@@ -398,8 +481,6 @@ def grid_cost(grid,input_file,root_name = "accueil", average_option = True):
     :return: cost of the grid for the input file. 
     :rtype: float
     '''
-    #Arcs and distance generation for the given grid
-    arcs = compute_distances(grid)
     
     #The source file is a '.txt' file
     if(input_file.endswith('.txt')):
@@ -411,10 +492,12 @@ def grid_cost(grid,input_file,root_name = "accueil", average_option = True):
         n = 0
         #For each line in the file, split the line
         for line in rawFile:
+            #Line preparation
             line = line.strip()
+            line = line.split(" ")
             #Cost computation
-            result = compute_cost(line,arcs,root_name)
-            cost+=result[0][1]
+            result = sentence_cost(grid,line,distance_mode)
+            cost+=result
             n = n + 1
 
         #Return the average cost

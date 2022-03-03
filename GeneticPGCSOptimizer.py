@@ -366,7 +366,6 @@ class GeneticPGCSOptimizer():
       :return: returns the production cost of the grid
       :rtype: (float,)
       '''
-      
       return grid_cost(individual, self.get_eval_file(), average_option = self.get_cost_average()),
 
     def pgcs_crossover_swap(self,ind_x, ind_y):
