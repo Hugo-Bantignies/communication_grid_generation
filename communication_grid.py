@@ -339,8 +339,14 @@ class Page():
       :rtype: integer,integer
       '''
 
+      #End of the row
+      if(self.__last_C == self.__col_size) : 
+        self.__last_C = 0
+        self.__last_R += 1
+
       if(self.__full == False):
         return self.__last_R,self.__last_C
+        
       else:
         return -1,-1
 

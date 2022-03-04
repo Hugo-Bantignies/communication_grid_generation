@@ -1,0 +1,8 @@
+le chat
+le chien
+le dauphin
+le pingouin
+le singe
+le cheval
+le narval
+le requin

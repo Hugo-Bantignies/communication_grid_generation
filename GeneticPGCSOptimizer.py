@@ -491,16 +491,12 @@ class GeneticPGCSOptimizer():
       slot_a = random.randint(0,len(list_voc) - 1)
       slot_b = random.randint(0,len(list_voc) - 1)
 
-      #Get the two pictograms
-      picto_a = list_voc[slot_a]
-      picto_b = list_voc[slot_b]
-
       #Swap the real position of the pictogram (row,col values)
-      tmp = (picto_a[1],picto_a[2])
-      picto_a[1] = picto_b[1]
-      picto_a[2] = picto_b[2]
-      picto_b[1] = tmp[0]
-      picto_b[2] = tmp[1]
+      tmp = (list_voc[slot_a][1],list_voc[slot_a][2])
+      list_voc[slot_a][1] = list_voc[slot_b][1]
+      list_voc[slot_a][2] = list_voc[slot_b][2]
+      list_voc[slot_b][1] = tmp[0]
+      list_voc[slot_b][2] = tmp[1]
 
       #Swap the pictogram in the grid
       list_voc[slot_a], list_voc[slot_b] = list_voc[slot_b], list_voc[slot_a]

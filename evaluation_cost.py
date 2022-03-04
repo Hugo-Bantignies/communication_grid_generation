@@ -435,7 +435,7 @@ def sentence_cost(grid, sentence, distance_mode, movement_factor = 1, selection_
 
     #Initialization
     grid_voc = grid.get_core_voc()
-    cost = 1
+    cost = 0
     picto_start = None
     picto_end = None
 
@@ -462,11 +462,11 @@ def sentence_cost(grid, sentence, distance_mode, movement_factor = 1, selection_
 
                 #Euclidean distance
                 if(distance_mode == "euclidean"):
-                    cost = cost + selection_factor + euclidean_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
+                    cost = cost + euclidean_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
 
                 #Manhattan distance
                 elif(distance_mode == "manhattan"):
-                    cost = cost + selection_factor + manhattan_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
+                    cost = cost + manhattan_dist(picto_start[1],picto_start[2],picto_end[1],picto_end[2]) * movement_factor
     return cost
 
 
