@@ -1,5 +1,5 @@
 // Test
 digraph {
 	node [shape=record]
-	accueil [label="{  { <0>singe |<1>cheval |<2>chien } | { <3>pingouin |<4>le |<5>requin } | { <6>dauphin |<7>narval |<8>chat }  }"]
+	accueil [label="{  { <0>gazelle |<1>de |<2>pour |<3>nourrit |<4>froide |<5>mammifere |<6>glace |<7>sont |<8>intelligent } | { <9>mer |<10>en |<11>souris |<12>quadripede |<13>girafe |<14>est |<15>gorille |<16>animal |<17>trop } | { <18>banquise |<19>eau |<20>se |<21>une |<22>dauphin |<23>domestique |<24>un |<25>du |<26>rapide } | { <27>fromage |<28>loutre |<29>la |<30>vit |<31>poisson |<32>a |<33>etre |<34>marin |<35>peur } | { <36>froid |<37>morceau |<38>sur |<39>lionne |<40>le |<41>singe |<42>pingouin |<43>rongeur |<44>peut } | { <45>les |<46>manger |<47>chasse |<48>dans |<49>chat |<50>long |<51>terrestre |<52>et |<53>joueuse } | { <54>elle |<55>aime |<56>savane |<57>glisser |<58>avoir |<59>faim |<60>comme |<61>cou |<62>petit } | { <63>feuilles |<64>veut |<65>douce |<66>bananes |<67>des |<68>mange |<69> |<70> |<71> } | { <72> |<73> |<74> |<75> |<76> |<77> |<78> |<79> |<80> }  }"]
 }

@@ -421,39 +421,31 @@ class GeneticPGCSOptimizer():
         if(random.random() < self.get_cross_info_rate()):
 
           #Save the word and the new position of the target pictogram
-          target_word = list_voc_y[slot_y][0]
-          new_row = list_voc_y[slot_y][1]
-          new_col = list_voc_y[slot_y][2]
+          picto_y = list_voc_y[slot_y]
 
           #Find the position of this information in the first individual (x)
           i = 0
-          for picto in list_voc_x:
+          for picto_x in list_voc_x:
             #Position of the target in x is found
-            if(picto[0] == target_word):
+            if(picto_x[0] == picto_y[0]):
 
-              #Save position of the target in x
-              target_row = picto[1]
-              target_col = picto[2]
-              target_save = picto
               #Save the slot
               slot_x = i
-
-            #Position of the pictogram to swap
-            if(picto[1] == new_row and picto[2] == new_col):
-
-              picto_save = picto
 
             #Counter over the iterations
             i = i + 1
 
-          #Swap of the two pictograms positions          
-          picto_save[1] = target_row
-          picto_save[2] = target_col
-          target_save[1] = new_row
-          target_save[2] = new_col
-
           #Swap the pictogram in the grid
-          list_voc_x[slot_x], list_voc_x[slot_y] = list_voc_x[slot_y], list_voc_x[slot_x]
+          tmp_a = (list_voc_x[slot_x][0], list_voc_x[slot_x][1],list_voc_x[slot_x][2], list_voc_x[slot_x][3], list_voc_x[slot_x][4])
+
+
+          list_voc_x[slot_x][0] = list_voc_x[slot_y][0]
+          list_voc_x[slot_x][3] = list_voc_x[slot_y][3]
+          list_voc_x[slot_x][4] = list_voc_x[slot_y][4]
+
+          list_voc_x[slot_y][0] = tmp_a[0]
+          list_voc_x[slot_y][3] = tmp_a[3]
+          list_voc_x[slot_y][4] = tmp_a[4]
 
       #Store the identifiers of each pictogram
       for picto in list_voc_x:
@@ -491,15 +483,17 @@ class GeneticPGCSOptimizer():
       slot_a = random.randint(0,len(list_voc) - 1)
       slot_b = random.randint(0,len(list_voc) - 1)
 
-      #Swap the real position of the pictogram (row,col values)
-      tmp = (list_voc[slot_a][1],list_voc[slot_a][2])
-      list_voc[slot_a][1] = list_voc[slot_b][1]
-      list_voc[slot_a][2] = list_voc[slot_b][2]
-      list_voc[slot_b][1] = tmp[0]
-      list_voc[slot_b][2] = tmp[1]
+      #Swap the pictogram
+      tmp_a = (list_voc[slot_a][0], list_voc[slot_a][1],list_voc[slot_a][2], list_voc[slot_a][3], list_voc[slot_a][4])
 
-      #Swap the pictogram in the grid
-      list_voc[slot_a], list_voc[slot_b] = list_voc[slot_b], list_voc[slot_a]
+
+      list_voc[slot_a][0] = list_voc[slot_b][0]
+      list_voc[slot_a][3] = list_voc[slot_b][3]
+      list_voc[slot_a][4] = list_voc[slot_b][4]
+
+      list_voc[slot_b][0] = tmp_a[0]
+      list_voc[slot_b][3] = tmp_a[3]
+      list_voc[slot_b][4] = tmp_a[4]
 
       #Store the identifiers of each pictogram
       for picto in list_voc:
