@@ -10,6 +10,7 @@
 
 
 # %matplotlib
+from concurrent.futures import process
 from queue import Empty
 import random
 from mimetypes import init
@@ -17,6 +18,9 @@ from typing import final
 from communication_grid import Grid
 from evaluation_cost import *
 from tqdm import tqdm
+
+#Paralellization
+from multiprocessing import Queue,Process
 
 #DEAP Framework (Genetic Algorithm)
 from deap import base
@@ -629,13 +633,40 @@ class GeneticPGCSOptimizer():
 
       return Grid(best_ind.get_core_voc())
 
+    def worker(self):
+      '''Worker function that a process will launch
+      '''
+
+      #Worker will launch the genetic algorithm
+      g = self.genetic_algorithm()
+
+    def parallel_genetic_algorithm(self,proc_number = 2):
+      '''Parallel version of the genetic algorithm
+      :param proc_number: number of processes to launch
+      :type: integer
+      '''
+      processes = []
+      
+      #Creation of "proc_number" processes.
+      for i in range(proc_number):
+        processes.append(Process(target=self.worker))
+
+      #Starting all processes
+      for proc in processes:
+        proc.start()
+
+      #Waiting for all processes to finish
+      for proc in processes:
+        proc.join()
+
+      print("DEBUG : FINISHED")
 
     def display_config(self):
       '''Method to display the configuration of the optimizer
       '''
 
       #Display informations
-      print("####### Genetic Pictogram Grid Communication Optimizer ######\n")
+      print("####### Genetic Pictogram Grid Communication Optimizer #######\n")
       print("## Optimizer Parameters ##")
       print("========================================================================")
       print("Source file : " + str(self.get_source_file()) + "     Evaluation file : " + str(self.get_eval_file()) + "\n")
