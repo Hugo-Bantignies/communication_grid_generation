@@ -20,7 +20,8 @@ from evaluation_cost import *
 from tqdm import tqdm
 
 #Paralellization
-from multiprocessing import Queue,Process
+
+import multiprocessing
 
 #DEAP Framework (Genetic Algorithm)
 from deap import base
@@ -547,6 +548,7 @@ class GeneticPGCSOptimizer():
       best_gen = 0
 
       #Evaluation of the initial population
+
       fitnesses = list(map(self.__toolbox.evaluation,pop))
       min_init_fit = fitnesses[0]
 
@@ -559,8 +561,8 @@ class GeneticPGCSOptimizer():
 
         #Keep the best individual of the initial population
         if(fit < min_init_fit):
-           min_init_fit = fit
-           best_ind = ind
+          min_init_fit = fit
+          best_ind = ind
 
       #Record of the best fitness
       self.fitness_best_record(best_ind.fitness.values[0])
@@ -608,7 +610,7 @@ class GeneticPGCSOptimizer():
 
         #Evaluation of the population
         fitnesses = list(map(self.__toolbox.evaluation,invalid_ind))
-        
+          
         #Recording fitnesses
         self.fitness_history_record(fitnesses,gen)
 
@@ -627,39 +629,11 @@ class GeneticPGCSOptimizer():
 
         #Record of the best fitness
         self.fitness_best_record(best_ind.fitness.values[0])
-      
+        
       #Final best grid
       print("Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str((self.__toolbox.evaluation(best_ind))[0]))
 
       return Grid(best_ind.get_core_voc())
-
-    def worker(self):
-      '''Worker function that a process will launch
-      '''
-
-      #Worker will launch the genetic algorithm
-      g = self.genetic_algorithm()
-
-    def parallel_genetic_algorithm(self,proc_number = 2):
-      '''Parallel version of the genetic algorithm
-      :param proc_number: number of processes to launch
-      :type: integer
-      '''
-      processes = []
-      
-      #Creation of "proc_number" processes.
-      for i in range(proc_number):
-        processes.append(Process(target=self.worker))
-
-      #Starting all processes
-      for proc in processes:
-        proc.start()
-
-      #Waiting for all processes to finish
-      for proc in processes:
-        proc.join()
-
-      print("DEBUG : FINISHED")
 
     def display_config(self):
       '''Method to display the configuration of the optimizer
@@ -724,3 +698,80 @@ class GeneticPGCSOptimizer():
         raise Exception("Invalid provided option") 
       
       return history
+
+
+#===============================================
+# MULTIPROCESSING OF THE GENETIC ALGORITHM
+#===============================================
+
+def pgcs_optimization_pipeline(final_grids,params):
+  '''Function to execute the genetic_algorithm for one process
+  '''
+
+  #New genetic optimizer
+  optimizer = GeneticPGCSOptimizer(source_file = params[0],eval_file = params[1],pop_size = params[2],cross_proba = params[3],cross_info_rate = params[4],
+                                          mutation_proba = params[5], select_number = params[6], gen_number = params[7],
+                                          randomizer = params[8], cost_average = params[9], distance_formula = params[10])
+
+  #Optimization and return the best grid
+  optimal_grid = optimizer.genetic_algorithm()
+
+  #Append the grid in the best grids
+  final_grids.append(optimal_grid)
+
+
+def multiproc_genetic_pgcs_optimization(source_file, eval_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
+                                        mutation_proba = 0.5, select_number = 2, gen_number = 10, 
+                                        randomizer = True, cost_average = True, distance_formula = "euclidean",nb_proc = -1):
+  '''Function to run several times on several CPU cores the genetic algorithm
+  '''
+
+  #Manager definition                       
+  manager = multiprocessing.Manager()
+  final_grids = manager.list()
+
+  #Parameters prepration for optimizer initialization
+  parameters = [source_file,eval_file,pop_size,cross_proba,cross_info_rate,mutation_proba,select_number,
+                gen_number,randomizer,cost_average,distance_formula]
+
+  #--MULTIPROCESSING--
+
+  #Processes list initialization
+  processes = []
+
+  #Number of core and processes
+  if(nb_proc == -1):
+    cores = multiprocessing.cpu_count()
+  
+  else:
+    cores = nb_proc
+
+  #Initialization and starting the processes
+  for i in range(cores):
+    processes.append(multiprocessing.Process(target = pgcs_optimization_pipeline,args = [final_grids,parameters]))
+    processes[i].start()
+
+  #Waiting for all processes
+  for proc in processes:
+    proc.join()
+
+
+  #--EVALUATION--
+
+  #Best grid initialization
+  best_cost = grid_cost(final_grids[0],eval_file, average_option = cost_average, distance_mode = distance_formula)
+  best_grid = final_grids[0]
+
+  #Looking for the best grid
+  for i in range(1,len(final_grids)):
+
+    #Computation of the cost
+    cost = grid_cost(final_grids[i],eval_file, average_option = cost_average, distance_mode = distance_formula)
+
+    #The cost is lower than the current best cost
+    if(cost < best_cost):
+      best_cost = cost
+      best_grid = final_grids[i]
+
+  #Return the best grid and its cost
+  return best_grid,best_cost    

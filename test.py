@@ -8,34 +8,19 @@
 #!python -m pip install nbconvert -U
 #coding=utf-8
 
-from GeneticPGCSOptimizer import GeneticPGCSOptimizer
+from random import random
+import GeneticPGCSOptimizer as go
 from communication_grid import Grid
 import matplotlib.pyplot as plt
-import multiprocessing
 from utils import *
 
-source_f = "training_corpora/lilou1_hua.txt"
-eval_f = "evaluation_corpora/lilou1_hua.txt"
-
-def optimal_grid():
-    g = opti1.genetic_algorithm()
-    print(g)
-
-def launch_parallell():
-    p1 = multiprocessing.Process(target=optimal_grid)
-    p2 = multiprocessing.Process(target=optimal_grid)
-    p1.start()
-    p2.start()
-
-    p1.join()
-    p2.join()
-
-#New genetic optimizer
-opti1 = GeneticPGCSOptimizer(source_f,eval_f,pop_size = 200,gen_number = 100,select_number = 10,
-                                         randomizer = True, cross_proba = 0.5, cross_info_rate = 0.5,
-                                         mutation_proba = 0.5, cost_average = False, distance_formula = "euclidean")
-
+source_f = "training_corpora/animals_corpus.txt"
+eval_f = "evaluation_corpora/animals_eval.txt"
 
 if __name__ == '__main__':
-    #Starting the genetic algorithm of our optimizer
-    opti1.parallel_genetic_algorithm()
+    g,cost = go.multiproc_genetic_pgcs_optimization(source_f,eval_f,pop_size = 100, select_number = 30,
+                                           gen_number = 200, randomizer = True, distance_formula = "euclidean",
+                                           cost_average = False)
+
+    print("Best cost : ",cost)
+    g.display()
