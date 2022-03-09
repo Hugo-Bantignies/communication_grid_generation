@@ -21,7 +21,7 @@ from tqdm import tqdm
 
 #Paralellization
 
-import multiprocessing
+import multiprocessing as mp
 
 #DEAP Framework (Genetic Algorithm)
 from deap import base
@@ -29,7 +29,7 @@ from deap import creator
 from deap import tools
 
 
-class GeneticPGCSOptimizer():
+class SingleGeneticPGCSOptimizer():
     '''Object that will compute an optimized grid from an initial grid using 
        an Evolutionary Algorithm (Genetic Algorithm) for a Pictogram Grid Communication System (PGCS)
 
@@ -117,9 +117,6 @@ class GeneticPGCSOptimizer():
 
         #Genetic operations initialization
         self.init_operations()
-      
-        #Display the configuration of the optimizer
-        self.display_config()
 
     def get_source_file(self):
       '''Getter for the source file
@@ -531,7 +528,7 @@ class GeneticPGCSOptimizer():
       self.__toolbox.register("mutation",self.pgcs_mutation_swap)
   
 
-    def genetic_algorithm(self):
+    def single_genetic_algorithm(self):
       '''Method that will use a genetic algorithm to generate an optimal grid starting from a random generation.
 
       :return: Returns the best individual of the last generation (optimized grid)
@@ -567,7 +564,7 @@ class GeneticPGCSOptimizer():
       #Record of the best fitness
       self.fitness_best_record(best_ind.fitness.values[0])
 
-      print("INITIAL GENERATION (0) --> Best fitness : " + str(best_ind.fitness.values[0]) + "\n")
+      #print("DEBUG : INITIAL GENERATION (0) --> Best fitness : " + str(best_ind.fitness.values[0]) + "\n")
 
       #==ITERATION OVER GENERATIONS==
 
@@ -631,26 +628,9 @@ class GeneticPGCSOptimizer():
         self.fitness_best_record(best_ind.fitness.values[0])
         
       #Final best grid
-      print("Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str((self.__toolbox.evaluation(best_ind))[0]))
+      #print("DEBUG : Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str((self.__toolbox.evaluation(best_ind))[0]))
 
       return Grid(best_ind.get_core_voc())
-
-    def display_config(self):
-      '''Method to display the configuration of the optimizer
-      '''
-
-      #Display informations
-      print("####### Genetic Pictogram Grid Communication Optimizer #######\n")
-      print("## Optimizer Parameters ##")
-      print("========================================================================")
-      print("Source file : " + str(self.get_source_file()) + "     Evaluation file : " + str(self.get_eval_file()) + "\n")
-      print("  INITIAL POPULATION SIZE : "+ str(self.get_pop_size())+"\n")
-      print("  NUMBER OF GENERATION : "+ str(self.get_gen_number())+"\n")
-      print("  CROSSOVER RATE : "+ str(self.get_cross_proba() * 100)+"%     MUTATION RATE : "+ str(self.get_mutation_proba() * 100)+"%\n")
-      print("  CROSSOVER INFORMATION RATE : "+ str(self.get_cross_info_rate() * 100)+"%\n")
-      print("  DISTANCE FORMULA (COST) : "+ str(self.get_distance_formula().upper()) + "\n")
-      print("========================================================================\n")
-
 
     def fitness_history(self,option = "best"):
       '''Methods returning the fitness history depending on the request from the user (parameters)
@@ -704,74 +684,169 @@ class GeneticPGCSOptimizer():
 # MULTIPROCESSING OF THE GENETIC ALGORITHM
 #===============================================
 
-def pgcs_optimization_pipeline(final_grids,params):
-  '''Function to execute the genetic_algorithm for one process
-  '''
 
-  #New genetic optimizer
-  optimizer = GeneticPGCSOptimizer(source_file = params[0],eval_file = params[1],pop_size = params[2],cross_proba = params[3],cross_info_rate = params[4],
-                                          mutation_proba = params[5], select_number = params[6], gen_number = params[7],
-                                          randomizer = params[8], cost_average = params[9], distance_formula = params[10])
+class GeneticPGCSOptimizer():
+    '''Object that will compute an optimized grid from an initial grid using 
+       an Evolutionary Algorithm (Genetic Algorithm) for a Pictogram Grid Communication System (PGCS)
 
-  #Optimization and return the best grid
-  optimal_grid = optimizer.genetic_algorithm()
+    :source_file: source_file name from the one the optimizer will generate an optimal grid (`.txt`,`.csv`, Augcom)
+    :type source_file: string
+    :eval_file: evalutation file name to evaluate the generated grids.
+    :type source_file: string
+    :pop_size: size of the initial population, optional (10 by default)
+    :type pop_size: integer
+    :cross_proba: probability of having a crossover between two individuals, optional (0.5 by default)
+    :type cross_proba: float ([0,1])
+    :cross_info_rate: rate of information the selected individual will provide to the child after a crossover, optional (0.5 by default)
+    :type cross_info_rate: float ([0,1])
+    :mutation_proba: probability of having a mutation for one individual, optional (0.5 by default)
+    :type mutation_proba: float ([0,1])
+    :select_number: number of individual to select during the selection, optional (2 by default)
+    :type select_number: integer
+    :gen_number: number of generation the optimizer will process, optional (10 by default)
+    :type gen_number: integer
+    :randomizer: if True, the initial population of the grid will contain random grids, else the grids will follow the source_file, optional (True by default)
+    :type gen_number: boolean
+    :cost_average: if True, the computed cost will be the average of the sum of the costs, 
+                   else the computed cost will be the sum of the costs, optional (True by default)
+    :type cost_average: boolean
+    :distance_formula: formula the optimizer will use to compute the cost, optional ("euclidean" by default)
+                       available formulas : "euclidean", "manhattan"
+    '''
+    
+    def __init__(self, source_file, eval_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
+                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, cost_average = True,
+                 distance_formula = "euclidean", nb_proc = -1):
+        '''Constructor
+        '''
 
-  #Append the grid in the best grids
-  final_grids.append(optimal_grid)
+        self.__source_file = source_file
+        
+        #The evaluation file has to be a .txt file.
+        if(eval_file.endswith('.txt')):
+            self.__eval_file = eval_file
+
+        #File format not accepted
+        else:
+            raise Exception("Not accepted evaluation file format !")
+
+        self.__pop_size = pop_size
+
+        #Check the cross probability is between 0 and 1
+        if(cross_proba < 0 or cross_proba > 1):
+            raise Exception("Unexpected crossover probability (not between 0 and 1) !")
+        self.__cross_proba = cross_proba
+
+        #Check the cross rate is between 0 and 1
+        if(cross_info_rate < 0 or cross_info_rate > 1):
+            raise Exception("Unexpected crossover information rate (not between 0 and 1) !") 
+        self.__cross_info_rate = cross_info_rate
+
+        #Check the mutation probability is between 0 and 1
+        if(mutation_proba < 0 or mutation_proba > 1):
+            raise Exception("Unexpected mutation probability (not between 0 and 1) !") 
+        self.__mutation_proba = mutation_proba
+
+        self.__select_number = select_number
+
+        self.__gen_number = gen_number
+
+        self.__randomizer = randomizer
+
+        self.__cost_average = cost_average
+
+        #Check the distance formula the optimizer will use to compute the cost
+        if(distance_formula != "euclidean" and distance_formula != "manhattan"):
+          raise Exception("Unexpected distance fomula (euclidean or manhattan) !")
+        self.__distance_formula = distance_formula
+
+        if(nb_proc == -1):
+          self.__nb_proc = mp.cpu_count()
+        else:
+          self.__nb_proc = nb_proc
+
+        self.display_config()
+
+    def pgcs_optimization_pipeline(self,final_grids):
+      '''Function to execute the genetic_algorithm for one process
+      '''
+
+      #New genetic optimizer
+      optimizer = SingleGeneticPGCSOptimizer(source_file = self.__source_file,eval_file = self.__eval_file,pop_size = self.__pop_size,
+                                       cross_proba = self.__cross_proba,cross_info_rate = self.__cross_info_rate,
+                                       mutation_proba = self.__mutation_proba, select_number = self.__select_number, gen_number = self.__gen_number,
+                                       randomizer = self.__randomizer, cost_average = self.__cost_average, distance_formula = self.__distance_formula)
+
+      #Optimization and return the best grid
+      optimal_grid = optimizer.single_genetic_algorithm()
+
+      #Append the grid in the best grids
+
+      return optimal_grid
 
 
-def multiproc_genetic_pgcs_optimization(source_file, eval_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
-                                        mutation_proba = 0.5, select_number = 2, gen_number = 10, 
-                                        randomizer = True, cost_average = True, distance_formula = "euclidean",nb_proc = -1):
-  '''Function to run several times on several CPU cores the genetic algorithm
-  '''
+    def genetic_pgcs_optimization(self):
+      '''Function to run several times on several CPU cores the genetic algorithm
+      '''
 
-  #Manager definition                       
-  manager = multiprocessing.Manager()
-  final_grids = manager.list()
+      #Manager definition                       
+      manager = mp.Manager()
+      #final_grids = manager.list()
 
-  #Parameters prepration for optimizer initialization
-  parameters = [source_file,eval_file,pop_size,cross_proba,cross_info_rate,mutation_proba,select_number,
-                gen_number,randomizer,cost_average,distance_formula]
+      pids = []
+      for i in range(self.__nb_proc):
+        pids.append(i)
 
-  #--MULTIPROCESSING--
+      #--MULTIPROCESSING--
 
-  #Processes list initialization
-  processes = []
+      #Pool creation
+      pool = mp.Pool(self.__nb_proc)
 
-  #Number of core and processes
-  if(nb_proc == -1):
-    cores = multiprocessing.cpu_count()
-  
-  else:
-    cores = nb_proc
+      #Pool starting
+      final_grids = list(tqdm(pool.imap(func = self.pgcs_optimization_pipeline,iterable = pids),total = self.__nb_proc,desc = "** Optimization **"))
 
-  #Initialization and starting the processes
-  for i in range(cores):
-    processes.append(multiprocessing.Process(target = pgcs_optimization_pipeline,args = [final_grids,parameters]))
-    processes[i].start()
+      #End of the pool
+      pool.close()
+      pool.join()
 
-  #Waiting for all processes
-  for proc in processes:
-    proc.join()
+      #--EVALUATION--
+
+      #Best grid initialization
+      best_cost = grid_cost(final_grids[0],self.__eval_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
+      best_grid = final_grids[0]
+
+      #Looking for the best grid
+      for i in range(1,len(final_grids)):
+
+        #Computation of the cost
+        cost = grid_cost(final_grids[i],self.__eval_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
+
+        #The cost is lower than the current best cost
+        if(cost < best_cost):
+          best_cost = cost
+          best_grid = final_grids[i]
+
+      #Return the best grid and its cost
+      return best_grid,best_cost    
 
 
-  #--EVALUATION--
+    def display_config(self):
+      '''Method to display the configuration of the optimizer
+      '''
 
-  #Best grid initialization
-  best_cost = grid_cost(final_grids[0],eval_file, average_option = cost_average, distance_mode = distance_formula)
-  best_grid = final_grids[0]
-
-  #Looking for the best grid
-  for i in range(1,len(final_grids)):
-
-    #Computation of the cost
-    cost = grid_cost(final_grids[i],eval_file, average_option = cost_average, distance_mode = distance_formula)
-
-    #The cost is lower than the current best cost
-    if(cost < best_cost):
-      best_cost = cost
-      best_grid = final_grids[i]
-
-  #Return the best grid and its cost
-  return best_grid,best_cost    
+      #Display informations
+      print("####### Genetic Pictogram Grid Communication Optimizer #######\n")
+      print("## Optimizer Parameters ##")
+      print("========================================================================")
+      print("------------------------------------------------------------------------")
+      print("Source file : " + str(self.__source_file) + "     Evaluation file : " + str(self.__eval_file))
+      print("------------------------------------------------------------------------")
+      print("  INITIAL POPULATION SIZE : "+ str(self.__pop_size)+"\n")
+      print("  NUMBER OF GENERATION : "+ str(self.__gen_number)+"\n")
+      print("  CROSSOVER RATE : "+ str(self.__cross_proba * 100)+"%     MUTATION RATE : "+ str(self.__mutation_proba * 100)+"%\n")
+      print("  CROSSOVER INFORMATION RATE : "+ str(self.__cross_info_rate * 100)+"%\n")
+      print("  DISTANCE FORMULA (COST) : "+ str(self.__distance_formula.upper()))
+      print("------------------------------------------------------------------------")
+      print("  NUMBER OF PROCESSES : "+ str(self.__nb_proc))
+      print("------------------------------------------------------------------------")
+      print("========================================================================\n")

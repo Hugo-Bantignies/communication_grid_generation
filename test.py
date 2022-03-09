@@ -8,7 +8,6 @@
 #!python -m pip install nbconvert -U
 #coding=utf-8
 
-from random import random
 import GeneticPGCSOptimizer as go
 from communication_grid import Grid
 import matplotlib.pyplot as plt
@@ -18,9 +17,11 @@ source_f = "training_corpora/animals_corpus.txt"
 eval_f = "evaluation_corpora/animals_eval.txt"
 
 if __name__ == '__main__':
-    g,cost = go.multiproc_genetic_pgcs_optimization(source_f,eval_f,pop_size = 100, select_number = 30,
-                                           gen_number = 200, randomizer = True, distance_formula = "euclidean",
+    optimizer = go.GeneticPGCSOptimizer(source_f,eval_f,pop_size = 150, select_number = 30,
+                                           gen_number = 100, randomizer = True, distance_formula = "euclidean",
                                            cost_average = False)
 
-    print("Best cost : ",cost)
-    g.display()
+    optimal_grid,cost = optimizer.genetic_pgcs_optimization()
+
+    print("\n BEST COST : ",cost)
+    optimal_grid.display()
