@@ -528,9 +528,11 @@ class SingleGeneticPGCSOptimizer():
       self.__toolbox.register("mutation",self.pgcs_mutation_swap)
   
 
-    def single_genetic_algorithm(self):
+    def single_genetic_algorithm(self,pid):
       '''Method that will use a genetic algorithm to generate an optimal grid starting from a random generation.
 
+      :param pid: Process id
+      :type: integer
       :return: Returns the best individual of the last generation (optimized grid)
       :rtype: class: Grid
       '''
@@ -569,7 +571,8 @@ class SingleGeneticPGCSOptimizer():
       #==ITERATION OVER GENERATIONS==
 
       #Iterative process : For each generation
-      for gen in tqdm(range(1,self.get_gen_number()+1),desc = "** Optimization **",unit = "generation"):
+      #for gen in tqdm(range(1,self.get_gen_number()+1),desc = "Process : "+str(pid),unit = "generation",position = pid):
+      for gen in range(1,self.get_gen_number()+1):
 
         #--SELECTION--
 
@@ -767,7 +770,44 @@ class GeneticPGCSOptimizer():
 
         self.display_config()
 
-    def pgcs_optimization_pipeline(self,final_grids):
+    def optimal_grid(self,final_results):
+      '''Function to get the best grid at the end of the optimization from all processes.
+      '''
+
+      #--EVALUATION--
+
+      #Best grid initialization
+      best_cost = grid_cost(final_results[0][0],self.__eval_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
+      best_grid = final_results[0][0]
+
+      #Looking for the best grid
+      for i in range(1,len(final_results)):
+
+        #Computation of the cost
+        cost = grid_cost(final_results[i][0],self.__eval_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
+
+        #The cost is lower than the current best cost
+        if(cost < best_cost):
+          best_cost = cost
+          best_grid = final_results[i][0]
+
+      #Return the best grid and its cost
+      return best_grid,best_cost 
+    
+    def best_history(self):
+      '''Function to get the history of the best grid from each process'''
+      
+      #List of all histories
+      best_history = []
+
+      #For each process, get the history of the best grid
+      for i in range(len(self.__final_results)):
+        best_history.append(self.__final_results[i][1])
+      
+      return best_history
+      
+
+    def pgcs_optimization_pipeline(self,pid):
       '''Function to execute the genetic_algorithm for one process
       '''
 
@@ -778,21 +818,22 @@ class GeneticPGCSOptimizer():
                                        randomizer = self.__randomizer, cost_average = self.__cost_average, distance_formula = self.__distance_formula)
 
       #Optimization and return the best grid
-      optimal_grid = optimizer.single_genetic_algorithm()
+      optimal_grid = optimizer.single_genetic_algorithm(pid)
+      best_hist  = optimizer.fitness_history(option="only_best")
 
       #Append the grid in the best grids
 
-      return optimal_grid
+      return optimal_grid,best_hist
 
 
     def genetic_pgcs_optimization(self):
       '''Function to run several times on several CPU cores the genetic algorithm
       '''
 
-      #Manager definition                       
-      manager = mp.Manager()
-      #final_grids = manager.list()
+      # Windows support
+      mp.freeze_support()
 
+      #Processes id
       pids = []
       for i in range(self.__nb_proc):
         pids.append(i)
@@ -800,34 +841,17 @@ class GeneticPGCSOptimizer():
       #--MULTIPROCESSING--
 
       #Pool creation
-      pool = mp.Pool(self.__nb_proc)
+      pool = mp.Pool(self.__nb_proc,initargs=(mp.RLock(),), initializer=tqdm.set_lock)
 
       #Pool starting
-      final_grids = list(tqdm(pool.imap(func = self.pgcs_optimization_pipeline,iterable = pids),total = self.__nb_proc,desc = "** Optimization **"))
+      self.__final_results = list(pool.imap(func = self.pgcs_optimization_pipeline,iterable = pids))
 
       #End of the pool
       pool.close()
       pool.join()
 
-      #--EVALUATION--
-
-      #Best grid initialization
-      best_cost = grid_cost(final_grids[0],self.__eval_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
-      best_grid = final_grids[0]
-
-      #Looking for the best grid
-      for i in range(1,len(final_grids)):
-
-        #Computation of the cost
-        cost = grid_cost(final_grids[i],self.__eval_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
-
-        #The cost is lower than the current best cost
-        if(cost < best_cost):
-          best_cost = cost
-          best_grid = final_grids[i]
-
-      #Return the best grid and its cost
-      return best_grid,best_cost    
+      #Get the best grid within results from all processes. 
+      return self.optimal_grid(self.__final_results)
 
 
     def display_config(self):

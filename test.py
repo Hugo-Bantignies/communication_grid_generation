@@ -21,7 +21,7 @@ if __name__ == '__main__':
                                            gen_number = 100, randomizer = True, distance_formula = "euclidean",
                                            cost_average = False)
 
-    optimal_grid,cost = optimizer.genetic_pgcs_optimization()
+    optimal_grid,cost,best_hist = optimizer.genetic_pgcs_optimization()
 
     print("\n BEST COST : ",cost)
     optimal_grid.display()
