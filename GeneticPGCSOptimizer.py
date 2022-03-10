@@ -748,7 +748,7 @@ class GeneticPGCSOptimizer():
       return best_grid,best_cost 
     
     def fitness_history(self,option = "only_best"):
-      '''Methods returning the fitness history depending on the request from the user (parameters)
+      '''Methods returning the fitness history depending on the request from the user (parameters) for each process.
 
       :param option: Option to know what the history will contain, optional ("best" by default)
       Possible options : "gen_best", "only_best", "average", "all"
@@ -766,7 +766,7 @@ class GeneticPGCSOptimizer():
           history.append(self.__final_results[i][1])
 
       #For each process, get the average history
-      if(option == "average"):
+      elif(option == "average"):
         for i in range(len(self.__final_results)):
 
           #History of one process
@@ -783,7 +783,7 @@ class GeneticPGCSOptimizer():
           history.append(process_history)
 
       #For each process, get the average history
-      if(option == "gen_best"):
+      elif(option == "gen_best"):
         for i in range(len(self.__final_results)):
 
           #History of one process
@@ -817,7 +817,7 @@ class GeneticPGCSOptimizer():
 
       #Optimization and return the best grid
       optimal_grid = optimizer.single_genetic_algorithm(pid)
-      best_hist  = optimizer.fitness_history(option="only_best")
+      best_hist  = optimizer.get_best_history()
       history = optimizer.get_fitness_history()
 
       #Append the grid in the best grids
