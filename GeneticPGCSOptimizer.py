@@ -571,8 +571,8 @@ class SingleGeneticPGCSOptimizer():
       #==ITERATION OVER GENERATIONS==
 
       #Iterative process : For each generation
-      #for gen in tqdm(range(1,self.get_gen_number()+1),desc = "Process : "+str(pid),unit = "generation",position = pid):
-      for gen in range(1,self.get_gen_number()+1):
+      for gen in tqdm(range(1,self.get_gen_number()+1),desc = "Process : "+str(pid),unit = "generation",position = pid):
+      #for gen in range(1,self.get_gen_number()+1):
 
         #--SELECTION--
 
@@ -634,53 +634,6 @@ class SingleGeneticPGCSOptimizer():
       #print("DEBUG : Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str((self.__toolbox.evaluation(best_ind))[0]))
 
       return Grid(best_ind.get_core_voc())
-
-    def fitness_history(self,option = "best"):
-      '''Methods returning the fitness history depending on the request from the user (parameters)
-
-      :param option: Option to know what the history will contain, optional ("best" by default)
-      Possible options : "gen_best", "only_best", "average", "all"
-      :type: string
-      :return: Returns the prepared history depending of the options and the request from the user.
-      :rtype: list
-      '''
-
-      #Initialization of the history
-      history = []
-
-      #Prepare the best fitness from each generation
-      if(option == "gen_best"):
-        for fitnesses in self.get_fitness_history().values():
-          #Append the best fitness for each generation in the history to return (if the list is not empty)
-          if(fitnesses):
-            history.append(min(fitnesses)[0])
-
-      #Prepare the best fitness evolution
-      elif(option == "only_best"):
-        #Append all recorded fitnesses.
-        for fitness in self.get_best_history():
-          if(fitness):
-            history.append(fitness)
-
-      #Prepare the average fitness from each generation
-      elif(option == "average"):
-        for fitnesses in self.get_fitness_history().values():
-          #Append the average of the fitness for the generation in the history to return (if the list is not empty)
-          if(fitnesses):
-            history.append((sum(fitnesses[0]) / len(fitnesses[0])))
-
-      #Prepare all fitnesses from each generation
-      elif(option == "all"):
-        for fitnesses in self.get_fitness_history().values():
-          #Append all fitnesses for the generation in the history to return (if the list is not empty)
-          if(fitnesses):
-            for fitness in fitnesses:
-              history.append(fitness[0])
-
-      else:
-        raise Exception("Invalid provided option") 
-      
-      return history
 
 
 #===============================================
@@ -794,17 +747,62 @@ class GeneticPGCSOptimizer():
       #Return the best grid and its cost
       return best_grid,best_cost 
     
-    def best_history(self):
-      '''Function to get the history of the best grid from each process'''
+    def fitness_history(self,option = "only_best"):
+      '''Methods returning the fitness history depending on the request from the user (parameters)
+
+      :param option: Option to know what the history will contain, optional ("best" by default)
+      Possible options : "gen_best", "only_best", "average", "all"
+      :type: string
+      :return: Returns the prepared history depending of the options and the request from the user.
+      :rtype: list
+      '''
       
       #List of all histories
-      best_history = []
+      history = []
 
-      #For each process, get the history of the best grid
-      for i in range(len(self.__final_results)):
-        best_history.append(self.__final_results[i][1])
-      
-      return best_history
+      #For each process, get the best history
+      if(option == "only_best"):
+        for i in range(len(self.__final_results)):
+          history.append(self.__final_results[i][1])
+
+      #For each process, get the average history
+      if(option == "average"):
+        for i in range(len(self.__final_results)):
+
+          #History of one process
+          process_history = []
+
+          #Get the history of the process i
+          tmp_hist = self.__final_results[i][2]
+
+          for fitness in tmp_hist.values():
+            #Append the average of the fitness for the generation in the history to return (if the list is not empty)
+            if(fitness):
+              process_history.append((sum(fitness[0]) / len(fitness[0])))
+
+          history.append(process_history)
+
+      #For each process, get the average history
+      if(option == "gen_best"):
+        for i in range(len(self.__final_results)):
+
+          #History of one process
+          process_history = []
+
+          #Get the history of the process i
+          tmp_hist = self.__final_results[i][2]
+
+          for fitness in tmp_hist.values():
+          #Append the best fitness for each generation in the history to return (if the list is not empty)
+            if(fitness):
+              process_history.append(min(fitness)[0])
+
+          history.append(process_history)
+
+      else:
+        raise Exception("Invalid provided option") 
+
+      return history
       
 
     def pgcs_optimization_pipeline(self,pid):
@@ -820,10 +818,11 @@ class GeneticPGCSOptimizer():
       #Optimization and return the best grid
       optimal_grid = optimizer.single_genetic_algorithm(pid)
       best_hist  = optimizer.fitness_history(option="only_best")
+      history = optimizer.get_fitness_history()
 
       #Append the grid in the best grids
 
-      return optimal_grid,best_hist
+      return optimal_grid,best_hist,history
 
 
     def genetic_pgcs_optimization(self):
