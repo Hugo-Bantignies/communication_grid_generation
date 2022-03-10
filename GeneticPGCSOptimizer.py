@@ -10,8 +10,7 @@
 
 
 # %matplotlib
-from concurrent.futures import process
-from queue import Empty
+import sys
 import random
 from mimetypes import init
 from typing import final
@@ -35,7 +34,7 @@ class SingleGeneticPGCSOptimizer():
 
     :source_file: source_file name from the one the optimizer will generate an optimal grid (`.txt`,`.csv`, Augcom)
     :type source_file: string
-    :eval_file: evalutation file name to evaluate the generated grids.
+    :training_file: training file name to train the optimization of the grid.
     :type source_file: string
     :pop_size: size of the initial population, optional (10 by default)
     :type pop_size: integer
@@ -61,7 +60,7 @@ class SingleGeneticPGCSOptimizer():
     :type fitness_history: dict
     '''
     
-    def __init__(self, source_file, eval_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
+    def __init__(self, source_file, training_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
                  mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, cost_average = True, distance_formula = "euclidean"):
         '''Constructor
         '''
@@ -69,8 +68,8 @@ class SingleGeneticPGCSOptimizer():
         self.__source_file = source_file
         
         #The evaluation file has to be a .txt file.
-        if(eval_file.endswith('.txt')):
-            self.__eval_file = eval_file
+        if(training_file.endswith('.txt')):
+            self.__training_file = training_file
 
         #File format not accepted
         else:
@@ -127,14 +126,14 @@ class SingleGeneticPGCSOptimizer():
 
       return self.__source_file
 
-    def get_eval_file(self):
+    def get_training_file(self):
       '''Getter for the evaluation file
       
       :return: Returns the evaluation file name given as input
       :rtype: string
       '''
 
-      return self.__eval_file
+      return self.__training_file
 
     def get_pop_size(self):
       '''Getter for the size of the initial population
@@ -386,7 +385,7 @@ class SingleGeneticPGCSOptimizer():
       :return: returns the production cost of the grid
       :rtype: (float,)
       '''
-      return grid_cost(individual, self.get_eval_file(), average_option = self.get_cost_average(), distance_mode = self.get_distance_formula()),
+      return grid_cost(individual, self.get_training_file(), average_option = self.get_cost_average(), distance_mode = self.get_distance_formula()),
 
     def pgcs_crossover_swap(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
@@ -647,7 +646,7 @@ class GeneticPGCSOptimizer():
 
     :source_file: source_file name from the one the optimizer will generate an optimal grid (`.txt`,`.csv`, Augcom)
     :type source_file: string
-    :eval_file: evalutation file name to evaluate the generated grids.
+    :training_file: evalutation file name to evaluate the generated grids.
     :type source_file: string
     :pop_size: size of the initial population, optional (10 by default)
     :type pop_size: integer
@@ -670,7 +669,7 @@ class GeneticPGCSOptimizer():
                        available formulas : "euclidean", "manhattan"
     '''
     
-    def __init__(self, source_file, eval_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
+    def __init__(self, source_file, training_file, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
                  mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, cost_average = True,
                  distance_formula = "euclidean", nb_proc = -1):
         '''Constructor
@@ -679,8 +678,8 @@ class GeneticPGCSOptimizer():
         self.__source_file = source_file
         
         #The evaluation file has to be a .txt file.
-        if(eval_file.endswith('.txt')):
-            self.__eval_file = eval_file
+        if(training_file.endswith('.txt')):
+            self.__training_file = training_file
 
         #File format not accepted
         else:
@@ -730,14 +729,14 @@ class GeneticPGCSOptimizer():
       #--EVALUATION--
 
       #Best grid initialization
-      best_cost = grid_cost(final_results[0][0],self.__eval_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
+      best_cost = grid_cost(final_results[0][0],self.__training_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
       best_grid = final_results[0][0]
 
       #Looking for the best grid
       for i in range(1,len(final_results)):
 
         #Computation of the cost
-        cost = grid_cost(final_results[i][0],self.__eval_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
+        cost = grid_cost(final_results[i][0],self.__training_file, average_option = self.__cost_average, distance_mode = self.__distance_formula)
 
         #The cost is lower than the current best cost
         if(cost < best_cost):
@@ -810,7 +809,7 @@ class GeneticPGCSOptimizer():
       '''
 
       #New genetic optimizer
-      optimizer = SingleGeneticPGCSOptimizer(source_file = self.__source_file,eval_file = self.__eval_file,pop_size = self.__pop_size,
+      optimizer = SingleGeneticPGCSOptimizer(source_file = self.__source_file,training_file = self.__training_file,pop_size = self.__pop_size,
                                        cross_proba = self.__cross_proba,cross_info_rate = self.__cross_info_rate,
                                        mutation_proba = self.__mutation_proba, select_number = self.__select_number, gen_number = self.__gen_number,
                                        randomizer = self.__randomizer, cost_average = self.__cost_average, distance_formula = self.__distance_formula)
@@ -836,7 +835,7 @@ class GeneticPGCSOptimizer():
       pids = []
       for i in range(self.__nb_proc):
         pids.append(i)
-
+        
       #--MULTIPROCESSING--
 
       #Pool creation
@@ -862,7 +861,7 @@ class GeneticPGCSOptimizer():
       print("## Optimizer Parameters ##")
       print("========================================================================")
       print("------------------------------------------------------------------------")
-      print("Source file : " + str(self.__source_file) + "     Evaluation file : " + str(self.__eval_file))
+      print("Source file : " + str(self.__source_file) + "     Training file : " + str(self.__training_file))
       print("------------------------------------------------------------------------")
       print("  INITIAL POPULATION SIZE : "+ str(self.__pop_size)+"\n")
       print("  NUMBER OF GENERATION : "+ str(self.__gen_number)+"\n")
@@ -873,3 +872,6 @@ class GeneticPGCSOptimizer():
       print("  NUMBER OF PROCESSES : "+ str(self.__nb_proc))
       print("------------------------------------------------------------------------")
       print("========================================================================\n")
+
+def test(file):
+    return 1

@@ -21,6 +21,8 @@ from networkx import *
 
 from utils import *
 
+import csv
+
 class Pictogram:
     '''Object that will be stored in a slot. It contains several informations.
 
@@ -871,6 +873,26 @@ class Grid():
 
   # PRINT AND DISPLAY METHODS OF THE GRID
   #--------------------------------------------------------------
+
+
+  def to_csv(self):
+
+    #Opening the csv file
+    f = open("default.csv","w",encoding = "utf-8",newline = '')
+
+    #Initialization of the writer
+    writer = csv.writer(f)
+    
+    #Get the vocabulary (the grid)
+    header = ['word','row','col','page','identifier']
+    writer.writerow(header)
+    voc = self.get_core_voc()
+
+    #Write each row
+    for picto in voc.values():
+      writer.writerow(picto)
+    
+    f.close()
 
   def to_graph(self):
     '''Génére un graphe décrivant la structure de la grille

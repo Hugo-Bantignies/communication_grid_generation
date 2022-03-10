@@ -18,10 +18,12 @@ eval_f = "evaluation_corpora/animals_eval.txt"
 
 if __name__ == '__main__':
     optimizer = go.GeneticPGCSOptimizer(source_f,eval_f,pop_size = 150, select_number = 30,
-                                           gen_number = 100, randomizer = True, distance_formula = "euclidean",
-                                           cost_average = False)
+                                           gen_number = 10, randomizer = True, distance_formula = "euclidean",
+                                           cost_average = False,nb_proc = 2)
 
-    optimal_grid,cost,best_hist = optimizer.genetic_pgcs_optimization()
+    optimal_grid,cost = optimizer.genetic_pgcs_optimization()
 
     print("\n BEST COST : ",cost)
     optimal_grid.display()
+
+    optimal_grid.to_csv()
