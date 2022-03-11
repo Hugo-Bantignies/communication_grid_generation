@@ -314,7 +314,7 @@ class SingleGeneticPGCSOptimizer():
       self.toolbox.register("mutation",self.pgcs_mutation_swap)
   
 
-    def single_genetic_algorithm(self,pid):
+    def genetic_algorithm(self,pid):
       '''Method that will use a genetic algorithm to generate an optimal grid starting from a random generation.
 
       :param pid: Process id
@@ -601,7 +601,7 @@ class GeneticPGCSOptimizer():
                                        randomizer = self.randomizer, cost_average = self.cost_average, distance_formula = self.distance_formula)
 
       #Optimization and return the best grid
-      optimal_grid = optimizer.single_genetic_algorithm(pid)
+      optimal_grid = optimizer.genetic_algorithm(pid)
       best_hist  = optimizer.best_history
       history = optimizer.fitness_history
 
