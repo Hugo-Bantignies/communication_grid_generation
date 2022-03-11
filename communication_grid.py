@@ -42,54 +42,11 @@ class Pictogram:
       '''Constructor
       '''
 
-      self.__word = copy.copy(word)
-      self.__row = row
-      self.__col = col
-      self.__page_name = page_name
-      self.__id = id
-
-    def get_word(self):
-      '''Getter for word
-      
-      :return: Returns the corresponding word of the pictogram
-      :rtype: string
-      '''
-
-      return self.__word
-    
-    def get_row(self):
-      '''Getter for row
-      
-      :return: Returns the row position of the pictogram in its page
-      :rtype: integer
-      '''
-
-      return self.__row
-
-    def get_col(self):
-      '''Getter for col
-      
-      :return: Returns the col position of the pictogram in its page
-      :rtype: integer
-      '''
-
-      return self.__col
-    
-    def get_page_name(self):
-      '''Getter for page name
-      
-      :return: Returns the name of the corresponding page of the pictogram
-      :rtype: string
-      '''
-      return self.__page_name
-
-    def get_id(self):
-      '''Getter for the identifier of the pictogram
-      
-      :return: Returns the id of the pictogram
-      :rtype: integer
-      '''
-      return self.__id
+      self.word = copy.copy(word)
+      self.row = row
+      self.col = col
+      self.page_name = page_name
+      self.id = id
 
     def get_pictogram_in_list(self):
       '''Getter for the entire list of attribute
@@ -98,7 +55,7 @@ class Pictogram:
       :rtype: list
       '''
       
-      return [self.get_word(),self.get_row(),self.get_col(),self.get_page_name(),self.get_id()]
+      return [self.word,self.row,self.col,self.page_name,self.id]
 
     def set_word(self, word):
         '''Setter. Set the word of the pictogram
@@ -107,7 +64,7 @@ class Pictogram:
         :type word: string   
         '''
 
-        self.__word = word
+        self.word = word
 
     def __str__(self):
         '''Display the pictogram information (text)
@@ -116,7 +73,7 @@ class Pictogram:
         :rtype: string
         '''
 
-        return f'"{self.__word}",{self.__row},{self.__col},"{self.__page_name}","{self.__id}"'
+        return f'"{self.word}",{self.row},{self.col},"{self.page_name}","{self.id}"'
 
 
 class Slot():
@@ -126,26 +83,15 @@ class Slot():
 
     :pictogram: corresponding pictogram
     :type: classe: `Pictogram`
-    :is_core: True if the pictogram belongs to the vocabulary core, False if not. 
-    :type is_core: boolean
     :page_destination: Destination page of the pictogram (if any). Can be null (None)
     :type page_destination: class: `Page`
     '''
 
-    def __init__(self, pictogram, is_core, page_destination):        
+    def __init__(self, pictogram, page_destination):        
         '''Constructor        
         '''        
-        self.__pictogram = copy.copy(pictogram)
-        self.__is_core = copy.copy(is_core)
-        self.__page_destination = copy.copy(page_destination)
-
-    def get_pictogram(self):
-        '''Getter
-        
-        :return: returns the corresponding pictogram of the slot
-        :rtype: class: ``Pictogram`
-        '''
-        return self.__pictogram
+        self.pictogram = copy.copy(pictogram)
+        self.page_destination = copy.copy(page_destination)
         
 
     def get_word(self):
@@ -155,25 +101,7 @@ class Slot():
         :rtype: string       
         '''
 
-        return self.__pictogram.get_word()
-
-    def get_is_core(self):
-        '''Getter
-
-        :return: Returns the boolean `is_core` of the slot
-        :rtype: boolean        
-        '''
-
-        return self.__is_core
-
-    def get_page_destination(self):
-        '''Getter
-        
-        :return: Returns the destination page of the slot
-        :rtype: class: `Page`        
-        '''
-
-        return self.__page_destination
+        return self.pictogram.word
 
 
     def set_pictogram(self, pictogram):
@@ -183,7 +111,7 @@ class Slot():
         :type pictogram: class: `Pictogram` 
         '''
 
-        self.__pictogram = pictogram
+        self.pictogram = pictogram
 
     def set_word(self, word):
         '''Setter. Set the word of the slot
@@ -192,7 +120,7 @@ class Slot():
         :type word: string   
         '''
 
-        self.__pictogram.set_word(word)
+        self.pictogram.set_word(word)
 
     def set_page_destination(self, page):
         '''Setter. Set the destination page of the slot
@@ -201,7 +129,7 @@ class Slot():
         :type page: class: `Page`        
         '''
 
-        self.__page_destination = page
+        self.page_destination = page
 
     def __str__(self):
         '''Display the slot (text)
@@ -210,11 +138,11 @@ class Slot():
         :rtype: string
         '''
 
-        dest = self.__page_destination
+        dest = self.page_destination
         if dest:
-            dest = self.__page_destination.get_name()
+            dest = self.page_destination.name
 
-        return f'{self.get_word()}({dest})'
+        return f'{self.word}({dest})'
 
 
 class Page():
@@ -231,29 +159,29 @@ class Page():
     def __init__(self, name, row_size, col_size):
         '''Constructor'''  
 
-        self.__name = name
-        self.__row_size = row_size
-        self.__col_size = col_size
+        self.name = name
+        self.row_size = row_size
+        self.col_size = col_size
         #Full indicator (False, the page is not full)
-        self.__full = False
+        self.full = False
         #List of slots of the page
-        self.__slots = []
+        self.slots = []
         #Fill the page of empty slots
-        self.__empty_fill()
+        self.empty_fill()
 
         #Position of the next empty slot (if any)
-        self.__last_R = 0
-        self.__last_C = 0
+        self.last_row = 0
+        self.last_col = 0
 
 
-    def __empty_fill(self):
+    def empty_fill(self):
       '''Initialize each slots of the page as empty (None)'''
 
-      self.__slots = []
-      for i in range(0, self.__row_size) :
-        self.__slots.append([None])
-        for j in range(0, self.__col_size) :
-          self.__slots[i].append(None)
+      self.slots = []
+      for i in range(0, self.row_size) :
+        self.slots.append([None])
+        for j in range(0, self.col_size) :
+          self.slots[i].append(None)
 
 
     def set_slot(self, slot, num_row, num_col):
@@ -270,14 +198,14 @@ class Page():
       :rtype: class `Slot`
       '''
 
-      if (num_row >= self.__row_size) or (num_col >= self.__col_size):
+      if (num_row >= self.row_size) or (num_col >= self.col_size):
         print(f'row={num_row}, col={num_col}')
-        print(f'row_size={self.__row_size}, col_size={self.__col_size}')
+        print(f'row_size={self.row_size}, col_size={self.col_size}')
                 
         raise Exception('Error: slot row or col out of bounds') 
 
-      old_slot = self.__slots[num_row][num_col]
-      self.__slots[num_row][num_col] = slot
+      old_slot = self.slots[num_row][num_col]
+      self.slots[num_row][num_col] = slot
 
       return old_slot
 
@@ -290,40 +218,9 @@ class Page():
       :return: return the affected name
       :rtype: string
       '''
-      self.__name = name
+      self.name = name
 
       return name
-
-    
-    def get_name(self):
-      '''Getter. 
-
-      :return: returns the name of the page.
-      :rtype: string
-      '''
-
-      return self.__name
-
-
-    def get_row_size(self):
-      '''Getter.
-
-      :return: returns the height of the page.
-      :rtype: integer
-      '''
-
-      return self.__row_size
-
-
-    def get_col_size(self):
-      '''Getter. 
-
-      :return: returns the width of the page.
-      :rtype: integer
-      '''
-
-      return self.__col_size
-
 
     def get_slot(self, num_row, num_col):
       '''Getter. 
@@ -332,37 +229,26 @@ class Page():
       :rtype: class: `Slot`
       '''
 
-      return self.__slots[num_row][num_col]
+      return self.slots[num_row][num_col]
 
     def get_empty_slot(self):
       '''Getter.
 
-      :return: returns the next empty slot coordinates of the page at position `(last_R,last_C)`, if any.
+      :return: returns the next empty slot coordinates of the page at position `(last_row,last_col)`, if any.
       :rtype: integer,integer
       '''
 
       #End of the row
-      if(self.__last_C == self.__col_size) : 
-        self.__last_C = 0
-        self.__last_R += 1
+      if(self.last_col == self.col_size) : 
+        self.last_col = 0
+        self.last_row += 1
 
-      if(self.__full == False):
-        return self.__last_R,self.__last_C
+      if(self.full == False):
+        return self.last_row,self.last_col
         
       else:
         return -1,-1
-
-
-    def get_slot_list(self):
-      '''Getter
-
-      :return: returns the list of slots of the page.
-      :rtype: list of slots
-      '''
-
-      return self.__slots
     
-
     def get_pictograms(self):
       '''Get all pictograms of the page.
 
@@ -375,12 +261,12 @@ class Page():
       #List of pictograms to return
       pictograms = []
       #For each pictogram in the page
-      for row in range(0, self.__row_size):
-        for col in range (0, self.__col_size):
-          slot = self.__slots[row][col]
+      for row in range(0, self.row_size):
+        for col in range (0, self.col_size):
+          slot = self.slots[row][col]
           #If not empty, we add it to the list
           if(slot != None):
-            pictograms.append(slot.get_pictogram())
+            pictograms.append(slot.pictogram)
 
       return pictograms
 
@@ -395,7 +281,7 @@ class Page():
       :return: returns a boolean
       :rtype: boolean
       '''
-      return self.__slots[num_row][num_col] == None
+      return self.slots[num_row][num_col] == None
 
 
     def page_is_full(self):
@@ -406,29 +292,27 @@ class Page():
       '''
 
       #If the full indicator is True, the page is full
-      if (self.__full):
+      if (self.full):
         return True
 
       #Else, we check if we find an empty slot in the whole page
-      for row in range(0, self.__row_size):
-        for col in range (0, self.__col_size):
+      for row in range(0, self.row_size):
+        for col in range (0, self.col_size):
           
           #Empty slot found
-          if self.__slots[row][col] == None:
+          if self.slots[row][col] == None:
             return False
 
       #If no empty slot found, the page is full
-      self.__full = True
+      self.full = True
       return True
 
 
-    def add_pictogram(self, pictogram, core=False, dest=None) :
+    def add_pictogram(self, pictogram, dest=None) :
       '''Generate and add a new pictogram in the next free slot of the page (if any).
 
       :param pictogram: pictogram
       :type: class: Pictogram
-      :param core: indicator if the pictogram should be part of the vocabulary core (False by default)
-      :type core: boolean, (optional)
       :param dest: destination page of the pictogram, defaults to None
       :type dest: classe: `Page`, (optional)
       :return: returns the name of the word if it was possible, null if not.
@@ -436,28 +320,28 @@ class Page():
       '''
 
       #End of the row
-      if(self.__last_C == self.__col_size) : 
-        self.__last_C = 0
-        self.__last_R += 1
+      if(self.last_col == self.col_size) : 
+        self.last_col = 0
+        self.last_row += 1
 
       #End of the table (table is full)
-      if(self.__last_R == self.__row_size) :
-        self.__full = True
-        print("Failed to add word <", pictogram.get_word(), ">. The table is full.")
+      if(self.last_row == self.row_size) :
+        self.full = True
+        print("Failed to add word <", pictogram.word, ">. The table is full.")
 
         return None
 
       #If the slot is empty
-      if(self.slot_is_free(self.__last_R,self.__last_C)):
-        s = Slot(pictogram, core, dest)
-        self.__slots[self.__last_R][self.__last_C] = s
-        self.__last_R
-        self.__last_C += 1
+      if(self.slot_is_free(self.last_row,self.last_col)):
+        s = Slot(pictogram,dest)
+        self.slots[self.last_row][self.last_col] = s
+        self.last_row
+        self.last_col += 1
 
-        return pictogram.get_word()
+        return pictogram.word
       
-      self.__last_R
-      self.__last_C += 1
+      self.last_row
+      self.last_col += 1
 
     def __str__(self):
       '''Display a page (text)
@@ -466,12 +350,12 @@ class Page():
       :rtype: string
       '''
 
-      s = "Page: " + self.__name + "\n("
-      for i in range(0, self.__row_size) : 
-        for j in range(0, self.__col_size) :
-          s+=str(self.__slots[i][j])
+      s = "Page: " + self.name + "\n("
+      for i in range(0, self.row_size) : 
+        for j in range(0, self.col_size) :
+          s+=str(self.slots[i][j])
           s+=", "
-        if(i < self.__row_size - 1):
+        if(i < self.row_size - 1):
           s+='\n'
 
       return s+')'
@@ -499,27 +383,15 @@ class Grid():
   def __init__(self, input_file, row_size = 5, col_size = 5, root_name = "accueil", randomizer = True, dynamic_size = True):
     '''Constructor'''
 
-    self.__row_size = row_size
-    self.__col_size = col_size
-    self.__core_voc = {}
-    self.__root_name = root_name
-    self.__pages = {}
-    self.__pageCounter = 0     
-    self.__randomizer = randomizer
-    self.__dynamic_size = dynamic_size
-    self.__generate_grid(input_file)
-
-  
-  def get_root_name(self):
-    '''Get the root page name of the grid
-
-    :return: return the root page name
-    :rtype: string
-    '''
-
-    return self.__root_name
-
-
+    self.row_size = row_size
+    self.col_size = col_size
+    self.core_voc = {}
+    self.root_name = root_name
+    self.pages = {}
+    self.pageCounter = 0     
+    self.randomizer = randomizer
+    self.dynamic_size = dynamic_size
+    self.generate_grid(input_file)
 
   def get_root_page(self):
     '''Get the root page (named by defaylt : `accueil`)
@@ -528,19 +400,8 @@ class Grid():
     :rtype: class: `Page`
     '''
 
-    return self.__pages.get(self.get_root_name())
-
+    return self.pages.get(self.root_name)
   
-  def get_nb_pages(self):
-    '''Returns the number of pages of a grid.
-
-    :return: total number of pages.
-    :rtype: integer
-    '''
-
-    return self.__pageCounter
-  
-
   def get_page_names(self):
     '''Returns the list of page names within the grid.
 
@@ -548,7 +409,7 @@ class Grid():
     :rtype: string []
     '''
 
-    return self.__pages.keys()
+    return self.pages.keys()
 
 
   def get_page(self, name):
@@ -560,85 +421,8 @@ class Grid():
     :rtype: class: `Page`
     '''
 
-    return self.__pages.get(name) 
+    return self.pages.get(name) 
 
-
-  def get_page_dict(self):
-    '''Returns the dictionary of all pages within the grid.
-
-    :return: dictionnary of pages.
-    :rtype: Dict (format: {`page_name`: chaine de charactères : `page`: classe `Page`})
-    '''
-
-    return self.__pages
-
-
-  def get_core_voc(self):
-    '''Return the core vocabulary of the grid (all pictograms).
-
-    :return: list of pictograms.
-    :rtype: Dict (format: {`id_picto`:[`nom`,`ligne`,`colonne`,`page`, `page_dest`]})
-    '''
-
-    return self.__core_voc
-
-
-  def get_row_size(self):
-    '''Returns the height of the grid.
-
-    :return:number of rows.
-    :rtype: integer
-    '''
-
-    return self.__row_size
-
-
-  def get_col_size(self):
-    '''Returns the width of the grid.
-
-    :return:number of columns.
-    :rtype: integer
-    '''
-
-    return self.__col_size
-
-  def get_randomizer(self):
-    '''Returns the randomizer of the grid.
-
-    :return: randomizer.
-    :rtype: boolean
-    '''
-
-    return self.__randomizer
-
-  def get_dynamic_size(self):
-    '''Returns if the grid has a dynamic size or not.
-
-    :return: dynamic_size.
-    :rtype: boolean
-    '''
-
-    return self.__dynamic_size
-
-  def set_row_size(self,row_size):
-    '''Setter. Set the row_size 
-
-    :param: new row size of the grid
-    :type row_size: integer
-    '''
-
-    self.__row_size = row_size
-
-  def set_col_size(self,col_size):
-    '''Setter. Set the col_size 
-
-    :param: new col size of the grid
-    :type col_size: integer
-    '''
-
-    self.__col_size = col_size
-
-  
   def add_word_in_root(self, pictogram, dest=None):
     '''Add a new pictogram to the root page in the first empty slot.
 
@@ -670,10 +454,10 @@ class Grid():
     :rtype: classe: `Page`
     '''
 
-    return self.__add_page(name)
+    return self.add_page(name)
 
 
-  def __add_page(self, name_page):
+  def add_page(self, name_page):
     '''Add a new page to the grid
 
     :param name: name of the new page
@@ -682,14 +466,14 @@ class Grid():
     :rtype: classe: `Page`
     '''
     
-    page = Page(name_page, self.get_row_size(), self.get_col_size())    
-    self.__pages[name_page] = page
-    self.__pageCounter += 1 
+    page = Page(name_page, self.row_size, self.col_size)    
+    self.pages[name_page] = page
+    self.pageCounter += 1 
 
     return page
 
   
-  def __generate_grid(self,input_file):
+  def generate_grid(self,input_file):
     '''Encapsulation function.
     Generate a grid from a file.
 
@@ -700,22 +484,22 @@ class Grid():
 
     #'AugCom' file (dictionary)
     if isinstance(input_file, dict):
-      self.__generate_grid_dict(input_file)
+      self.generate_grid_dict(input_file)
 
     #'.txt' file
     elif(input_file.endswith('.txt')):
-      self.__generate_grid_txt(input_file)
+      self.generate_grid_txt(input_file)
 
     #'.csv' file
     elif(input_file.endswith('.tsv')):
-      self.__generate_grid_csv(input_file)
+      self.generate_grid_csv(input_file)
 
     #File format not accepted
     else:
       raise Exception("Not accepted file format !")
 
 
-  def __generate_grid_txt(self, input_file):
+  def generate_grid_txt(self, input_file):
     '''Generate a grid from a .txt input file (corpus)
 
     :param input_file: source text file containing the corpus
@@ -725,20 +509,20 @@ class Grid():
     rawVoc = get_vocabulary_from_txt(input_file)
 
     #If the size of the grid is dynamic
-    if(self.get_dynamic_size() == True):
-      self.set_row_size(int(math.ceil(math.sqrt(len(rawVoc)))))
-      self.set_col_size(int(math.ceil(math.sqrt(len(rawVoc)))))
+    if(self.dynamic_size == True):
+      self.row_size = int(math.ceil(math.sqrt(len(rawVoc))))
+      self.col_size = int(math.ceil(math.sqrt(len(rawVoc))))
 
     #Creating the root page   
-    self.add_new_page(self.get_root_name())
+    self.add_new_page(self.root_name)
     page = self.get_root_page()
-    pageName = page.get_name()
+    pageName = page.name
 
     #Transform each word into a pictogram in the page
     for i in range(len(rawVoc)):
 
       #Random generation
-      if(self.get_randomizer()):
+      if(self.randomizer):
         ridx = random.randint(0,len(rawVoc) - 1)
         word = rawVoc[ridx]
         rawVoc.pop(ridx)
@@ -756,12 +540,12 @@ class Grid():
           picto = Pictogram(word,slot_row,slot_col,pageName,id)
 
           #Store the pictogram in the vocabulary
-          self.__core_voc[id] = picto.get_pictogram_in_list()
+          self.core_voc[id] = picto.get_pictogram_in_list()
 
           # Create the slot and add it to the page
-          page.add_pictogram(picto,True,None)
+          page.add_pictogram(picto,None)
 
-  def __generate_grid_csv(self, input_file):
+  def generate_grid_csv(self, input_file):
     '''Generate a grid from a .csv input file.
 
     :param input_file: source csv file containing a pictogram grid.
@@ -795,23 +579,23 @@ class Grid():
             picto = Pictogram(word,row,column,page_name,id)
 
             #Store the pictogram in the vocabulary
-            self.__core_voc[id] = picto.get_pictogram_in_list()
+            self.core_voc[id] = picto.get_pictogram_in_list()
 
             last_id = id
 
           #Get the link of the pictogram (directory pictogram)
           elif len(col) > 1:            
             pointed_link = col[1]            			
-            self.__core_voc.get(last_id)[4] = pointed_link
+            self.core_voc.get(last_id)[4] = pointed_link
 
     #The source file is not a '.txt' file
     else:
       raise Exception("Incorrect file format !")
 
     #Generate the entire grid and its pages and slots from the core vocabulary
-    self.__add_core_voc()
+    self.add_core_voc()
 
-  def __generate_grid_dict(self, input_file):
+  def generate_grid_dict(self, input_file):
     '''Generate a grid from a dictionary input file with (format: {`id_picto`:[`nom`,`ligne`,`colonne`,`page`, `page_dest`]}.
 
     :param input_file: source dictionary text file containing a pictogram grid.
@@ -822,28 +606,28 @@ class Grid():
     if isinstance(input_file, dict):
       
       #Copy of the dictionary in the core_voc.
-      self.__core_voc = input_file
+      self.core_voc = input_file
 
     #The source file is not a 'AugCom' file (dictionary)
     else:
       raise Exception("Incorrect file format !")
 
     #Generate the entire grid and its pages and slots from the core vocabulary
-    self.__add_core_voc()
+    self.add_core_voc()
 
 
-  def __add_core_voc(self):
+  def add_core_voc(self):
     '''From the initial grid (tsv format) or a dictionary, set the entire grid and all its pages.
     
     Generates pages and slots of the grid following the file format (csv,tsv) or the dictionary'''
 
     #If the size of the grid is dynamic, resize the grid size
-    if(self.get_dynamic_size() == True):
-      self.set_row_size(int(math.ceil(math.sqrt(len(self.__core_voc.values())))))
-      self.set_col_size(int(math.ceil(math.sqrt(len(self.__core_voc.values())))))
+    if(self.dynamic_size == True):
+      self.row_size = int(math.ceil(math.sqrt(len(self.core_voc.values()))))
+      self.col_size = int(math.ceil(math.sqrt(len(self.core_voc.values()))))
     
     #Exploring the entire core vocabulary to store its pictogram
-    for picto in self.__core_voc.values():
+    for picto in self.core_voc.values():
       word = picto[0]
       row = picto[1]
       col = picto[2]
@@ -851,23 +635,23 @@ class Grid():
       dest_name = picto[4]
 
       # If the corresponding page of the pictogram does not exist, create it.
-      if page_name in self.__pages:
-        page = self.__pages.get(page_name)
+      if page_name in self.pages:
+        page = self.pages.get(page_name)
       else:		  
-        page = self.__add_page(page_name)
+        page = self.add_page(page_name)
 
       # Create the destination page if it does not exist. 
       if dest_name != str(word) + "@" + str(page_name):
-        if dest_name in self.__pages:
-          destination = self.__pages.get(dest_name)
+        if dest_name in self.pages:
+          destination = self.pages.get(dest_name)
         else:			
-          destination = self.__add_page(dest_name)          
+          destination = self.add_page(dest_name)          
       else:
         destination = None
 
       final_picto = Pictogram(word,row,col,page_name,destination)
       # Create the slot and add it to the page
-      page.add_pictogram(final_picto,True,destination)
+      page.add_pictogram(final_picto,destination)
 
   #=========================================================================================================================
 
@@ -886,7 +670,7 @@ class Grid():
     #Get the vocabulary (the grid)
     header = ['word','row','col','page','identifier']
     writer.writerow(header)
-    voc = self.get_core_voc()
+    voc = self.core_voc
 
     #Write each row
     for picto in voc.values():
@@ -903,15 +687,15 @@ class Grid():
 
     nodes = set([])
     edges = set([])
-    for key,page in self.__pages.items():
+    for key,page in self.pages.items():
       nodes.add(key)
-      slots = page.get_slot_list()
+      slots = page.slot_list
       for items in slots:
         for slot in items:
           if slot != None:
-            dest = slot.get_page_destination()
+            dest = slot.page_destination
             if dest != None:
-              dest = dest.get_name()
+              dest = dest.name
               edges.add((key, dest))
     
     G=nx.DiGraph()
@@ -938,10 +722,10 @@ class Grid():
     sorted_attrib_dict = {}
 
     # trier le dict d'attributes par nom de page
-    for page_name in self.get_page_dict():     
-      for picto_id, attributes in self.get_core_voc().items():
+    for page_name in self.pages:     
+      for picto_id, attributes in self.core_voc.items():
         if attributes[3] == page_name:
-          sorted_attrib_dict[picto_id] = self.get_core_voc().get(picto_id)       
+          sorted_attrib_dict[picto_id] = self.core_voc.get(picto_id)       
 
     # Fichier résultant
     with open(output_name, "w") as text_file:
@@ -959,7 +743,7 @@ class Grid():
     '''
 
     s = 'grid : {\n'
-    for page in self.__pages.values():
+    for page in self.pages.values():
       s+= str(page) + '\n'
     s += '}\n'
     return s
@@ -978,11 +762,11 @@ class Grid():
     '''
 
     graph = Digraph(comment='Test', node_attr={'shape': 'record'}) #, 'fixedsize': 'true', 'width':'4', 'height':'2'})
-    row_size = self.get_row_size()
-    col_size = self.get_col_size()
+    row_size = self.row_size
+    col_size = self.col_size
     slot_index = 0
 
-    for page_name,page in self.get_page_dict().items():
+    for page_name,page in self.pages.items():
       
       attribute_string = '{ '
       separator_1 = ''
@@ -995,11 +779,11 @@ class Grid():
 
           if slot:
             word = slot.get_word()
-            dest = slot.get_page_destination()
+            dest = slot.page_destination
 
             #ajouter lien entre picto directoire et la page correspondante 
             if dest:              
-              graph.edge(f'{page_name}:{slot_index}', f'{dest.get_name()}')
+              graph.edge(f'{page_name}:{slot_index}', f'{dest.name}')
           elif row == 0 and col == 0:
             word = page_name.upper()
           else:
