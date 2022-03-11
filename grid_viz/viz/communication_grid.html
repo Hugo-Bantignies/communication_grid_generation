@@ -1,67 +1,70 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-        
-<!-- Load d3.js -->
-<script src="https://d3js.org/d3.v6.js"></script>
-        
-<!-- Create a div where the graph will take place -->
-<div id="my_dataviz"></div>
+<html>
+  <head>
+	<script src="http://d3js.org/d3.v6.js"></script>
+  </head>
 
+<body>
+	<div id='pictogram_grid'>
+		<div id='pictogram_grid'></div>
+	</div>
+</body>
 <script>
+
+var drawMatrix = function(){
 
 	//Bostock's margin convention
 	var margin = {top: 10, right: 10, bottom: 20, left: 70},
 			width  = 720 - margin.left - margin.right,
 			height = 480 - margin.top - margin.bottom;
 
-	// append the svg object to the body of the page
-	const svg = d3.select("#my_dataviz")
-	.append("svg")
-	  .attr("width", width + margin.left + margin.right)
-	  .attr("height", height + margin.top + margin.bottom)
-	.append("g")
-	  .attr("transform", `translate(${margin.left},${margin.top})`);
+	//create an svg with width and height
+	var svg = d3.select('#pictogram_grid')
+		.append('svg')
+		.attr("width", width)
+		.attr("height", height)
 
-	// Build X scales and axis:
-	const x = d3.scaleLinear()
-	  .range([ 0, width ])
-	  .domain([0,100])
-	svg.append("g")
-	  .attr("transform", `translate(0, ${height})`)
-	  .call(d3.axisBottom(x))
-	
-	// Build Y scales and axis:
-	const y = d3.scaleLinear()
-	  .range([ height, 0 ])
-	  .domain([0,100])
-	svg.append("g")
-	  .call(d3.axisLeft(y));
-	
-	// Build color scale
-	const myColor = d3.scaleLinear()
-	  .range(["white", "#69b3a2"])
-	  .domain([1,100])
-	
-	//Read the data
-	d3.csv("../../default.csv",d => (
-		{
-			word: d.word,
-			row: +d.row,
-			col: +d.col,
-			page: d.page,
-			identifier: d.identifier
-		}
-	)).then( function(data) {
-	
-	  svg.selectAll()
-		  .data(data, function(d) {return d.word+':'+d.word;})
-		  .enter()
-		  .join("rect")
-		  .attr("x", function(d) { return x(d.row) })
-		  .attr("y", function(d) { return y(d.col) })
-		  .attr("width", x.bandwidth() )
-		  .attr("height", y.bandwidth() )
-		  .style("fill", function(d) { return myColor(d.col)} )
-	
-	})
-	</script>
+	//10 rows and 10 columns 
+	var numRows = 10;
+	var numCols = 10;
+
+	//x and y axis scales
+	var y = d3.scaleBand()
+		.range([0,250])
+		.domain(d3.range(numRows));
+
+	var x = d3.scaleBand()
+		.range([0, 250])
+		.domain(d3.range(numCols));
+
+	d3.csv("../../default.csv", d => (
+	{
+		word:     d.word,
+		row:     +d.row,
+		col:    +d.col,
+		page: d.page,
+		identifier: d.identifier,
+	}
+	)).then(function(data) {
+
+		//container to hold the grid
+		var svg = svg.append("g")
+			.attr("transform", "translate(135,130)");
+		
+
+		svg.selectAll("pictograms")
+				.data(data)
+				.enter().append("rect")
+				.attr('x', function(d){return x(d.row%10);})
+				.attr('y', function(d){return y(Math.floor(d.col/10));})
+				.attr('width', 20)
+				.attr('height', 20)
+				.attr('stroke', 'black')
+				.attr('fill', 'white')	
+	}
+	);}
+	//call function to draw the graph
+	drawMatrix();
+</script>
+</html>
