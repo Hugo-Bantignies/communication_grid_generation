@@ -25,15 +25,10 @@ const svg = d3.select("#pictogram_grid")
 .append("g")
 .attr("transform", `translate(${margin.left},${margin.top})`);
 
-
-//Rows and cols
-const numrow = 13;
-const numcol = 13;
-
 // Build X scales and axis:
 const x = d3.scaleBand()
 .range([ 0, width ])
-.domain(d3.range(numrow))
+.domain(d3.range(0))
 .padding(0.01);
 svg.append("g")
 .attr("transform", `translate(0, ${height})`)
@@ -42,7 +37,7 @@ svg.append("g")
 // Build X scales and axis:
 const y = d3.scaleBand()
 .range([ 0 , height ])
-.domain(d3.range(numcol))
+.domain(d3.range(0))
 .padding(0.01);
 svg.append("g")
 .call(d3.axisLeft(y));
@@ -58,6 +53,14 @@ d3.csv("../../default.csv", d => (
 }
 )).then(function(data) {
 
+
+//Resize the matrix to the vocabulary size
+var numcol = d3.max(data, d => d.col) + 1;
+var numrow = d3.max(data, d => d.row) + 1;
+
+x.domain(d3.range(numcol))
+y.domain(d3.range(numrow))
+
 // create a tooltip
 const tooltip = d3.select("#pictogram_grid")
   .append("div")
@@ -72,6 +75,10 @@ const tooltip = d3.select("#pictogram_grid")
 // Three function that change the tooltip when user hover / move / leave a cell
 const mouseover = function(event,d) {
   tooltip.style("opacity", 1)
+  d3.select(this)
+      .style("fill", "black")
+      .style("stroke","black")
+      .style("opacity", 0.3)
 }
 const mousemove = function(event,d) {
   tooltip
@@ -81,6 +88,9 @@ const mousemove = function(event,d) {
 }
 const mouseleave = function(d) {
   tooltip.style("opacity", 0)
+  d3.select(this)
+      .style("fill", "white")
+      .style("opacity", 1)
 }
 
 // add the squares
