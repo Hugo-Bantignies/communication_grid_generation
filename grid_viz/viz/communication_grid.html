@@ -6,120 +6,23 @@
   </head>
 
 <body>
+  <!--Pictogram grid-->
 	<div id='pictogram_grid'>
 		<div id='pictogram_grid'></div>
 	</div>
+
+  <!--Search bar-->
+  <div id="search_bar">
+    <input id="search">
+    <button type="button">Search</button>
+  </div>
 </body>
 
-<script>
-// set the dimensions and margins of the graph
-const margin = {top: 30, right: 30, bottom: 30, left: 30},
-width = 720 - margin.left - margin.right,
-height = 720 - margin.top - margin.bottom;
+<!--Load the grid modules-->
+<script src = "js/grid.js"></script>
+<script src = "js/searchbar.js"></script>
 
-// append the svg object to the body of the page
-const svg = d3.select("#pictogram_grid")
-.append("svg")
-.attr("width", width + margin.left + margin.right)
-.attr("height", height + margin.top + margin.bottom)
-.append("g")
-.attr("transform", `translate(${margin.left},${margin.top})`);
+<!--Main script-->
+<script src = "js/main.js"></script>
 
-// Build X scales and axis:
-const x = d3.scaleBand()
-.range([ 0, width ])
-.domain(d3.range(0))
-.padding(0.01);
-svg.append("g")
-.attr("transform", `translate(0, ${height})`)
-.call(d3.axisBottom(x))
-
-// Build X scales and axis:
-const y = d3.scaleBand()
-.range([ 0 , height ])
-.domain(d3.range(0))
-.padding(0.01);
-svg.append("g")
-.call(d3.axisLeft(y));
-
-//Read the data
-d3.csv("../../default.csv", d => (
-{
-  word:     d.word,
-  row:     +d.row,
-  col:    +d.col,
-  page: d.page,
-  identifier: d.identifier,
-}
-)).then(function(data) {
-
-
-//Resize the matrix to the vocabulary size
-var numcol = d3.max(data, d => d.col) + 1;
-var numrow = d3.max(data, d => d.row) + 1;
-
-x.domain(d3.range(numcol))
-y.domain(d3.range(numrow))
-
-// create a tooltip
-const tooltip = d3.select("#pictogram_grid")
-  .append("div")
-  .style("opacity", 0)
-  .attr("class", "tooltip")
-  .style("background-color", "white")
-  .style("border", "solid")
-  .style("border-width", "2px")
-  .style("border-radius", "5px")
-  .style("padding", "5px")
-
-// Three function that change the tooltip when user hover / move / leave a cell
-const mouseover = function(event,d) {
-  tooltip.style("opacity", 1)
-  d3.select(this)
-      .style("fill", "black")
-      .style("stroke","black")
-      .style("opacity", 0.3)
-}
-const mousemove = function(event,d) {
-  tooltip
-    .html("Word : " + d.word)
-    .style("left", (event.x)/2 + "px")
-    .style("top", (event.y)/2 + "px")
-}
-const mouseleave = function(d) {
-  tooltip.style("opacity", 0)
-  d3.select(this)
-      .style("fill", "white")
-      .style("opacity", 1)
-}
-
-// add the squares
-svg.selectAll()
-  .data(data)
-  .enter()
-  .append("rect")
-    .attr("x", function(d) { return x(d.col) })
-    .attr("y", function(d) { return y(d.row) })
-    .attr("width", x.bandwidth() )
-    .attr("height", y.bandwidth() )
-    .style("fill", "white" )
-    .style("stroke","black")
-  .on("mouseover", mouseover)
-  .on("mousemove", mousemove)
-  .on("mouseleave", mouseleave)
-
-svg.selectAll()
-  .data(data)
-  .enter()
-    .append("text")
-    .attr("dy", ".35em")
-      .attr("x", function(d) { return x(d.col) + width/(numcol * 4) })
-    .attr("y", function(d) { return y(d.row) + height/(numcol * 2) })
-    .style("font-size", function(d) { return Math.min(2 / x.bandwidth(), (2 / x.bandwidth() - 8) / this.getComputedTextLength() * 24) + "px"; })
-    .text(function(d) { return d.word; });
-})
-
-</script>
-
-</body>
 </html>

@@ -1,50 +1,55 @@
 let Grid = (() => {
 
+  let self = {};
+
   /**
-   * Define the dimension of the grid visualization
+   * Dimension of the grid in the visualization
    */
   self.margin = {top: 30, right: 30, bottom: 30, left: 30},
-  self.width = 720 - margin.left - margin.right,
-  self.height = 720 - margin.top - margin.bottom;
+  self.width = 650 - self.margin.left - self.margin.right,
+  self.height = 650 - self.margin.top - self.margin.bottom;
 
-  // append the svg object to the body of the page
-  const createSvg = (divName) => {
-    const svg = d3.select("#pictogram_grid")
-      .append("svg")
-      .attr("width", self.width + self.margin.left + self.margin.right)
-      .attr("height", self.height + self.margin.top + self.margin.bottom)
-      .append("g")
-      .attr("transform", `translate(${self.margin.left},${self.margin.top})`);
+  /**
+  * SVG Element that will contain the grid
+  */
+   const createSvg = (divName) => {
+    self.container = d3.select(divName)
+    .append("svg")
+    .attr("width", self.width + self.margin.left + self.margin.right)
+    .attr("height", self.height + self.margin.top + self.margin.bottom)
+    .append("g")
+    .attr("transform", `translate(${self.margin.left},${self.margin.top})`);
+   }
 
-    return svg;
-  }
 
   self.displayGrid = (divName) => {
 
-    const svg = createSvg(divName);
-
-    //Rows and cols
-    const numrow = 9;
-    const numcol = 9;
-
-    // Build X scales and axis:
+    createSvg(divName)
+    
+    /**
+     * X scale and axis
+     */
     const x = d3.scaleBand()
     .range([ 0, self.width ])
-    .domain(d3.range(numrow))
+    .domain(d3.range(0))
     .padding(0.01);
-    svg.append("g")
+    self.container.append("g")
     .attr("transform", `translate(0, ${self.height})`)
     .call(d3.axisBottom(x))
 
-    // Build X scales and axis:
+    /**
+     * Y scale and axis
+     */
     const y = d3.scaleBand()
     .range([ 0 , self.height ])
-    .domain(d3.range(numcol))
+    .domain(d3.range(0))
     .padding(0.01);
-    svg.append("g")
+    self.container.append("g")
     .call(d3.axisLeft(y));
 
-    //Read the data
+    /**
+     * Data preparation (read and assignation)
+     */
     d3.csv("../../default.csv", d => (
     {
       word:     d.word,
@@ -54,6 +59,16 @@ let Grid = (() => {
       identifier: d.identifier,
     }
     )).then(function(data) {
+
+
+    /**
+     * Get the size of the grid (rows and columns)
+     */
+    var numcol = d3.max(data, d => d.col) + 1;
+    var numrow = d3.max(data, d => d.row) + 1;
+
+    x.domain(d3.range(numcol))
+    y.domain(d3.range(numrow))
 
     // create a tooltip
     const tooltip = d3.select("#pictogram_grid")
@@ -66,9 +81,14 @@ let Grid = (() => {
       .style("border-radius", "5px")
       .style("padding", "5px")
 
-    // Three function that change the tooltip when user hover / move / leave a cell
+    /**
+     * Mouse : Three function that change the tooltip when user hover / move / leave a cell
+     */
     const mouseover = function(event,d) {
       tooltip.style("opacity", 1)
+      d3.select(this)
+          .style("fill", "red")
+          .style("opacity", 0.8)
     }
     const mousemove = function(event,d) {
       tooltip
@@ -78,10 +98,15 @@ let Grid = (() => {
     }
     const mouseleave = function(d) {
       tooltip.style("opacity", 0)
+      d3.select(this)
+          .style("fill", "black")
+          .style("opacity", 1)
     }
 
-    // add the squares
-    svg.selectAll()
+    /**
+     * Fill the grid : squares and corresponding word text.
+     */
+    self.container.selectAll()
       .data(data)
       .enter()
       .append("rect")
@@ -91,19 +116,19 @@ let Grid = (() => {
         .attr("height", y.bandwidth() )
         .style("fill", "white" )
         .style("stroke","black")
-      .on("mouseover", mouseover)
-      .on("mousemove", mousemove)
-      .on("mouseleave", mouseleave)
 
-    svg.selectAll()
+    self.container.selectAll()
       .data(data)
       .enter()
         .append("text")
         .attr("dy", ".35em")
-          .attr("x", function(d) { return x(d.col) + width/(numcol * 4) })
-        .attr("y", function(d) { return y(d.row) + height/(numcol * 2) })
+          .attr("x", function(d) { return x(d.col) + self.width/(numcol * 4) })
+        .attr("y", function(d) { return y(d.row) + self.height/(numcol * 2) })
         .style("font-size", function(d) { return Math.min(2 / x.bandwidth(), (2 / x.bandwidth() - 8) / this.getComputedTextLength() * 24) + "px"; })
-        .text(function(d) { return d.word; });
+        .text(function(d) { return d.word; })
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
     })
   }
 
