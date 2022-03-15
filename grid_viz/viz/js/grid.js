@@ -103,6 +103,31 @@ let Grid = (() => {
           .style("opacity", 1)
     }
 
+    //Listener
+    const searchbar = function(event)
+    {
+      const word = document.getElementById("search").value;
+      self.container.selectAll('text').style("fill","green");
+      
+    }
+    /*
+        .data(data.filter(d => d.word == word))
+        .enter()
+        .insert("text")
+        .attr("dy", ".35em")
+          .attr("x", function(d) { return x(d.col) + self.width/(numcol * 4) })
+        .attr("y", function(d) { return y(d.row) + self.height/(numcol * 2) })
+        .style("font-size", function(d) { return Math.min(2 / x.bandwidth(), (2 / x.bandwidth() - 8) / this.getComputedTextLength() * 24) + "px"; })
+        .style("fill","blue")
+        .text(function(d) { return d.word; })
+        .on("mouseover", mouseover)
+        .on("mousemove", mousemove)
+        .on("mouseleave", mouseleave)
+    }*/
+
+    const element = document.getElementById("mybutton");
+    element.addEventListener("click", searchbar);
+
     /**
      * Fill the grid : squares and corresponding word text.
      */
