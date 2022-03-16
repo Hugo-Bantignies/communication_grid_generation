@@ -1,5 +1,7 @@
 import pandas as pd
 import codecs
+#XML or TRS file
+import xml.etree.ElementTree as ET
 
 def csv_to_txt(file_path, output_path = "input_corpora/default.txt",separator = "\t",row_number = -1):
 
@@ -31,6 +33,28 @@ def csv_to_txt(file_path, output_path = "input_corpora/default.txt",separator = 
     
     #Close the output file
     output.close()
+
+
+def trs_to_txt(input_path,output_path = "default.txt"):
+    '''Function to convert a ".trs" file into a ".txt" file'''
+
+    #Open the output file
+    output_file = codecs.open(output_path,"w","utf-8")
+
+    #Get the XML tree
+    tree = ET.parse(input_path)
+    root = tree.getroot()
+
+    #Get the text from each element of the tree
+    data = [text.strip() for node in root.findall('.//Turn') for text in node.itertext() if text.strip()]
+    
+    #Write in a txt file the text
+    for d in data:
+        output_file.write(str(d) + "\n")
+
+    #Close the file
+    output_file.close()
+    
 
 def get_vocabulary_from_txt(file_path):
 

@@ -13,17 +13,4 @@ from communication_grid import Grid
 import matplotlib.pyplot as plt
 from utils import *
 
-source_f = "training_corpora/animals_corpus.txt"
-eval_f = "evaluation_corpora/animals_eval.txt"
-
-if __name__ == '__main__':
-    optimizer = go.GeneticPGCSOptimizer(source_f,eval_f,pop_size = 150, select_number = 30,
-                                           gen_number = 10, randomizer = True, distance_formula = "euclidean",
-                                           cost_average = False,nb_proc = 2)
-
-    optimal_grid,cost = optimizer.genetic_pgcs_optimization()
-
-    print("\n BEST COST : ",cost)
-    optimal_grid.display()
-
-    optimal_grid.to_csv()
+trs_to_txt("training_corpora/lilou1_hua.trs")
