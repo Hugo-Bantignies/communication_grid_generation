@@ -13,4 +13,4 @@ from communication_grid import Grid
 import matplotlib.pyplot as plt
 from utils import *
 
-trs_to_txt("training_corpora/lilou1_hua.trs")
+trs_to_txt(input_file = "training_corpora/lilou1_hua.trs",output_file = "training_corpora/test.txt")

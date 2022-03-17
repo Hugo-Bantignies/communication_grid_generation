@@ -107,7 +107,7 @@ let Grid = (() => {
     const searchbar = function(event)
     {
       const word = document.getElementById("search").value;
-      self.container.selectAll('text').style("fill","green");
+      self.container.select('text.'+word).style("fill","green");
       
     }
     /*
