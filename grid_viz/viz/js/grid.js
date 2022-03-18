@@ -6,8 +6,8 @@ let Grid = (() => {
    * Dimension of the grid in the visualization
    */
   self.margin = {top: 30, right: 30, bottom: 30, left: 30},
-  self.width = 650 - self.margin.left - self.margin.right,
-  self.height = 650 - self.margin.top - self.margin.bottom;
+  self.width = 1000 - self.margin.left - self.margin.right,
+  self.height = 1000 - self.margin.top - self.margin.bottom;
 
   /**
   * SVG Element that will contain the grid
@@ -107,13 +107,10 @@ let Grid = (() => {
     const searchbar = function(event)
     {
       const word = document.getElementById("search").value;
-      self.container.select('text.'+word).style("fill","green");
-      
-    }
-    /*
+      self.container.selectAll()
         .data(data.filter(d => d.word == word))
         .enter()
-        .insert("text")
+        .append("text")
         .attr("dy", ".35em")
           .attr("x", function(d) { return x(d.col) + self.width/(numcol * 4) })
         .attr("y", function(d) { return y(d.row) + self.height/(numcol * 2) })
@@ -123,7 +120,7 @@ let Grid = (() => {
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave)
-    }*/
+    }
 
     const element = document.getElementById("mybutton");
     element.addEventListener("click", searchbar);

@@ -487,26 +487,22 @@ class Grid():
       self.generate_grid_dict(input_file)
 
     #'.txt' file
-    elif(input_file.endswith('.txt')):
+    elif(input_file[0].endswith('.txt')):
       self.generate_grid_txt(input_file)
-
-    #'.csv' file
-    elif(input_file.endswith('.tsv')):
-      self.generate_grid_csv(input_file)
 
     #File format not accepted
     else:
       raise Exception("Not accepted file format !")
 
 
-  def generate_grid_txt(self, input_file):
-    '''Generate a grid from a .txt input file (corpus)
+  def generate_grid_txt(self, corpus):
+    '''Generate a grid from a .txt corpus
 
-    :param input_file: source text file containing the corpus
-    :type input_file: `.txt` file
+    :param corpus: source text file list containing the corpus
+    :type corpus: `.txt` file list
     '''
     #Get the vocabulary of the corpus
-    rawVoc = get_vocabulary_from_txt(input_file)
+    rawVoc = get_vocabulary_from_corpus(corpus)
 
     #If the size of the grid is dynamic
     if(self.dynamic_size == True):
@@ -544,56 +540,6 @@ class Grid():
 
           # Create the slot and add it to the page
           page.add_pictogram(picto,None)
-
-  def generate_grid_csv(self, input_file):
-    '''Generate a grid from a .csv input file.
-
-    :param input_file: source csv file containing a pictogram grid.
-    :type input_file: `.csv` file
-    :raises Exception: Incorrect file format !
-    '''
-
-    last_id = None
-
-    #The source file is a '.csv' file
-    if(input_file.endswith('.tsv')):
-
-      #Source file opening
-      with open(input_file,"r") as rawFile:
-
-        #For each line in the file, split the line
-        for lines in rawFile:
-          lines = lines.lower()
-          sentence = lines.strip()
-          col = sentence.split("\t")
-
-          #Get the pictogram
-          if len(col) > 4:
-            
-            word = col[0]
-            row = int(col[1])
-            column = int(col[2])
-            page_name = str(col[3])			
-            id = col[4]
-
-            picto = Pictogram(word,row,column,page_name,id)
-
-            #Store the pictogram in the vocabulary
-            self.core_voc[id] = picto.get_pictogram_in_list()
-
-            last_id = id
-
-          #Get the link of the pictogram (directory pictogram)
-          elif len(col) > 1:            
-            pointed_link = col[1]            			
-            self.core_voc.get(last_id)[4] = pointed_link
-
-    #The source file is not a '.txt' file
-    else:
-      raise Exception("Incorrect file format !")
-
-    #Generate the entire grid and its pages and slots from the core vocabulary
-    self.add_core_voc()
 
   def generate_grid_dict(self, input_file):
     '''Generate a grid from a dictionary input file with (format: {`id_picto`:[`nom`,`ligne`,`colonne`,`page`, `page_dest`]}.

@@ -87,7 +87,7 @@ def sentence_cost(grid, sentence, distance_mode, movement_factor = 1, selection_
 
 
 
-def grid_cost(grid,input_file,root_name = "accueil", average_option = True, distance_mode = "euclidean"):
+def grid_cost(grid,input_corpus,root_name = "accueil", average_option = True, distance_mode = "euclidean"):
 
     '''Main function to compute the cost of a given grid and a source file.
 
@@ -99,32 +99,35 @@ def grid_cost(grid,input_file,root_name = "accueil", average_option = True, dist
     :rtype: float
     '''
     
-    #The source file is a '.txt' file
-    if(input_file.endswith('.txt')):
-
-      #Source file opening
-      with codecs.open(input_file,"r","utf-8") as rawFile:
+    for file_path in input_corpus:
 
         cost = 0
         n = 0
-        #For each line in the file, split the line
-        for line in rawFile:
-            #Line preparation
-            line = line.strip()
-            line = line.split(" ")
-            #Cost computation
-            result = sentence_cost(grid,line,distance_mode)
-            cost+=result
-            n = n + 1
 
-        #Return the average cost
-        if(average_option):
-            return (cost / n)
-            
-        #Return the cost
+        #The source file is a '.txt' file
+        if(file_path.endswith('.txt')):
+
+            #Source file opening
+            with codecs.open(file_path,"r","utf-8") as rawFile:
+
+                #For each line in the file, split the line
+                for line in rawFile:
+                    #Line preparation
+                    line = line.strip()
+                    line = line.split(" ")
+                    #Cost computation
+                    result = sentence_cost(grid,line,distance_mode)
+                    cost+=result
+                    n = n + 1
+                    
+        #The source file is not a '.txt' file
         else:
-            return cost
-    
-    #The source file is not a '.txt' file
+            raise Exception("Incorrect file format !")
+
+    #Return the average cost
+    if(average_option):
+        return (cost / n)
+            
+    #Return the cost
     else:
-      raise Exception("Incorrect file format !")
+        return cost
