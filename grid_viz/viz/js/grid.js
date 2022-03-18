@@ -6,8 +6,8 @@ let Grid = (() => {
    * Dimension of the grid in the visualization
    */
   self.margin = {top: 30, right: 30, bottom: 30, left: 30},
-  self.width = 1000 - self.margin.left - self.margin.right,
-  self.height = 1000 - self.margin.top - self.margin.bottom;
+  self.width = 750 - self.margin.left - self.margin.right,
+  self.height = 750 - self.margin.top - self.margin.bottom;
 
   /**
   * SVG Element that will contain the grid
@@ -66,6 +66,7 @@ let Grid = (() => {
      */
     var numcol = d3.max(data, d => d.col) + 1;
     var numrow = d3.max(data, d => d.row) + 1;
+    var maxlength = d3.max(data, d => d.word.length);
 
     x.domain(d3.range(numcol))
     y.domain(d3.range(numrow))
@@ -106,7 +107,7 @@ let Grid = (() => {
 
     self.search_mem = null;
 
-    //Listener
+    //Listener of the search bar
     const searchbar = function(event)
     {
       const word = document.getElementById("search").value;
@@ -114,12 +115,18 @@ let Grid = (() => {
       if(self.search_mem != null)
         {self.search_mem.style.fill = "white"}
       
-      self.search_mem = document.getElementById("r_"+word)
-      self.search_mem.style.fill = "green"
-      self.search_mem.style.opacity = 0.5
+      if(word !== "")
+      {
+        self.search_mem = document.getElementById("r_"+word)
+        self.search_mem.style.fill = "green"
+        self.search_mem.style.opacity = 0.5
+      }
     }
 
+    //Events for the search bar and the searching button
     const element = document.getElementById("mybutton");
+    const search_bar = document.getElementById("search");
+    search_bar.addEventListener('keyup', searchbar);
     element.addEventListener("click", searchbar);
 
     /**
@@ -144,7 +151,7 @@ let Grid = (() => {
         .attr("dy", ".35em")
           .attr("x", function(d) { return x(d.col) + self.width/(numcol * 4) })
         .attr("y", function(d) { return y(d.row) + self.height/(numcol * 2) })
-        .style("font-size", function(d) { return Math.min(2 / x.bandwidth(), (2 / x.bandwidth() - 8) / this.getComputedTextLength() * 24) + "px"; })
+        .style("font-size", function(d) { return self.width/(numcol * 1.7) - maxlength; })
         .text(function(d) { return d.word; })
         .attr("id",function(d) { return d.word; })
         .on("mouseover", mouseover)
