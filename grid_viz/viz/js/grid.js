@@ -103,23 +103,20 @@ let Grid = (() => {
           .style("opacity", 1)
     }
 
+
+    self.search_mem = null;
+
     //Listener
     const searchbar = function(event)
     {
       const word = document.getElementById("search").value;
-      self.container.selectAll()
-        .data(data.filter(d => d.word == word))
-        .enter()
-        .append("text")
-        .attr("dy", ".35em")
-          .attr("x", function(d) { return x(d.col) + self.width/(numcol * 4) })
-        .attr("y", function(d) { return y(d.row) + self.height/(numcol * 2) })
-        .style("font-size", function(d) { return Math.min(2 / x.bandwidth(), (2 / x.bandwidth() - 8) / this.getComputedTextLength() * 24) + "px"; })
-        .style("fill","blue")
-        .text(function(d) { return d.word; })
-        .on("mouseover", mouseover)
-        .on("mousemove", mousemove)
-        .on("mouseleave", mouseleave)
+
+      if(self.search_mem != null)
+        {self.search_mem.style.fill = "white"}
+      
+      self.search_mem = document.getElementById("r_"+word)
+      self.search_mem.style.fill = "green"
+      self.search_mem.style.opacity = 0.5
     }
 
     const element = document.getElementById("mybutton");
@@ -136,6 +133,7 @@ let Grid = (() => {
         .attr("y", function(d) { return y(d.row) })
         .attr("width", x.bandwidth() )
         .attr("height", y.bandwidth() )
+        .attr("id",function(d) { return "r_"+d.word; })
         .style("fill", "white" )
         .style("stroke","black")
 
@@ -148,6 +146,7 @@ let Grid = (() => {
         .attr("y", function(d) { return y(d.row) + self.height/(numcol * 2) })
         .style("font-size", function(d) { return Math.min(2 / x.bandwidth(), (2 / x.bandwidth() - 8) / this.getComputedTextLength() * 24) + "px"; })
         .text(function(d) { return d.word; })
+        .attr("id",function(d) { return d.word; })
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave)
