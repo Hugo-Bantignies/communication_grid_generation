@@ -126,8 +126,9 @@ let Grid = (() => {
     const searchmarker = function(event)
     {
       const word = document.getElementById("search").value;
-      document.getElementById("r_"+word).fill = "blue"
-      document.getElementById("r_"+word).opacity = 0.5
+      element = document.getElementById("r_"+word);
+      element.fill = "blue";
+      element.opacity = 0.5;
     }
 
     //Events for the search bar and the searching button

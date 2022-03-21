@@ -7,6 +7,9 @@ import sys
 import spacy
 from spacy.lang.fr.stop_words import STOP_WORDS as fr_stop
 
+#Json
+import json
+
 def trs_to_txt(input_path,output_path = "default.txt"):
     '''Function to convert a ".trs" file into a ".txt" file'''
 
@@ -37,6 +40,34 @@ def trs_to_txt(input_path,output_path = "default.txt"):
         #Close the file
         output_file.close()
 
+def tcof_stopwords_write(input_file = "default.json",stopwords = []):
+    '''Function to write a stopwords list into a JSON file.
+    '''
+
+    #Write the list in the JSON file
+    with codecs.open(input_file,'w',"utf-8") as file:
+        json.dump(stopwords,file,indent=0)
+    
+    file.close()
+    
+def tcof_stopwords_load(input_file):
+    '''Function to load a stopwords list from a JSON file.
+    '''
+
+    if(input_file.endswith(".json")):
+        #Extract the list from the JSON file
+        with codecs.open(input_file,"r","utf-8") as file:
+            stopwords = json.load(file)
+        
+        file.close()
+
+        return stopwords
+        
+    
+    else:
+        raise Exception("Not correct file format, .json was expected !")
+    
+
 def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     '''Function to clean a file coming from the tcof dataset.'''
 
@@ -44,7 +75,7 @@ def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     nlp = spacy.load('fr_core_news_md')
 
     #Load the stopwords list from the spacy library
-    stopwords = list(fr_stop) + ['///','*','+','?','!','.','-','/','>','<',',','(',')','{','}','/0','#','']
+    stopwords = tcof_stopwords_load("tcof_stopwords.json")
 
     #Loading the input file
     input_f = open(input_file).read()
