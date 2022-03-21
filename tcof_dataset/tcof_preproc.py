@@ -67,7 +67,6 @@ def tcof_stopwords_load(input_file):
     else:
         raise Exception("Not correct file format, .json was expected !")
     
-
 def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     '''Function to clean a file coming from the tcof dataset.'''
 
@@ -75,7 +74,7 @@ def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     nlp = spacy.load('fr_core_news_md')
 
     #Load the stopwords list from the spacy library
-    stopwords = tcof_stopwords_load("tcof_stopwords.json")
+    stopwords = tcof_stopwords_load("../../tcof_stopwords.json")
 
     #Loading the input file
     input_f = open(input_file).read()
@@ -87,11 +86,17 @@ def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     doc = nlp(input_f)
     
     for token in doc:
+    
         if(token.lemma_ not in stopwords or stop_words == False):
+            new_token = token.lemma_.lower()
+            #Strip the start of the word in the tcof
+            new_token = new_token.strip('-')
+
             if(token.lemma_.endswith('\n')):
-                output_f.write(str(token.lemma_.lower()))
+                #Write and strip the hesitation in the tcof
+                output_f.write(str(new_token.strip("/")))
             else:
-                output_f.write(str(token.lemma_.lower()) + " ")
+                output_f.write(str(new_token.strip("/")) + " ")
 
     output_f.close()
 
