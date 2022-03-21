@@ -35,7 +35,7 @@ def manhattan_dist(x1,y1,x2,y2):
     '''
     return abs((x1 - x2)) + abs((y1 - y2))
 
-def sentence_cost(grid, sentence, distance_mode, movement_factor = 1, selection_factor = 1):
+def sentence_cost(grid, sentence, distance_mode, movement_factor = 1, selection_factor = 1, root_name = "accueil"):
     '''Function to compute the cost of a grid (with only one main page)
     :param grid: grid from which the cost will be computed
     :type: class: Grid
@@ -60,11 +60,8 @@ def sentence_cost(grid, sentence, distance_mode, movement_factor = 1, selection_
     #For each word in the sentence
     for word in sentence:
         
-        #For each pictogram in the grid
-        for picto in grid_voc.values():
-            if(picto[0] == word):
-                picto_list.append(picto)
-                break
+        #Access the dictionary to get the word (O(1) in average for a python dict)
+        picto_list.append(grid_voc[str(word)+"@"+root_name])
 
     #For each word in the sentence
     for i in range(len(picto_list)):

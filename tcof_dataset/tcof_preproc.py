@@ -44,7 +44,7 @@ def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     nlp = spacy.load('fr_core_news_md')
 
     #Load the stopwords list from the spacy library
-    stopwords = list(fr_stop) + ['///','*','+','?','!','.','-','/','>','<',',']
+    stopwords = list(fr_stop) + ['///','*','+','?','!','.','-','/','>','<',',','(',')','{','}','/0','#','']
 
     #Loading the input file
     input_f = open(input_file).read()

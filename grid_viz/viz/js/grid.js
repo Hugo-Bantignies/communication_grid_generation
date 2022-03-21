@@ -123,11 +123,18 @@ let Grid = (() => {
       }
     }
 
+    const searchmarker = function(event)
+    {
+      const word = document.getElementById("search").value;
+      document.getElementById("r_"+word).fill = "blue"
+      document.getElementById("r_"+word).opacity = 0.5
+    }
+
     //Events for the search bar and the searching button
     const element = document.getElementById("mybutton");
     const search_bar = document.getElementById("search");
     search_bar.addEventListener('keyup', searchbar);
-    element.addEventListener("click", searchbar);
+    element.addEventListener("click", searchmarker);
 
     /**
      * Fill the grid : squares and corresponding word text.
@@ -151,7 +158,7 @@ let Grid = (() => {
         .attr("dy", ".35em")
           .attr("x", function(d) { return x(d.col) + self.width/(numcol * 4) })
         .attr("y", function(d) { return y(d.row) + self.height/(numcol * 2) })
-        .style("font-size", function(d) { return self.width/(numcol * 1.7) - maxlength; })
+        .style("font-size", function(d) { return self.width /(numcol * 1.5) - maxlength; })
         .text(function(d) { return d.word; })
         .attr("id",function(d) { return d.word; })
         .on("mouseover", mouseover)
