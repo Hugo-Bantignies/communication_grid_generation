@@ -112,7 +112,7 @@ let Grid = (() => {
     {
       const word = document.getElementById("search").value;
 
-      if(self.search_mem != null)
+      if(self.search_mem != null && self.search_mem.style.fill != "blue")
         {self.search_mem.style.fill = "white"}
       
       if(word !== "")
@@ -123,19 +123,30 @@ let Grid = (() => {
       }
     }
 
+    //Listener of the marker button
     const searchmarker = function(event)
     {
       const word = document.getElementById("search").value;
-      element = document.getElementById("r_"+word);
-      element.fill = "blue";
-      element.opacity = 0.5;
+      var el = document.getElementById("r_"+word);
+      el.style.fill = "blue";
+      el.style.opacity = 0.5;
     }
 
-    //Events for the search bar and the searching button
-    const element = document.getElementById("mybutton");
+    //Listener of the reset button
+    const resetmarker = function(event)
+    {
+      self.container.selectAll("rect").style("fill","white");
+      document.getElementById("search").value = "";
+    }
+
+    //Events for the search bar and the marking buttons
+    const marker = document.getElementById("markbutton");
+    const reset = document.getElementById("resetmark");
     const search_bar = document.getElementById("search");
+    
     search_bar.addEventListener('keyup', searchbar);
-    element.addEventListener("click", searchmarker);
+    marker.addEventListener("click", searchmarker);
+    reset.addEventListener("click",resetmarker);
 
     /**
      * Fill the grid : squares and corresponding word text.
