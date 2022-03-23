@@ -129,7 +129,18 @@ let Grid = (() => {
           .style("opacity", 0.7)
     }
 
-    const mousemove = function(event,d) {
+    const mouseleave = function(d) {
+      self.zoom_container.style("opacity", 0)
+      d3.select(this)
+          .style("fill", "white")
+          .style("opacity", 1);
+    }
+
+
+    /**
+     * Functon to display the zoom grid of the selected word
+     */
+    const zoomGrid = function(event,d) {
 
       //Text to modify
       var text;
@@ -157,13 +168,6 @@ let Grid = (() => {
       }
     }
 
-    const mouseleave = function(d) {
-      self.zoom_container.style("opacity", 0)
-      d3.select(this)
-          .style("fill", "white")
-          .style("opacity", 1);
-    }
-
 
     self.search_mem = null;
 
@@ -177,10 +181,19 @@ let Grid = (() => {
       
       if(word !== "")
       {
+        self.zoom_container.style("opacity", 1)
         self.search_mem = document.getElementById("r_"+word)
         self.search_mem.style.fill = "green"
         self.search_mem.style.opacity = 0.5
+        for(let i = 0; i < nbwords; i++)
+        {
+          if(data[i].word == word)
+          {
+            zoomGrid(event,data[i]);
+          }
+        }
       }
+      else {self.zoom_container.style("opacity", 0)}
     }
 
     //Listener of the marker button
@@ -224,7 +237,7 @@ let Grid = (() => {
         .style("fill", "white" )
         .style("stroke","black")
         .on("mouseover", mouseover)
-        .on("mousemove", mousemove)
+        .on("mousemove", zoomGrid)
         .on("mouseleave", mouseleave)
 
       const zoom_rect = d3.range(self.zoom_row*self.zoom_col);
