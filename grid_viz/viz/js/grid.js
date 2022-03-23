@@ -3,49 +3,90 @@ let Grid = (() => {
   let self = {};
 
   /**
-   * Dimension of the grid in the visualization
+   * Dimension of the main grid in the visualization
    */
-  self.margin = {top: 30, right: 30, bottom: 30, left: 30},
-  self.width = 750 - self.margin.left - self.margin.right,
-  self.height = 750 - self.margin.top - self.margin.bottom;
+  self.main_margin = {top: 30, right: 30, bottom: 30, left: 30},
+  self.main_width = 700 - self.main_margin.left - self.main_margin.right;
+  self.main_height = 700 - self.main_margin.top - self.main_margin.bottom;
 
   /**
-  * SVG Element that will contain the grid
+   * Dimension of the zoom grid in the visualization 
+   */
+  self.zoom_margin = {top:15, right: 15, bottom: 15, left: 15}
+  self.zoom_width = 550 - self.zoom_margin.left - self.zoom_margin.right;
+  self.zoom_height = 550 - self.zoom_margin.top - self.zoom_margin.bottom;
+
+  self.zoom_row = 7;
+  self.zoom_col = 7;
+
+  /**
+  * SVG Element that will contain the main grid
   */
-   const createSvg = (divName) => {
-    self.container = d3.select(divName)
+   const createMainSvg = (divName) => {
+    self.main_container = d3.select(divName)
     .append("svg")
-    .attr("width", self.width + self.margin.left + self.margin.right)
-    .attr("height", self.height + self.margin.top + self.margin.bottom)
+    .attr("width", self.main_width + self.main_margin.left + self.main_margin.right)
+    .attr("height", self.main_height + self.main_margin.top + self.main_margin.bottom)
     .append("g")
-    .attr("transform", `translate(${self.margin.left},${self.margin.top})`);
+    .attr("transform", `translate(${self.main_margin.left},${self.main_margin.top})`);
+   }
+
+   /**
+    * SVG Element that will contain the zoom grid
+    */
+   const createZoomSvg = (divname) => {
+     self.zoom_container = d3.select(divname)
+     .append("svg")
+     .attr("width", self.zoom_width + self.zoom_margin.left + self.zoom_margin.right)
+     .attr("height", self.zoom_height + self.zoom_margin.top + self.zoom_margin.bottom)
+     .append("g")
+     .attr("transform", `translate(${self.zoom_margin.left},${self.zoom_margin.top})`);
    }
 
 
   self.displayGrid = (divName) => {
 
-    createSvg(divName)
+    createMainSvg(divName)
+    createZoomSvg("#wordtip")
     
     /**
-     * X scale and axis
+     * X scale and axis for the main grid
      */
     const x = d3.scaleBand()
-    .range([ 0, self.width ])
+    .range([ 0, self.main_width ])
     .domain(d3.range(0))
     .padding(0.01);
-    self.container.append("g")
-    .attr("transform", `translate(0, ${self.height})`)
-    .call(d3.axisBottom(x))
+    self.main_container.append("g")
+    .attr("transform", `translate(0, ${self.main_height})`)
 
     /**
-     * Y scale and axis
+     * X scale and axis for the zoom grid
+     */
+     const x_zoom = d3.scaleBand()
+     .range([ 0, self.zoom_width ])
+     .domain(d3.range(0))
+     .padding(0.01);
+     self.zoom_container.append("g")
+     .attr("transform", `translate(0, ${self.zoom_height})`)
+
+    /**
+     * Y scale and axis for the main grid
      */
     const y = d3.scaleBand()
-    .range([ 0 , self.height ])
+    .range([ 0 , self.main_height ])
     .domain(d3.range(0))
     .padding(0.01);
-    self.container.append("g")
-    .call(d3.axisLeft(y));
+    self.main_container.append("g")
+
+
+    /**
+     * Y scale and axis for the zoom grid
+     */
+     const y_zoom = d3.scaleBand()
+     .range([ 0 , self.zoom_height ])
+     .domain(d3.range(0))
+     .padding(0.01);
+     self.zoom_container.append("g")
 
     /**
      * Data preparation (read and assignation)
@@ -67,41 +108,60 @@ let Grid = (() => {
     var numcol = d3.max(data, d => d.col) + 1;
     var numrow = d3.max(data, d => d.row) + 1;
     var maxlength = d3.max(data, d => d.word.length);
+    var nbwords = d3.count(data, d => d.row);
+
+    //Information display
+    d3.select("#information")
+    .text("Number of words : " + nbwords + "  (" + numrow + "x" + numcol + ")"); 
 
     x.domain(d3.range(numcol))
+    x_zoom.domain(d3.range(self.zoom_row))
     y.domain(d3.range(numrow))
-
-    // create a tooltip
-    const tooltip = d3.select("#pictogram_grid")
-      .append("div")
-      .style("opacity", 0)
-      .attr("class", "tooltip")
-      .style("background-color", "white")
-      .style("border", "solid")
-      .style("border-width", "2px")
-      .style("border-radius", "5px")
-      .style("padding", "5px")
+    y_zoom.domain(d3.range(self.zoom_col))
 
     /**
-     * Mouse : Three function that change the tooltip when user hover / move / leave a cell
+     * Mouse : Three function that change the wordtip when user hover / move / leave a cell
      */
     const mouseover = function(event,d) {
-      tooltip.style("opacity", 1)
+      self.zoom_container.style("opacity", 1)
       d3.select(this)
           .style("fill", "red")
-          .style("opacity", 0.8)
+          .style("opacity", 0.7)
     }
+
     const mousemove = function(event,d) {
-      tooltip
-        .html("Word : " + d.word)
-        .style("left", (event.x)/2 + "px")
-        .style("top", (event.y)/2 + "px")
+
+      //Text to modify
+      var text;
+
+      //Apply the filter from the middle
+      for(let i = -Math.floor(self.zoom_row/2); i < Math.ceil(self.zoom_row / 2); i++)
+      {
+        for(let j = -Math.floor(self.zoom_col/2); j < Math.ceil(self.zoom_col / 2); j++)
+        {
+          //If not out of bounds
+          if(d.row + i >= 0 && d.col + j >= 0 && d.row + i < numrow && d.col + j < numcol)
+          {
+            text = document.getElementById("text"+((i+Math.floor(self.zoom_row/2)) 
+                                                    * self.zoom_col + (j+Math.floor(self.zoom_col/2))));
+            word = data[((d.row + i) * numcol)+ d.col + j].word
+            text.textContent = word;
+          }
+          //If out of bounds
+          else{
+            text = document.getElementById("text"+((i+Math.floor(self.zoom_row/2)) 
+                                                    * self.zoom_col + (j+Math.floor(self.zoom_col/2))));
+            text.textContent = "";
+          }
+        }
+      }
     }
+
     const mouseleave = function(d) {
-      tooltip.style("opacity", 0)
+      self.zoom_container.style("opacity", 0)
       d3.select(this)
-          .style("fill", "black")
-          .style("opacity", 1)
+          .style("fill", "white")
+          .style("opacity", 1);
     }
 
 
@@ -135,7 +195,7 @@ let Grid = (() => {
     //Listener of the reset button
     const resetmarker = function(event)
     {
-      self.container.selectAll("rect").style("fill","white");
+      self.main_container.selectAll("rect").style("fill","white");
       document.getElementById("search").value = "";
     }
 
@@ -151,7 +211,8 @@ let Grid = (() => {
     /**
      * Fill the grid : squares and corresponding word text.
      */
-    self.container.selectAll()
+    
+    self.main_container.selectAll()
       .data(data)
       .enter()
       .append("rect")
@@ -162,20 +223,38 @@ let Grid = (() => {
         .attr("id",function(d) { return "r_"+d.word; })
         .style("fill", "white" )
         .style("stroke","black")
-
-    self.container.selectAll()
-      .data(data)
-      .enter()
-        .append("text")
-        .attr("dy", ".35em")
-          .attr("x", function(d) { return x(d.col) + self.width/(numcol * 4) })
-        .attr("y", function(d) { return y(d.row) + self.height/(numcol * 2) })
-        .style("font-size", function(d) { return self.width /(numcol * 1.5) - maxlength; })
-        .text(function(d) { return d.word; })
-        .attr("id",function(d) { return d.word; })
         .on("mouseover", mouseover)
         .on("mousemove", mousemove)
         .on("mouseleave", mouseleave)
+
+      const zoom_rect = d3.range(self.zoom_row*self.zoom_col);
+
+      self.zoom_container.selectAll()
+        .data(zoom_rect)
+        .enter()
+        .append("rect")
+          .attr("x", function(d) { return x_zoom(d%self.zoom_row); })
+          .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)); })
+          .attr("width", x_zoom.bandwidth() )
+          .attr("height", y_zoom.bandwidth() )
+          .style("fill", function(d) { 
+            if(d == Math.floor((self.zoom_row * self.zoom_col) / 2))
+            {return "red";}
+            else{return "white";}
+          })
+          .style("stroke","black")
+          .style("opacity",0.7)
+
+      self.zoom_container.selectAll()
+      .data(zoom_rect)
+      .enter()
+        .append("text")
+        .attr("dy", ".35em")
+          .attr("x", function(d) { return x_zoom(d%self.zoom_row) + self.zoom_width/(self.zoom_row * 4) })
+        .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)) + self.zoom_height/(self.zoom_col * 2) })
+        .attr("id",function(d) {return "text"+d})
+        .style("font-size", 11)
+        .text("")
     })
   }
 

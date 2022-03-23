@@ -665,8 +665,6 @@ class GeneticPGCSOptimizer():
       print("## Optimizer Parameters ##")
       print("========================================================================")
       print("------------------------------------------------------------------------")
-      print("Source files : " + str(self.source_files) + "     Training file : " + str(self.training_files))
-      print("------------------------------------------------------------------------")
       print("  INITIAL POPULATION SIZE : "+ str(self.pop_size)+"\n")
       print("  NUMBER OF GENERATION : "+ str(self.gen_number)+"\n")
       print("  CROSSOVER RATE : "+ str(self.cross_proba * 100)+"%     MUTATION RATE : "+ str(self.mutation_proba * 100)+"%\n")

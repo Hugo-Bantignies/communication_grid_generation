@@ -1,0 +1,17 @@
+#information
+{
+    background-color: white;
+    border: solid;
+    border-width: 1px;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 10px;
+    width: 300px;  
+}
+
+#wordtip
+{
+    position: relative;
+    left: 700px;
+    bottom: 650px;
+}

@@ -10,6 +10,9 @@ from spacy.lang.fr.stop_words import STOP_WORDS as fr_stop
 #Json
 import json
 
+#Regular expression
+import re
+
 def trs_to_txt(input_path,output_path = "default.txt"):
     '''Function to convert a ".trs" file into a ".txt" file'''
 
@@ -67,6 +70,13 @@ def tcof_stopwords_load(input_file):
     else:
         raise Exception("Not correct file format, .json was expected !")
     
+def check_trancript_symbol(word):
+    '''Function to filter transcript sumboles from the TCOF dataset
+    '''
+
+    #Left hesitation, right hesitation, start of the word
+    return re.search("/.+",word) or re.search(".+/",word) or re.search(".+-",word)
+    
 def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     '''Function to clean a file coming from the tcof dataset.'''
 
@@ -87,16 +97,13 @@ def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     
     for token in doc:
     
-        if(token.lemma_ not in stopwords or stop_words == False):
+        if(token.lemma_ not in stopwords or stop_words == False or check_trancript_symbol(token.lemma_)):
             new_token = token.lemma_.lower()
-            #Strip the start of the word in the tcof
-            new_token = new_token.strip('-')
 
             if(token.lemma_.endswith('\n')):
-                #Write and strip the hesitation in the tcof
-                output_f.write(str(new_token.strip("/")))
+                output_f.write(str(new_token))
             else:
-                output_f.write(str(new_token.strip("/")) + " ")
+                output_f.write(str(new_token) + " ")
 
     output_f.close()
 
