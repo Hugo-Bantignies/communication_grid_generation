@@ -1,5 +1,0 @@
-// Test
-digraph {
-	node [shape=record]
-	accueil [label="{  { <0>corbeau |<1>narval |<2>rat |<3>loup |<4>serpent } | { <5>lapin |<6>dauphin |<7>merle |<8>tigre |<9>renard } | { <10>oiseau |<11>le |<12>chien |<13>requin |<14>mulot } | { <15>toucan |<16>cochon |<17>panda |<18>cheval |<19>singe } | { <20>hibou |<21>chat |<22>crabe |<23>ane |<24>pingouin }  }"]
-}
