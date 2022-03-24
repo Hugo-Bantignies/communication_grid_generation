@@ -1,25 +1,25 @@
-bon intéresse livre 
-ben ben oui 
+intéresse livre 
+oui 
 
-tchoupi /0 il/ faire 
-ben savoir aller voir aller 
+tchoupi faire 
+savoir aller voir aller 
 tchoupi 
 titre tchoupi peur orage 
 tchoupi peur orage 
-ouais faire dernier fois lit livre raconter 
+faire dernier fois lit livre raconter 
 millimètre 
 tchoupi peur orage soir tchoupi énerver maman suffire tchoupi tranquille finir assiette voir regarde 
 ouai 
-tchoupi /0 est/ siège manger falloir asseoir normalement 
-oh oui falloir 
-ben non faire plein bêtise apparement regarde manger coté table 
+tchoupi siège manger falloir asseoir normalement 
+oui falloir 
+non faire plein bêtise apparement regarde manger coté table 
 millimètre 
 voir 
 pleut 
-oui aller tchoupi heure dormir calme demain fatiguer tchoupi râle envie aller dormir sommeil aller tchoupi laisse petit lumière bon nuit flic flac floc tchoupi entendre pluie tomber rassurer tac badaboum tonnerre commencer gronder tchoupi bouche oreille bruit papa maman peur appeler tchoupi vouloir rester pleure peur papa venir rassurer tchoupi voir tchoupi rien petit orage bruit tonnerre entendre 
+oui aller tchoupi heure dormir calme demain fatiguer tchoupi râle envie aller dormir sommeil aller tchoupi laisse petit lumière nuit floc tchoupi entendre pluie tomber rassurer tonnerre commencer gronder tchoupi bouche oreille bruit papa maman peur appeler tchoupi vouloir rester pleure peur papa venir rassurer tchoupi voir tchoupi rien petit orage bruit tonnerre entendre 
 millimètre 
-regard tchoupi éclair briller ciel beau tchoupi aller tchoupi retourne lit voir tchoupi raison peur dormir bien badaboum badaboum tchoupi servir fort doudou bras peur doudou tonnerre refaire raconter histoire livre 
-euh tchoupi peur orage 
+regard tchoupi éclair briller ciel beau tchoupi aller tchoupi retourne lit voir tchoupi raison peur dormir bien tchoupi servir fort doudou bras peur doudou tonnerre refaire raconter histoire livre 
+tchoupi peur orage 
 oui passer 
 siège 
 oui siège faire 
@@ -29,19 +29,19 @@ oui
 oui vrai 
 orage 
 oui commencer regarde noir vent souffl 
-hum 
+
 voir vent souffle 
-ben souffle pfff 
+souffle pfff 
 oui regarde arbre pencher 
 millimètre 
 passer 
-v- vouloir vouloir p- vouloir arrêter énerver 
+vouloir vouloir vouloir arrêter énerver 
 vouloir arrêter énerver 
 non 
 vouloir aller 
 coucher 
 oui vouloir aller coucher 
-envier l- utiliser petit lumière 
+envier utiliser petit lumière 
 maman aller petit lumière envier dormir 
 non 
 non 
@@ -49,27 +49,27 @@ sommeil
 sommeil oui passer 
 pleuvoir peur 
 peur 
-euh bon peur orage 
+peur orage 
 oui 
-l- éclair 
+éclair 
 oui bien éclair 
 tchoupi vouloir entendre 
 vouloir entendre peur 
 oui 
 faire entendre 
-cache cache coussin av- main 
+cache cache coussin main 
 oui cache oreille main coussin 
-hum 
 
-peur or- appeler papa maman peur noir 
+
+peur appeler papa maman peur noir 
 oui peur noir orage 
 oui papa papa console 
 oui console papa montre 
-montre faire peur qu- beau 
+montre faire peur beau 
 éclair beal ouh tombe adrien remonter aller aller venir finir 
 accord 
 montre orage beau joli éclair 
-euh euh euh euh euh euh fff fff euh euh euh faire peur orage 
+fff fff faire peur orage 
 servir non 
 fort fort doudou 
 servir fort doudou peur 
@@ -79,7 +79,7 @@ servir fort bras peur orage
 voiler servir fort bras peur orage 
 
 peur orage 
-/hum non/ 
+
 jamais 
 non 
 faire beaucoup bruit 
@@ -88,26 +88,26 @@ oui faire beau pleuvoir
 non 
 non aller reraconter accord 
 raconter 
-ouais voir regarde pleuvoir livre 
+voir regarde pleuvoir livre 
 ouai 
 aller raconte 
 énerver soir 
 énerver soir oui faire 
-l- maman finir assiette tchoupi 
+maman finir assiette tchoupi 
 soir manger falloir finir assiette 
-vouloir maman dormir euh euh euh euh s- aller fatiguer 
+vouloir maman dormir aller fatiguer 
 demain fatiguer dormir raison tchoupi envier aller coucher 
-non i- sommeil 
+non sommeil 
 sommeil faire 
-/je aller vas/ dormir euh sommeil 
+aller dormir sommeil 
 saute lit 
-maman j'- petit lumière revoir tchoupi dormir bien 
+maman petit lumière revoir tchoupi dormir bien 
 oui vrai 
-tchoupi flic flac flac 
-faire flic flac floc 
+tchoupi 
+faire floc 
 orage 
 orage pluie 
-appeler oh papa maman 
+appeler papa maman 
 appeler papa maman appeler regarde 
 orage 
 appeler 
@@ -130,16 +130,16 @@ millimètre
 appeler papa maman raison 
 papa venir consoler 
 venir consoler oui 
--ce 
-oh oh beau éclair tchoupi 
+
+beau éclair tchoupi 
 montre falloir peur 
 non 
 joli 
-bah oui 
+oui 
 
 tchoupi peur tchoupi servir fort doudou bras 
 oui servir fort doudou bras rassurer 
-mh 
+
 doudou 
 doudou peur éclair 
 oui vrai peur éclair 

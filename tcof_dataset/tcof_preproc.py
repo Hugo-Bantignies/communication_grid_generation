@@ -75,7 +75,13 @@ def check_trancript_symbol(word):
     '''
 
     #Left hesitation, right hesitation, start of the word
-    return re.search("/.+",word) or re.search(".+/",word) or re.search(".+-",word)
+    res = (re.search("^/.+",word) or re.search(".+/$",word) or re.search(".+-$",word) 
+            or re.search("^-.+",word) or re.search(".*=.*",word) or re.search(".*\(.*",word) or re.search(".*\).*",word))
+    if res:
+        return True
+
+    else:
+        return False
     
 def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     '''Function to clean a file coming from the tcof dataset.'''
@@ -97,7 +103,7 @@ def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     
     for token in doc:
     
-        if(token.lemma_ not in stopwords or stop_words == False or check_trancript_symbol(token.lemma_)):
+        if((token.lemma_ not in stopwords or stop_words == False) and (check_trancript_symbol(token.lemma_) == False)):
             new_token = token.lemma_.lower()
 
             if(token.lemma_.endswith('\n')):

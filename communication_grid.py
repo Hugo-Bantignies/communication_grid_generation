@@ -605,10 +605,10 @@ class Grid():
   #--------------------------------------------------------------
 
 
-  def to_csv(self):
+  def to_csv(self,output_file = "default.csv"):
 
     #Opening the csv file
-    f = open("default.csv","w",encoding = "utf-8",newline = '')
+    f = open(output_file,"w",encoding = "utf-8",newline = '')
 
     #Initialization of the writer
     writer = csv.writer(f)

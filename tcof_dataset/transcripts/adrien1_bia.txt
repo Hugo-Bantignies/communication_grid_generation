@@ -4,12 +4,12 @@ rouge gorge
 oui 
 méchant 
 serpent 
-serpent -ce faire éléphant regarde 
+serpent faire éléphant regarde 
 oui marche eau 
 marche eau 
 ouai 
 croire papa bébé éléphant 
-oui euh non maman élépher 
+oui non maman élépher 
 maman élépher 
 oui 
 oiseau voler regarde 
@@ -50,16 +50,16 @@ non facile
 dur 
 non dur 
 
-/rien regarde/ dur 
+dur 
 grand 
 oui grand 
 ouh grand 
-euh 
-vouloir /mais même/ gros 
+
+vouloir gros 
 non casse non non 
 casse vouloir voir 
 oui 
-accord oh ouh zèbre amusant puzzle bien amusant 
+accord ouh zèbre amusant puzzle bien amusant 
 millimètre 
 faire puzzle 
 facile facile 
@@ -87,17 +87,17 @@ amusant
 oui 
 ouh fatiguer quell couleur serpent 
 vert 
--ce vert 
+vert 
 crocodile 
 crocodile 
 oui 
 savoir crocodile 
 crocodile 
-oui /0 est/ presque 
-/très dur crocodile 
+oui presque 
+dur crocodile 
 croco 
-cro- crocodile 
--ce rose 
+crocodile 
+rose 
 oiseau 
 oiseau cassé 
 
@@ -107,7 +107,7 @@ prendre main
 main 
 enlever 
 
-mh 
+
 remettre pièce 
 mettre 
 recommencer 
@@ -118,7 +118,7 @@ dur
 dur 
 ouai 
 vouloir essayer heure 
-mh oui 
+oui 
 oui dur vouloir essayer gros 
 non boite 
 boite 
@@ -146,7 +146,7 @@ zèbre
 zèbre 
 zèbre 
 oui faire école 
-hum bah 
+
 cogner tête 
 brrrr 
 joue 
@@ -154,30 +154,30 @@ oui
 copain 
 oui 
 appeler 
-euh ludovic 
+ludovic 
 ludovic gentil 
 faire bêtise 
 vrai faire bêtise 
 millimètre 
 non bien faire bêtise 
 faire tire langue 
-oh tire langue maîtresse petit garçon petit fille 
+tire langue maîtresse petit garçon petit fille 
 oui 
 
 
-mh copain 
+copain 
 oui 
 tirer jamais langue 
 non 
 tirer langue heure croire voir petit bout langue eter 
 non peur 
-aurélie oh faire 
-tire langue j- essuie 
+aurélie faire 
+tire langue essuie 
 enlever ouai 
-ouais essuie lèvre 
+essuie lèvre 
 oui 
 lèche babine 
 ouh rra 
 savoir lécher babine 
 non 
-savoir bon 
+savoir 

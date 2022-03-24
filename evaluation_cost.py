@@ -96,10 +96,10 @@ def grid_cost(grid,input_corpus,root_name = "accueil", average_option = True, di
     :rtype: float
     '''
     
+    cost = 0
+    n = 0
+    
     for file_path in input_corpus:
-
-        cost = 0
-        n = 0
 
         #The source file is a '.txt' file
         if(file_path.endswith('.txt')):
