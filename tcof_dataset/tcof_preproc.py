@@ -5,7 +5,11 @@ import sys
 
 #Spacy
 import spacy
-from spacy.lang.fr.stop_words import STOP_WORDS as fr_stop
+#from spacy.lang.fr.stop_words import STOP_WORDS as fr_stop
+
+#Stanza
+import stanza
+import spacy_stanza
 
 #Json
 import json
@@ -87,7 +91,8 @@ def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
     '''Function to clean a file coming from the tcof dataset.'''
 
     #Load the fr model (lemmatizer, morpholizer, parser, tok2vec, ...)
-    nlp = spacy.load('fr_core_news_md')
+    nlp = spacy_stanza.load_pipeline("fr")
+    #nlp = spacy.load('fr_dep_news_trf')
 
     #Load the stopwords list from the spacy library
     stopwords = tcof_stopwords_load("../../tcof_stopwords.json")
@@ -100,16 +105,23 @@ def tcof_preprocessing(input_file,output_file = "output.txt",stop_words = True):
 
     #Processing pipeline
     doc = nlp(input_f)
-    
-    for token in doc:
-    
-        if((token.lemma_ not in stopwords or stop_words == False) and (check_trancript_symbol(token.lemma_) == False)):
-            new_token = token.lemma_.lower()
 
-            if(token.lemma_.endswith('\n')):
-                output_f.write(str(new_token))
-            else:
-                output_f.write(str(new_token) + " ")
+    for sent in doc.sents:
+
+        new_sent = ""
+    
+        for token in sent:
+        
+            if((token.lemma_ not in stopwords or stop_words == False) and (check_trancript_symbol(token.lemma_) == False)):
+                
+                new_token = token.lemma_.lower()
+
+                if(new_sent == ""):
+                    new_sent = new_token.strip("?")
+                else:
+                    new_sent = new_sent + " " + new_token.strip("?")
+
+        output_f.write(str(new_sent) + "\n")
 
     output_f.close()
 
