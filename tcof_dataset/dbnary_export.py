@@ -11,6 +11,7 @@ import json
 
 
 def export_dbnary(dbnary_file,output_file = "default.json",language = "fr"):
+    '''Function to export the entries of a dbnary dictionnary'''
 
     #Parsing of dbnary
     g = Graph()
@@ -46,6 +47,7 @@ def export_dbnary(dbnary_file,output_file = "default.json",language = "fr"):
 
 
 def load_dictionary(input_file):
+    '''Load the dictionary from the json file'''
 
     if(input_file.endswith(".json")):
 

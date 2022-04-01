@@ -137,13 +137,14 @@ def tcof_preprocessing(input_file,nlp,dico,output_file = "output.txt",stop_words
     output_f.close()
 
 
-def tcof_pipeline(directory_path):
+def tcof_pipeline(directory_path,dict_path,language = "fr"):
+    '''Pipeline to preprocess the tcof dataset'''
 
     #Load the fr model (lemmatizer, morpholizer, parser, tok2vec, ...)
-    nlp = spacy_stanza.load_pipeline("fr",verbose = False,use_gpu = False)
+    stanza_nlp = spacy_stanza.load_pipeline(language,verbose = False,use_gpu = True)
 
     #Loading the dictionary
-    dico = load_dictionary("../../french.json")
+    dict = load_dictionary(dict_path)
 
     #Get all the files in the directory
     name_list = []
@@ -152,6 +153,7 @@ def tcof_pipeline(directory_path):
             name_list.append(name)
     
     nb_file = len(name_list)
+
     for i in tqdm(range(nb_file), desc = "Preprocessing", unit = "file"):
         file_start = name_list[i].strip(".trs")
 
@@ -161,6 +163,8 @@ def tcof_pipeline(directory_path):
         trs_to_txt(directory_path+"/transcripts_trs/"+name_list[i],directory_path+"/transcripts_txt/"+file_start+".txt")
 
         #From raw txt to preprocessed txt
-        tcof_preprocessing(directory_path+"/transcripts_txt/"+file_start+".txt",nlp,dico,directory_path+"/preproc_transcripts_txt/"+file_start+".txt")
+        tcof_preprocessing(directory_path+"/transcripts_txt/"+file_start+".txt",stanza_nlp,dict,directory_path+"/preproc_transcripts_txt/"+file_start+".txt")
+        
 
-tcof_pipeline("Corpus_test")
+if __name__ == "__main__":
+    tcof_pipeline(directory_path = "Corpus_test", dict_path = "../../french.json", language = "fr")
