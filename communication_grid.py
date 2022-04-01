@@ -1,27 +1,9 @@
-#!python -m pip install networkx
-#!python -m pip install matplotlib==2.2.3
-#!python -m pip install ipywidgets
-#!python -m pip install graphviz
-#!python -m pip install pandas
-#!python -m pip install pudb
-#!python -m pip install nbconvert
-#!python -m pip install nbconvert -U
-#coding=utf-8
-
-
-# %matplotlib
 import matplotlib.pyplot as plt
 import random
 import copy
 import math
-from graphviz import Digraph
-
-import networkx as nx
-from networkx import *
-
-from utils import *
-
 import csv
+from utils import *
 
 class Pictogram:
     '''Object that will be stored in a slot. It contains several informations.
@@ -624,36 +606,6 @@ class Grid():
     
     f.close()
 
-  def to_graph(self):
-    '''Génére un graphe décrivant la structure de la grille
-
-    :return: un graphe dirigé
-    :rtype: classe: `networkx.DiGraph`
-    '''
-
-    nodes = set([])
-    edges = set([])
-    for key,page in self.pages.items():
-      nodes.add(key)
-      slots = page.slot_list
-      for items in slots:
-        for slot in items:
-          if slot != None:
-            dest = slot.page_destination
-            if dest != None:
-              dest = dest.name
-              edges.add((key, dest))
-    
-    G=nx.DiGraph()
-    G.add_nodes_from(nodes)
-    G.add_edges_from(edges)
-    nx.draw(G,with_labels=True)
-    # plt.savefig("grid_graph.png") # save as png
-    plt.show() # display
-
-    return G
-
-
   def to_text(self, output_name='grid_text.csv'):
     '''Crée un fichier texte (.csv) décrivant la grille en format AUGCOM.
 
@@ -693,59 +645,3 @@ class Grid():
       s+= str(page) + '\n'
     s += '}\n'
     return s
-
-     
-  def display(self, name='default'):
-    '''Méthode d'affichage 2
-
-    Génére une image detaillé et intuitive de la structure de la grille. Il utilise Graphviz et le language DOT.
-    Il export automatiquement l'image en format png au répértoire actuel 
-
-    :param name: le nom du fichier image produit, defaults to 'default'
-    :type name: chaîne de charactères, optional
-    :return: renvoie un graphe dirigé
-    :rtype: classe: `networkx.DiGraph`
-    '''
-
-    graph = Digraph(comment='Test', node_attr={'shape': 'record'}) #, 'fixedsize': 'true', 'width':'4', 'height':'2'})
-    row_size = self.row_size
-    col_size = self.col_size
-    slot_index = 0
-
-    for page_name,page in self.pages.items():
-      
-      attribute_string = '{ '
-      separator_1 = ''
-      for row in range(0, row_size):
-        separator_2 = ''
-        attribute_string += f'{separator_1}' + ' { '
-        for col in range(0, col_size):
-          slot_index  = row * col_size + col
-          slot = page.get_slot(row, col)
-
-          if slot:
-            word = slot.get_word()
-            dest = slot.page_destination
-
-            #ajouter lien entre picto directoire et la page correspondante 
-            if dest:              
-              graph.edge(f'{page_name}:{slot_index}', f'{dest.name}')
-          elif row == 0 and col == 0:
-            word = page_name.upper()
-          else:
-            word = ''
-
-          attribute_string += f'{separator_2}<{slot_index}>{word} '
-          separator_2 = '|'
-
-        separator_1 = '|'
-        attribute_string += '} '
-      attribute_string += ' }'
-
-      #créer noeud 
-      graph.node(f'{page_name}', f'{attribute_string}')
-
-    # rendre l'image et l'export au format png  
-    graph.render(filename=name,format='png')
-
-    return graph

@@ -1,7 +1,5 @@
 import pandas as pd
 import codecs
-#XML or TRS file
-import xml.etree.ElementTree as ET
 
 def csv_to_txt(file_path, output_path = "input_corpora/default.txt",separator = "\t",row_number = -1):
 

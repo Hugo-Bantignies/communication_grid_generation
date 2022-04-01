@@ -4,7 +4,6 @@ from evaluation_cost import *
 from tqdm import tqdm
 
 #Paralellization
-
 import multiprocessing as mp
 
 #DEAP Framework (Genetic Algorithm)

@@ -150,18 +150,20 @@ let Grid = (() => {
       {
         for(let j = -Math.floor(self.zoom_col/2); j < Math.ceil(self.zoom_col / 2); j++)
         {
-          //If not out of bounds
-          if(d.row + i >= 0 && d.col + j >= 0 && d.row + i < numrow && d.col + j < numcol)
-          {
-            text = document.getElementById("text"+((i+Math.floor(self.zoom_row/2)) 
+
+          //Get the text
+          text = document.getElementById("text"+((i+Math.floor(self.zoom_row/2)) 
                                                     * self.zoom_col + (j+Math.floor(self.zoom_col/2))));
-            word = data[((d.row + i) * numcol)+ d.col + j].word
+          var p_row = d.row + i;
+          var p_col = d.col + j;
+          //If not out of bounds
+          if(p_row >= 0 && p_col >= 0 && p_row < numrow && p_col < numcol && ((p_row * p_col + p_col) <= nbwords))
+          {
+            word = data[((p_row) * numcol)+ p_col].word
             text.textContent = word;
           }
           //If out of bounds
           else{
-            text = document.getElementById("text"+((i+Math.floor(self.zoom_row/2)) 
-                                                    * self.zoom_col + (j+Math.floor(self.zoom_col/2))));
             text.textContent = "";
           }
         }

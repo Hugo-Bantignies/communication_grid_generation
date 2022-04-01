@@ -1,5 +1,7 @@
 import math
 import codecs
+
+#Communication grid
 from communication_grid import Grid
 
 
