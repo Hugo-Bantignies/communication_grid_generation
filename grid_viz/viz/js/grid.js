@@ -154,17 +154,27 @@ let Grid = (() => {
           //Get the text
           text = document.getElementById("text"+((i+Math.floor(self.zoom_row/2)) 
                                                     * self.zoom_col + (j+Math.floor(self.zoom_col/2))));
+
+          //Get the rect
+          rect = document.getElementById("rect"+((i+Math.floor(self.zoom_row/2)) 
+                                                    * self.zoom_col + (j+Math.floor(self.zoom_col/2))));
+
           var p_row = d.row + i;
           var p_col = d.col + j;
+          
           //If not out of bounds
-          if(p_row >= 0 && p_col >= 0 && p_row < numrow && p_col < numcol && ((p_row * p_col + p_col) <= nbwords))
+          if(p_row >= 0 && p_col >= 0 && p_row < numrow && p_col < numcol && ((p_row * numcol + p_col) < nbwords))
           {
-            word = data[((p_row) * numcol)+ p_col].word
+            word = data[(p_row * numcol)+ p_col].word
             text.textContent = word;
+
+            color = document.getElementById("r_"+word).style.fill;
+            rect.style.fill = color;
           }
           //If out of bounds
           else{
             text.textContent = "";
+            rect.style.fill = "white";
           }
         }
       }
@@ -204,7 +214,7 @@ let Grid = (() => {
       const word = document.getElementById("search").value;
       var el = document.getElementById("r_"+word);
       el.style.fill = "blue";
-      el.style.opacity = 0.5;
+      el.style.opacity = 0.7;
     }
 
     //Listener of the reset button
@@ -252,12 +262,9 @@ let Grid = (() => {
           .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)); })
           .attr("width", x_zoom.bandwidth() )
           .attr("height", y_zoom.bandwidth() )
-          .style("fill", function(d) { 
-            if(d == Math.floor((self.zoom_row * self.zoom_col) / 2))
-            {return "red";}
-            else{return "white";}
-          })
+          .attr("id",function(d) {return "rect"+d})
           .style("stroke","black")
+          .style("fill","white")
           .style("opacity",0.7)
 
       self.zoom_container.selectAll()
