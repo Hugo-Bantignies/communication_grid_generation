@@ -1,0 +1,16 @@
+###### Requirements ######
+
+##Tcof dataset##
+
+rdflib >= 6.1.1
+spacy >= 3.2.3
+stanza >= 1.3.0
+spacy_stanza >= 1.0.1
+regex >= 2022.3.2
+
+##Optimizer##
+
+pandas >= 0.9.0
+matplotlib >= 3.5.1
+deap >= 1.3.1
+tqdm >= 4.62.3

@@ -1,6 +1,5 @@
 #RDFLIB
 from cmath import exp
-import rdflib
 from rdflib import Graph
 
 #Codecs
