@@ -52,7 +52,7 @@ def sentence_cost(grid, sentence, distance_mode, movement_factor = 1, selection_
     '''
 
     #Initialization
-    grid_voc = grid.core_voc
+    grid_voc = grid.picto_voc
     cost = 0
     pic_s = None
     pic_e = None

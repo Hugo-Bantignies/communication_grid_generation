@@ -1,183 +1,59 @@
-puzzle animal 
-éléphant singe zèbre rouge gorge 
-rouge gorge 
-oui 
-méchant 
-serpent 
-serpent faire éléphant regarde 
-oui marche eau 
-marche eau 
-ouai 
-croire papa bébé éléphant 
-oui non maman élépher 
-maman élépher 
-oui 
-oiseau voler regarde 
-flamand 
-flamand rose savoir plein chose 
-ouai 
-regarde aller pièce 
-aller 
-tête 
-zèbre 
-zèbre oui 
-zèbre 
-zébr 
-zèbre 
+puzzle animal
+éléphant singe zèbre rouge-gorge rouge-gorge oui méchant
+serpent serpent faire éléphant
+regarder oui marcher eau marcher eau ouai croire papa bébé éléphant
+oui non maman éléphant maman éléphant oui oiseau voler
+regarder flamand flamand rose savoir plein chose regarder aller pièce
+aller tête zèbre zèbre oui zèbre zèbre
+zèbre aimer bien puzzle
+maman acheter maman acheter
+oui acheter
+magasin acheter faire cadeau
+non
 
-zèbre 
-aimer bien puzzle 
-maman acheter 
-maman acheter 
-oui 
-acheter 
-magasin acheter 
-faire cadeau 
-non raymond béa 
-raymond béa raymond béa 
-ouh ami 
-millimètre 
-oui raymond béa acheter puzzle 
-oui 
-gentil 
-gentil 
-gentil 
-oui 
-aimer bien puzzle 
+ami oui acheter puzzle
+oui gentil gentil gentil oui aimer bien puzzle
+facile faire
+non facile dur
+non dur quoi
+rien regarder dur
+grand
+oui grand grand vouloir gros non casser non non casser vouloir voir oui accord zèbre amusant puzzle bien amusant
+faire puzzle
+facile facile non facile non grand faire oui aller refaire aller refaire
+oui oui aller enlever pièce
+oui simple faire faire
+faire casser casser attendre aller montrer aller faire tchic aller mettre coup tête puzzle
+non vouloir mettre vouloir faire
+aller casser aller casser refaire oui aimer bien casser
+oui amusant
+oui fatiguer couleur serpent
+vert vert crocodile crocodile
+oui savoir crocodile
+crocodile oui presque dur crocodile croco crocodile rose
 
-facile faire 
-non facile 
-dur 
-non dur 
-
-dur 
-grand 
-oui grand 
-ouh grand 
-
-vouloir gros 
-non casse non non 
-casse vouloir voir 
-oui 
-accord ouh zèbre amusant puzzle bien amusant 
-millimètre 
-faire puzzle 
-facile facile 
-non facile 
-non 
-grand faire 
-oui aller refaire 
-aller refaire 
-oui oui 
-aller enlever pièce 
-oui simple faire 
-faire 
-faire casse 
-casser 
-attendre aller montrer 
-aller faire tchic aller mettre coup tête puzzle 
-non 
-vouloir mettre vouloir faire 
-aller casser 
-aller casser refaire 
-oui 
-aimer bien casser 
-oui 
-amusant 
-oui 
-ouh fatiguer quell couleur serpent 
-vert 
-vert 
-crocodile 
-crocodile 
-oui 
-savoir crocodile 
-crocodile 
-oui presque 
-dur crocodile 
-croco 
-crocodile 
-rose 
-oiseau 
-oiseau cassé 
-
-enlever 
-enlever 
-prendre main 
-main 
-enlever 
-
-
-remettre pièce 
-mettre 
-recommencer 
-oui vouloir refaire 
-oui 
-accord 
-dur 
-dur 
-ouai 
-vouloir essayer heure 
-oui 
-oui dur vouloir essayer gros 
-non boite 
-boite 
-millimètre 
-falloir melanger pièce 
-non falloir faire puzzle boite 
-accord vouloir essayer 
-non 
-non 
-
-accord mettre côté 
-oui 
-faire boîte 
-oui boîte 
-hein faire puzzle école 
-oui 
-aimer bien 
-oui 
-faire école faire 
-non faire 
-regarde patte 
-zèbre 
-zèbre 
-zèbre 
-zèbre 
-zèbre 
-oui faire école 
-
-cogner tête 
-brrrr 
-joue 
-oui 
-copain 
-oui 
-appeler 
-ludovic 
-ludovic gentil 
-faire bêtise 
-vrai faire bêtise 
-millimètre 
-non bien faire bêtise 
-faire tire langue 
-tire langue maîtresse petit garçon petit fille 
-oui 
-
-
-copain 
-oui 
-tirer jamais langue 
-non 
-tirer langue heure croire voir petit bout langue eter 
-non peur 
-aurélie faire 
-tire langue essuie 
-enlever ouai 
-essuie lèvre 
-oui 
-lèche babine 
-ouh rra 
-savoir lécher babine 
-non 
-savoir 
+oiseau oiseau cassé enlever enlever prendre main main enlever remettre pièce mettre recommencer oui vouloir
+oui accord dur dur
+essayer heure
+oui oui dur vouloir essayer
+gros non boîte boîte falloir pièce non falloir faire puzzle boîte accord vouloir essayer
+non non accord mettre côté
+oui faire boîte oui boîte hein faire puzzle école
+oui aimer bien
+oui faire école
+faire
+non faire regarder patte zèbre zèbre zèbre zèbre zèbre oui faire école
+cogner tête
+oui copain
+oui appeler
+gentil
+faire bêtise vrai faire bêtise
+non bien faire bêtise
+faire tirer langue tirer langue maîtresse petit garçon petit fille
+oui copain
+oui tirer jamais langue
+non tirer langue heure
+cru voir petit bout langue
+non peur aurélie faire
+tirer langue essuyer enlever essuyer lèvre oui savoir
+lécher non savoir

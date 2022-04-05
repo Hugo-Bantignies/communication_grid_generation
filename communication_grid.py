@@ -367,7 +367,7 @@ class Grid():
 
     self.row_size = row_size
     self.col_size = col_size
-    self.core_voc = {}
+    self.picto_voc = {}
     self.root_name = root_name
     self.pages = {}
     self.pageCounter = 0     
@@ -468,6 +468,10 @@ class Grid():
     if isinstance(input_file, dict):
       self.generate_grid_dict(input_file)
 
+    #'.csv' file
+    elif(isinstance(input_file, list) and input_file.endswith('.csv')):
+      self.load_grid_csv(input_file)
+
     #'.txt' file
     elif(input_file[0].endswith('.txt')):
       self.generate_grid_txt(input_file)
@@ -518,13 +522,25 @@ class Grid():
           picto = Pictogram(word,slot_row,slot_col,pageName,id)
 
           #Store the pictogram in the vocabulary
-          self.core_voc[id] = picto.get_pictogram_in_list()
+          self.picto_voc[id] = picto.get_pictogram_in_list()
 
           # Create the slot and add it to the page
           page.add_pictogram(picto,None)
 
+  def load_grid_csv(self, input_file):
+    '''Load a grid from a .csv corpus
+
+    :param input_file: source csv file
+    :type input_file: `.csv` file
+    '''
+
+    #Get the vocabulary from the csv file
+    self.picto_voc = get_vocabulary_from_csv(input_file)
+    #Add the core voc to the grid
+    self.add_picto_voc()
+
   def generate_grid_dict(self, input_file):
-    '''Generate a grid from a dictionary input file with (format: {`id_picto`:[`nom`,`ligne`,`colonne`,`page`, `page_dest`]}.
+    '''Generate a grid from a dictionary input file with (format: {`id_picto`:[`word`,`row`,`col`,`page`, `page_dest`]}.
 
     :param input_file: source dictionary text file containing a pictogram grid.
     :type input_file: `Augcom` file
@@ -533,29 +549,29 @@ class Grid():
     #If the input is a dictionary of pictograms.
     if isinstance(input_file, dict):
       
-      #Copy of the dictionary in the core_voc.
-      self.core_voc = input_file
+      #Copy of the dictionary in the picto_voc.
+      self.picto_voc = input_file
 
     #The source file is not a 'AugCom' file (dictionary)
     else:
       raise Exception("Incorrect file format !")
 
     #Generate the entire grid and its pages and slots from the core vocabulary
-    self.add_core_voc()
+    self.add_picto_voc()
 
 
-  def add_core_voc(self):
+  def add_picto_voc(self):
     '''From the initial grid (tsv format) or a dictionary, set the entire grid and all its pages.
     
     Generates pages and slots of the grid following the file format (csv,tsv) or the dictionary'''
 
     #If the size of the grid is dynamic, resize the grid size
     if(self.dynamic_size == True):
-      self.row_size = int(math.ceil(math.sqrt(len(self.core_voc.values()))))
-      self.col_size = int(math.ceil(math.sqrt(len(self.core_voc.values()))))
+      self.row_size = int(math.ceil(math.sqrt(len(self.picto_voc.values()))))
+      self.col_size = int(math.ceil(math.sqrt(len(self.picto_voc.values()))))
     
     #Exploring the entire core vocabulary to store its pictogram
-    for picto in self.core_voc.values():
+    for picto in self.picto_voc.values():
       word = picto[0]
       row = picto[1]
       col = picto[2]
@@ -598,7 +614,7 @@ class Grid():
     #Get the vocabulary (the grid)
     header = ['word','row','col','page','identifier']
     writer.writerow(header)
-    voc = self.core_voc
+    voc = self.picto_voc
 
     #Write each row
     for picto in voc.values():
@@ -621,9 +637,9 @@ class Grid():
 
     # trier le dict d'attributes par nom de page
     for page_name in self.pages:     
-      for picto_id, attributes in self.core_voc.items():
+      for picto_id, attributes in self.picto_voc.items():
         if attributes[3] == page_name:
-          sorted_attrib_dict[picto_id] = self.core_voc.get(picto_id)       
+          sorted_attrib_dict[picto_id] = self.picto_voc.get(picto_id)       
 
     # Fichier résultant
     with open(output_name, "w") as text_file:

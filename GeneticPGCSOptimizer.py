@@ -185,8 +185,8 @@ class SingleGeneticPGCSOptimizer():
       '''
 
       #Get the two vocabulary from the two individual, respectively x and y
-      voc_x = ind_x.core_voc
-      voc_y = ind_y.core_voc
+      voc_x = ind_x.picto_voc
+      voc_y = ind_y.picto_voc
 
       #Initialization of empty lists to store the vocabulary in list
       list_voc_x = []
@@ -256,7 +256,7 @@ class SingleGeneticPGCSOptimizer():
       :rtype: individual
       '''
       #Get the vocabulary of the individual
-      voc = ind.core_voc
+      voc = ind.picto_voc
 
       #Initialization of empty lists to store the vocabulary
       list_voc = []
@@ -417,7 +417,7 @@ class SingleGeneticPGCSOptimizer():
       #Final best grid
       #print("DEBUG : Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str((self.toolbox.evaluation(best_ind))[0]))
 
-      return Grid(best_ind.core_voc)
+      return Grid(best_ind.picto_voc)
 
 
 #===============================================

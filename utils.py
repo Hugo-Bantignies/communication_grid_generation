@@ -1,37 +1,29 @@
 import pandas as pd
 import codecs
 
-def csv_to_txt(file_path, output_path = "input_corpora/default.txt",separator = "\t",row_number = -1):
+def get_vocabulary_from_csv(input_file, separator = ","):
+    '''Function that will find the whole vocabulary from the input csv file'''
 
     #Initialization of the vocabulary to return
-    voc = []
-
-    #Open the output file
-    output = codecs.open(output_path,"w","utf-8")
+    voc = dict()
     
     #Read the input csv/tsv file
-    df = pd.read_csv(file_path,sep = separator)
+    df = pd.read_csv(input_file,sep = separator)
 
-    #Get the sentence column
-    sentences = df['sentence']
-    if(row_number == -1):
-        size = len(sentences)
-    else:
-        size = min(len(sentences),row_number)
+    size = df["word"].size
+
+    words = df["word"]
+    rows = df["row"]
+    cols = df["col"]
+    pages = df["page"]
+    identifiers = df["identifier"]
     
-    #For each sentence, split the sentence and add each word to the vocabulary
+    #For each word, build the pictogram and add it
     for i in range(size):
-        sentence = sentences[i]
-        sentence = sentence.strip()
-        sentence = sentence.lower()
-        if(i != size - 1):
-            output.write(str(sentence)+"\n")
-        else:
-            output.write(str(sentence))
+        voc[identifiers[i]] = [words[i],rows[i],cols[i],pages[i],identifiers[i]]
     
-    #Close the output file
-    output.close()
-    
+    return voc
+
 def get_vocabulary_from_corpus(corpus):
     '''Function that will find the whole vocabulary from the input corpus
     
