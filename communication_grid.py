@@ -535,7 +535,8 @@ class Grid():
 
     #Get the vocabulary from the csv file
     self.picto_voc = get_vocabulary_from_csv(input_file)
-    #Add the core voc to the grid
+
+    #Add the picto voc to the grid
     self.add_picto_voc()
 
   def generate_grid_dict(self, input_file):
@@ -545,17 +546,10 @@ class Grid():
     :type input_file: `Augcom` file
     :raises Exception: Incorrect file format !
     '''
-    #If the input is a dictionary of pictograms.
-    if isinstance(input_file, dict):
-      
-      #Copy of the dictionary in the picto_voc.
-      self.picto_voc = input_file
+    #Copy of the dictionary in the picto_voc.
+    self.picto_voc = input_file
 
-    #The source file is not a 'AugCom' file (dictionary)
-    else:
-      raise Exception("Incorrect file format !")
-
-    #Generate the entire grid and its pages and slots from the core vocabulary
+    #Add the picto voc to the grid
     self.add_picto_voc()
 
 
@@ -620,43 +614,3 @@ class Grid():
       writer.writerow(picto)
     
     f.close()
-
-  def to_text(self, output_name='grid_text.csv'):
-    '''Crée un fichier texte (.csv) décrivant la grille en format AUGCOM.
-
-    Voir le repo du projet pour plus d'information sur le format Augcom.
-
-    :param output_name: le nom du fichier résultant, defaults to 'grid_text.csv'
-    :type output_name: chaîne de charactères, optional
-    '''
-
-    print("output file is " + output_name)
-    print()
-    sorted_attrib_dict = {}
-
-    # trier le dict d'attributes par nom de page
-    for page_name in self.pages:     
-      for picto_id, attributes in self.picto_voc.items():
-        if attributes[3] == page_name:
-          sorted_attrib_dict[picto_id] = self.picto_voc.get(picto_id)       
-
-    # Fichier résultant
-    with open(output_name, "w") as text_file:
-      for picto_id, attributes in sorted_attrib_dict.items():
-        print(f'{attributes[0].upper()}\t{attributes[1]}\t{attributes[2]}\t{attributes[3]}\t{picto_id}', file=text_file) 
-        if attributes[4]:
-          print(f'\t\t\t{picto_id}\t{attributes[4]}', file=text_file)
-
-
-  def __str__(self):
-    '''Méthode d'affichage 1
-
-    :return: renvoie une représentation lisible de la structure de la grille
-    :rtype: chaîne de charactères
-    '''
-
-    s = 'grid : {\n'
-    for page in self.pages.values():
-      s+= str(page) + '\n'
-    s += '}\n'
-    return s

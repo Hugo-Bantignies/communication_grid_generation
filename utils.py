@@ -2,7 +2,11 @@ import pandas as pd
 import codecs
 
 def get_vocabulary_from_csv(input_file, separator = ","):
-    '''Function that will find the whole vocabulary from the input csv file'''
+    '''Function that will find the whole vocabulary from the input csv file
+    
+    :param input_file: csv file containing a pictogram grid
+    :type input_file: 'csv' file
+    '''
 
     #Initialization of the vocabulary to return
     voc = dict()
