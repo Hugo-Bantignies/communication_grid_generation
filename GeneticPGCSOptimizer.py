@@ -466,7 +466,7 @@ class GeneticPGCSOptimizer():
         
         #One single file
         else:
-          self.source_files = [source_files]
+          self.source_files = source_files
         
         #Multiple files ('.txt' corpus or multiple csv / dicts )
         if isinstance(training_files, list):

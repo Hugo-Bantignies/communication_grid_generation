@@ -468,7 +468,7 @@ class Grid():
       self.generate_grid_dict(input_file)
 
     #'.csv' file
-    elif(isinstance(input_file, list) and input_file.endswith('.csv')):
+    elif(not isinstance(input_file, list) and input_file.endswith('.csv')):
       self.load_grid_csv(input_file)
 
     #'.txt' file
