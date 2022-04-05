@@ -158,38 +158,14 @@ class Page():
     def empty_fill(self):
       '''Initialize each slots of the page as empty (None)'''
 
+      #Reset the slots of the page
       self.slots = []
+
+      #Each slot will be a None value
       for i in range(0, self.row_size) :
         self.slots.append([None])
         for j in range(0, self.col_size) :
           self.slots[i].append(None)
-
-
-    def set_slot(self, slot, num_row, num_col):
-      '''Setter. Add the Slot `slot` at the position `num_row` and `num_col in the page.
-
-      :param slot: slot to set
-      :type slot: class `Slot`
-      :param num_row: number of the row
-      :type num_row: integer
-      :param num_col: number of the column
-      :type num_col: integer
-      :raises Exception: Index out of bound.
-      :return: return the old slot
-      :rtype: class `Slot`
-      '''
-
-      if (num_row >= self.row_size) or (num_col >= self.col_size):
-        print(f'row={num_row}, col={num_col}')
-        print(f'row_size={self.row_size}, col_size={self.col_size}')
-                
-        raise Exception('Error: slot row or col out of bounds') 
-
-      old_slot = self.slots[num_row][num_col]
-      self.slots[num_row][num_col] = slot
-
-      return old_slot
-
 
     def set_name(self, name):
       '''Setter. Set the name of the page. 
@@ -202,15 +178,6 @@ class Page():
       self.name = name
 
       return name
-
-    def get_slot(self, num_row, num_col):
-      '''Getter. 
-
-      :return: returns the slot at the position `(num_row, num_col)` 
-      :rtype: class: `Slot`
-      '''
-
-      return self.slots[num_row][num_col]
 
     def get_empty_slot(self):
       '''Getter.
@@ -241,10 +208,15 @@ class Page():
 
       #List of pictograms to return
       pictograms = []
+
       #For each pictogram in the page
       for row in range(0, self.row_size):
+
         for col in range (0, self.col_size):
+
+          #Get the slot
           slot = self.slots[row][col]
+
           #If not empty, we add it to the list
           if(slot != None):
             pictograms.append(slot.pictogram)
@@ -324,23 +296,6 @@ class Page():
       self.last_row
       self.last_col += 1
 
-    def __str__(self):
-      '''Display a page (text)
-
-      :return: return the structure of the page in a visible format
-      :rtype: string
-      '''
-
-      s = "Page: " + self.name + "\n("
-      for i in range(0, self.row_size) : 
-        for j in range(0, self.col_size) :
-          s+=str(self.slots[i][j])
-          s+=", "
-        if(i < self.row_size - 1):
-          s+='\n'
-
-      return s+')'
-
     
 class Grid():
   '''Meta-class representing the whole structure of a pictogram grid system. 
@@ -375,7 +330,7 @@ class Grid():
     self.generate_grid(input_file)
 
   def get_root_page(self):
-    '''Get the root page (named by defaylt : `accueil`)
+    '''Get the root page (named by default : `accueil`)
 
     :return: returns the root page. 
     :rtype: class: `Page`
@@ -390,7 +345,7 @@ class Grid():
     :rtype: string []
     '''
 
-    return self.pages.keys()
+    return list(page for page in self.pages)
 
 
   def get_page(self, name):
@@ -597,6 +552,7 @@ class Grid():
 
 
   def to_csv(self,output_file = "default.csv"):
+    '''Method to transform the grid into a csv file'''
 
     #Opening the csv file
     f = open(output_file,"w",encoding = "utf-8",newline = '')
@@ -614,3 +570,22 @@ class Grid():
       writer.writerow(picto)
     
     f.close()
+
+  def display_information(self):
+    '''Method to display the general information of the grid'''
+
+    #Grid display
+
+    print("================GRID================\n")
+    print("ROOT PAGE : ",self.root_name)
+    page_names = self.get_page_names()
+    print("PAGES IN THE GRID (" + str(len(page_names)) + ") :",page_names)
+    print("NUMBER OF PICTOGRAMS IN THE GRID : " + str(len(self.picto_voc)))
+    print("\n====================================\n")
+
+    #Pages display
+
+    print("================PAGES===============\n")
+    for p in self.pages.values():
+      print(p.name,"("+str(p.row_size)+"x"+str(p.col_size)+")")
+    print("\n====================================")
