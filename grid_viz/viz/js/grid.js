@@ -43,6 +43,19 @@ let Grid = (() => {
      .attr("transform", `translate(${self.zoom_margin.left},${self.zoom_margin.top})`);
    }
 
+   /**
+    * Colorscale for the different pages
+    */
+   const getPageColors = (data) => {
+    const pages = d3.map(data, d => d.page);
+    // Eliminate duplicates.
+    const keys = [... new Set(pages)];
+    // Associate a color with each key. 
+    return colors = d3.scaleOrdinal()
+        .domain(keys)
+        .range(d3.schemeCategory10);
+    }
+
 
   self.displayGrid = (divName) => {
 
@@ -110,6 +123,8 @@ let Grid = (() => {
     var maxlength = d3.max(data, d => d.word.length);
     var nbwords = d3.count(data, d => d.row);
 
+    const colors = getPageColors(data);
+
     //Information display
     d3.select("#information")
     .text("Number of words : " + nbwords + "  (" + numrow + "x" + numcol + ")"); 
@@ -131,9 +146,16 @@ let Grid = (() => {
 
     const mouseleave = function(d) {
       self.zoom_container.style("opacity", 0)
-      d3.select(this)
-          .style("fill", "white")
-          .style("opacity", 1);
+      if(self.show_pages_state == true)
+      {
+        d3.select(this)
+            .style("fill", d => colors(d.page))
+            .style("opacity", 0.6);
+      }
+      else{
+        d3.select(this)
+        .style("fill", "white")
+        .style("opacity",1);}
     }
 
     /**
@@ -167,8 +189,8 @@ let Grid = (() => {
             word = data[(p_row * numcol)+ p_col].word
             text.textContent = word;
 
-            color = document.getElementById("r_"+word).style.fill;
-            rect.style.fill = color;
+            rect_color = document.getElementById("r_"+word).style.fill;
+            rect.style.fill = rect_color;
           }
           //If out of bounds
           else{
@@ -181,6 +203,7 @@ let Grid = (() => {
 
 
     self.search_mem = null;
+    self.show_pages_state = false;
 
     //Listener of the search bar
     const searchbar = function(event)
@@ -219,18 +242,28 @@ let Grid = (() => {
     //Listener of the reset button
     const resetmarker = function(event)
     {
-      self.main_container.selectAll("rect").style("fill","white");
+      self.main_container.selectAll("rect").style("fill","white").style("opacity",1);
       document.getElementById("search").value = "";
+      self.show_pages_state = false;
+    }
+
+    //Listener to hollow the pages
+    const hollowpages = function(event)
+    {
+      self.main_container.selectAll("rect").style("fill",d => colors(d.page)).style("opacity",0.6);
+      self.show_pages_state = true;
     }
 
     //Events for the search bar and the marking buttons
     const marker = document.getElementById("markbutton");
     const reset = document.getElementById("resetmark");
     const search_bar = document.getElementById("search");
+    const show_pages = document.getElementById("showpages")
     
     search_bar.addEventListener('keyup', searchbar);
     marker.addEventListener("click", searchmarker);
     reset.addEventListener("click",resetmarker);
+    show_pages.addEventListener("click",hollowpages);
 
     /**
      * Fill the grid : squares and hollow for pages
