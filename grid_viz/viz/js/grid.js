@@ -50,10 +50,22 @@ let Grid = (() => {
     const pages = d3.map(data, d => d.page);
     // Eliminate duplicates.
     const keys = [... new Set(pages)];
+
+    //Color scale
+    var color_list = [];
+
+    //Generate a random color scale
+    for(let i = 0; i < keys.length; i++)
+    {
+      var r = () => Math.random() * 256 >> 0;
+      var color = `rgb(${r()}, ${r()}, ${r()})`;
+      color_list.push(color);
+    }
+
     // Associate a color with each key. 
     return colors = d3.scaleOrdinal()
         .domain(keys)
-        .range(d3.schemeCategory10);
+        .range(color_list);
     }
 
 

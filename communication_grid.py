@@ -578,7 +578,7 @@ class Grid():
                   picto_matrix[local_i][local_j][3] = new_page_name
 
                   #Set the new identifier of the pictogram
-                  picto_matrix[local_i][local_j][4] = picto_matrix[local_i][local_j][0]+"@"+new_page_name
+                  picto_matrix[local_i][local_j][4] = str(picto_matrix[local_i][local_j][0])+"@"+new_page_name
 
                   #Update the pictogram within the dictionary
                   self.picto_voc.update({str(picto_matrix[local_i][local_j][0]) + "@" + self.root_name : picto_matrix[local_i][local_j]})
