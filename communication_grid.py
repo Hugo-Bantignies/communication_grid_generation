@@ -2,6 +2,7 @@ import random
 import copy
 import math
 import csv
+from threading import local
 from utils import *
 
 class Pictogram:
@@ -359,40 +360,6 @@ class Grid():
 
     return self.pages.get(name) 
 
-  def add_word_in_root(self, pictogram, dest=None):
-    '''Add a new pictogram to the root page in the first empty slot.
-
-    :param pictogram: pictogram to add
-    :type pictogram: class: Pictogram
-    :param dest: destination page of the pictogram, defaults to None
-    :type dest: classe `Page`, (optional)
-    '''
-
-    root_page = self.get_root_page()
-    if root_page.page_is_full() :
-
-      print('root page is full')
-      return
-
-    root_page.add_pictogram(pictogram, dest=dest)
-
-    return
-
-
-  def add_new_page(self, name):
-    '''Encapsulation function 
-
-    Add a new page to the grid
-
-    :param name: name of the new page
-    :type name: string
-    :return: new page
-    :rtype: classe: `Page`
-    '''
-
-    return self.add_page(name)
-
-
   def add_page(self, name_page):
     '''Add a new page to the grid
 
@@ -450,7 +417,7 @@ class Grid():
       self.col_size = int(math.ceil(math.sqrt(len(rawVoc))))
 
     #Creating the root page   
-    self.add_new_page(self.root_name)
+    self.add_page(self.root_name)
     page = self.get_root_page()
     pageName = page.name
 
@@ -545,6 +512,83 @@ class Grid():
       # Create the slot and add it to the page
       page.add_pictogram(final_picto,destination)
 
+
+  def naive_cut(self,dim_x,dim_y):
+    '''Function to cut smallest pages within the whole grid
+    
+    :param dim_x: height of the small page
+    :type dim_x: int
+    :param dim_y: width of the small page
+    :type dim_y: int
+    '''
+
+    #CONSTRUCTION OF THE MATRIX ( exctraction from the dict() )
+
+    #Initialization of the pictogram matrix
+    picto_row = []
+    picto_matrix = []
+    i = 0
+
+    #For each pictogram in the vocabulary
+    for picto in self.picto_voc.values():
+      if(i < self.row_size):
+        picto_row.append(picto)
+      
+      #End of row
+      else:
+        picto_matrix.append(picto_row)
+        picto_row = [picto]
+        i = 0
+
+      i = i + 1
+    
+    if(i - 1 < self.row_size):
+        picto_matrix.append(picto_row)
+      
+    #CUTTING PAGES USING THE MATRIX
+
+    i = 0
+    j = 0
+
+    #Bounds
+    max_row = len(picto_matrix)
+    max_col = len(picto_matrix[0])
+    max_last_col = len(picto_matrix[-1])
+
+    #While i is not out of bounds of the whole page
+    while(i < max_row):
+
+        #If j is not ouf of bounds of the whole page
+        if(j < max_col):
+
+          #New page
+          new_page_name = "page"+str(int(i/dim_x * max_col/3 + j/dim_y))
+
+          for local_i in range(i,i + dim_x):
+
+            for local_j in range(j,j + dim_y):
+
+              #If not out of bounds within the local page
+              if((local_j < max_col) and (local_i < max_row)):
+                
+                if(local_j >= max_last_col and local_i == max_row - 1):
+                  pass
+                else:
+                  #Set the new page to the attribute "page" of the pictogram
+                  picto_matrix[local_i][local_j][3] = new_page_name
+
+                  #Set the new identifier of the pictogram
+                  picto_matrix[local_i][local_j][4] = picto_matrix[local_i][local_j][0]+"@"+new_page_name
+
+                  #Update the pictogram within the dictionary
+                  self.picto_voc.update({str(picto_matrix[local_i][local_j][0]) + "@" + self.root_name : picto_matrix[local_i][local_j]})
+
+          j = j + dim_y
+        #j is out of bounds, new row
+        else:
+          i = i + dim_x
+          j = 0
+
   #=========================================================================================================================
 
   # PRINT AND DISPLAY METHODS OF THE GRID
@@ -587,5 +631,5 @@ class Grid():
 
     print("================PAGES===============\n")
     for p in self.pages.values():
-      print(p.name,"("+str(p.row_size)+"x"+str(p.col_size)+")")
+      print(p.name)
     print("\n====================================")

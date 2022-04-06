@@ -136,7 +136,6 @@ let Grid = (() => {
           .style("opacity", 1);
     }
 
-
     /**
      * Functon to display the zoom grid of the selected word
      */
@@ -234,7 +233,7 @@ let Grid = (() => {
     reset.addEventListener("click",resetmarker);
 
     /**
-     * Fill the grid : squares and corresponding word text.
+     * Fill the grid : squares and hollow for pages
      */
     
     self.main_container.selectAll()
@@ -246,7 +245,7 @@ let Grid = (() => {
         .attr("width", x.bandwidth() )
         .attr("height", y.bandwidth() )
         .attr("id",function(d) { return "r_"+d.word; })
-        .style("fill", "white" )
+        .style("fill", "white")
         .style("stroke","black")
         .on("mouseover", mouseover)
         .on("mousemove", zoomGrid)
