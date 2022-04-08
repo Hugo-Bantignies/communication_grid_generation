@@ -266,12 +266,13 @@ let Grid = (() => {
       self.show_pages_state = true;
     }
 
-    //Events for the search bar and the marking buttons
+    //Buttons and search bar
     const marker = document.getElementById("markbutton");
     const reset = document.getElementById("resetmark");
     const search_bar = document.getElementById("search");
-    const show_pages = document.getElementById("showpages")
+    const show_pages = document.getElementById("showpages");
     
+    //Bind events to the buttons and the search bar
     search_bar.addEventListener('keyup', searchbar);
     marker.addEventListener("click", searchmarker);
     reset.addEventListener("click",resetmarker);

@@ -297,6 +297,32 @@ class Page():
       self.last_row
       self.last_col += 1
 
+    def get_pictograms(self):
+      '''Getter to get the list of pictograms of the page'''
+      #Pictogram list initialization
+      picto_list = []
+
+      #For each slot in the page
+      for row in self.slots:
+        for slot in row:
+          #If not None
+          if(slot):
+            picto_list.append(slot.pictogram)
+      
+      return picto_list
+
+    def get_words(self):
+      '''Getter to get the list of words of the page'''
+      #Word list initialization
+      word_list = []
+      #Get the pictogram list from the page
+      picto_list = self.get_pictograms()
+
+      #For each pictogram in the page
+      for picto in picto_list:
+        word_list.append(picto.word)
+
+      return word_list
     
 class Grid():
   '''Meta-class representing the whole structure of a pictogram grid system. 
