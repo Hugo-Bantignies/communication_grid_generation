@@ -5,6 +5,10 @@ import csv
 from threading import local
 from utils import *
 
+#fastText
+import fasttext
+import fasttext.util
+
 class Pictogram:
     '''Object that will be stored in a slot. It contains several informations.
 
@@ -323,6 +327,27 @@ class Page():
         word_list.append(picto.word)
 
       return word_list
+
+    def representative_page_name(self,model):
+      '''Function to get the most representative word of a word list'''
+
+      #Initialization of the score list
+      score_list = []
+      word_list = self.get_words()
+
+      for w1 in word_list:
+          #Score for a word
+          score = 0
+          vec_w1 = model.get_word_vector(w1)
+          
+          for w2 in word_list:
+                #Cumulation of the score with all words
+                score = score + cosine_similarity(vec_w1,model.get_word_vector(w2))
+
+          #Append the score for the word
+          score_list.append(score)
+
+      self.name = word_list[score_list.index(max(score_list))]
     
 class Grid():
   '''Meta-class representing the whole structure of a pictogram grid system. 
@@ -614,6 +639,13 @@ class Grid():
         else:
           i = i + dim_x
           j = 0
+
+  def representative_pages_name(self,model):
+
+    for page in self.pages.values():
+      page.representative_page_name(model)
+      print(page.name)
+
 
   #=========================================================================================================================
 

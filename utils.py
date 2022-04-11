@@ -1,5 +1,33 @@
+import math
+import numpy as np
 import pandas as pd
 import codecs
+
+def dot_product(v_a,v_b):
+    '''Function to compute the dot product between two vectors'''
+    
+    dot_product = 0
+
+    for i in range(len(v_a)):   
+        dot_product = dot_product + v_a[i] * v_b[i]
+    
+    return dot_product
+
+def magnitude(v_a):
+    '''Function to compute the magnitude/norm of a vector'''
+
+    vector_sum = 0
+
+    for i in range(len(v_a)):
+        vector_sum = vector_sum + v_a[i] * v_a[i]
+    
+    return math.sqrt(vector_sum)
+
+
+def cosine_similarity(v_a,v_b):
+    '''Function to compute the cosine_similarity of two vectors'''
+
+    return dot_product(v_a,v_b) / (magnitude(v_a) * magnitude(v_b))
 
 def get_vocabulary_from_csv(input_file, separator = ","):
     '''Function that will find the whole vocabulary from the input csv file
