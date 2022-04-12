@@ -632,20 +632,41 @@ class Grid():
                   picto_matrix[local_i][local_j][4] = str(picto_matrix[local_i][local_j][0])+"@"+new_page_name
 
                   #Update the pictogram within the dictionary
-                  self.picto_voc.update({str(picto_matrix[local_i][local_j][0]) + "@" + self.root_name : picto_matrix[local_i][local_j]})
+                  self.picto_voc.pop(str(picto_matrix[local_i][local_j][0]) + "@" + self.root_name)
+                  self.picto_voc.update({str(picto_matrix[local_i][local_j][0]) + "@" + new_page_name : picto_matrix[local_i][local_j]})
 
           j = j + dim_y
         #j is out of bounds, new row
         else:
           i = i + dim_x
-          j = 0
+          j = 0 
 
   def representative_pages_name(self,model):
+    '''Method to rename pages depending on the pictograms within the page'''
+    new_names = []
+    old_names = []
 
+    #For each page, find the correct word
     for page in self.pages.values():
+      old_names.append(page.name)
       page.representative_page_name(model)
-      print(page.name)
+      new_names.append(page.name)
 
+      #Update the pictogram information (page and id)
+      for row in page.slots:
+        for picto in row:
+          if(picto):
+            old_page = picto.pictogram.page_name
+            picto.pictogram.page_name = page.name
+            picto.pictogram.id = picto.pictogram.word+"@"+page.name
+            self.picto_voc.pop(picto.pictogram.word + "@" + old_page)
+            self.picto_voc.update({picto.pictogram.word+"@"+picto.pictogram.page_name : picto.pictogram.get_pictogram_in_list()})
+    
+    #Update the identifier of the page dictionary of the grid
+    for i in range(len(new_names)):
+      if(i == 0):
+        self.root_name = new_names[i]
+      self.pages[new_names[i]] = self.pages.pop(old_names[i])
 
   #=========================================================================================================================
 
