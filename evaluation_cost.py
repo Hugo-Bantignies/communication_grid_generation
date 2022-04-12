@@ -63,7 +63,8 @@ def sentence_cost(grid, sentence, distance_mode, movement_factor = 1, selection_
     for word in sentence:
         
         #Access the dictionary to get the word (O(1) in average for a python dict)
-        picto_list.append(grid_voc[str(word)+"@"+root_name])
+        if(word != "nan"):
+            picto_list.append(grid_voc[str(word)+"@"+root_name])
 
     #For each word in the sentence
     for i in range(len(picto_list)):
