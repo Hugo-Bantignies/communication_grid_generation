@@ -6,8 +6,8 @@ from threading import local
 from utils import *
 
 #fastText
-import fasttext
-import fasttext.util
+#import fasttext
+#import fasttext.util
 
 class Pictogram:
     '''Object that will be stored in a slot. It contains several informations.
@@ -625,6 +625,9 @@ class Grid():
                 if(local_j >= max_last_col and local_i == max_row - 1):
                   pass
                 else:
+                  #Keep the old page name
+                  old_page_name = picto_matrix[local_i][local_j][3]
+
                   #Set the new page to the attribute "page" of the pictogram
                   picto_matrix[local_i][local_j][3] = new_page_name
 
@@ -632,14 +635,20 @@ class Grid():
                   picto_matrix[local_i][local_j][4] = str(picto_matrix[local_i][local_j][0])+"@"+new_page_name
 
                   #Update the pictogram within the dictionary
-                  self.picto_voc.pop(str(picto_matrix[local_i][local_j][0]) + "@" + self.root_name)
-                  self.picto_voc.update({str(picto_matrix[local_i][local_j][0]) + "@" + new_page_name : picto_matrix[local_i][local_j]})
+                  self.picto_voc[str(picto_matrix[local_i][local_j][0]) + "@" + old_page_name] = picto_matrix[local_i][local_j]
 
           j = j + dim_y
         #j is out of bounds, new row
         else:
           i = i + dim_x
-          j = 0 
+          j = 0
+    
+    #Remove the previous root page and get the name of the new one
+    self.pages.pop(self.root_name)
+    self.root_name = "page0"
+
+    #Generation of the grid
+    self.generate_grid_dict(self.picto_voc)
 
   def representative_pages_name(self,model):
     '''Method to rename pages depending on the pictograms within the page'''
@@ -659,8 +668,7 @@ class Grid():
             old_page = picto.pictogram.page_name
             picto.pictogram.page_name = page.name
             picto.pictogram.id = picto.pictogram.word+"@"+page.name
-            self.picto_voc.pop(picto.pictogram.word + "@" + old_page)
-            self.picto_voc.update({picto.pictogram.word+"@"+picto.pictogram.page_name : picto.pictogram.get_pictogram_in_list()})
+            self.picto_voc[picto.pictogram.word + "@" + old_page] = picto.pictogram.get_pictogram_in_list()
     
     #Update the identifier of the page dictionary of the grid
     for i in range(len(new_names)):
