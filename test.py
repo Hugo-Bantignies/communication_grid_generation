@@ -1,10 +1,32 @@
-from communication_grid import Grid
-from evaluation_cost import *
+from PictogramGrid import Page,Grid
+from PageTree import PageTreeNode,euler_tour,path_finding
 
-g = Grid(["training_corpora/animals_corpus.txt"])
-g.display_information()
-print(g.picto_voc)
-g.naive_cut(3,3)
-g.display_information()
-print(g.picto_voc)
-g.to_csv()
+
+#             p0
+#           /  |  \
+#          p1 p2  p3
+#         /  \
+#         p4  p5
+p0 = PageTreeNode("p0")
+p1 = PageTreeNode("p1")
+p2 = PageTreeNode("p2")
+p3 = PageTreeNode("p3")
+p4 = PageTreeNode("p4")
+p5 = PageTreeNode("p5")
+p6 = PageTreeNode("p6")
+
+
+
+p0.insert_child(p1)
+p0.insert_child(p2)
+p0.insert_child(p3)
+
+p1.insert_child(p4)
+p1.insert_child(p5)
+
+p4.insert_child(p6)
+
+p0.tree_display()
+
+
+lca,dist = path_finding(p0,p6,p3)

@@ -6,8 +6,8 @@ from threading import local
 from utils import *
 
 #fastText
-import fasttext
-import fasttext.util
+#import fasttext
+#import fasttext.util
 
 class Pictogram:
     '''Object that will be stored in a slot. It contains several informations.
