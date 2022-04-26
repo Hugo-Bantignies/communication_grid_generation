@@ -1,32 +1,25 @@
-from PictogramGrid import Page,Grid
-from PageTree import PageTreeNode,euler_tour,path_finding
+from PictogramGrid import Pictogram,Page,Grid
+from EvaluationGrid import sentence_distance_cost
+import os
+import time
 
+corpus = []
 
-#             p0
-#           /  |  \
-#          p1 p2  p3
-#         /  \
-#         p4  p5
-p0 = PageTreeNode("p0")
-p1 = PageTreeNode("p1")
-p2 = PageTreeNode("p2")
-p3 = PageTreeNode("p3")
-p4 = PageTreeNode("p4")
-p5 = PageTreeNode("p5")
-p6 = PageTreeNode("p6")
+for root, dirs, files in os.walk("./tcof_dataset/transcripts"):
+    for name in files:
+        corpus.append(os.path.join(root,name))
 
+g = Grid(corpus,randomizer=False,warnings = False)
 
+start_time = time.time()
+cost = 0
+eval_size = 10000
 
-p0.insert_child(p1)
-p0.insert_child(p2)
-p0.insert_child(p3)
+for i in range(eval_size):
+    s = "puzzle refaire peur école vrai abeille petit chat chien arbre".split(" ")
+    cost += sentence_distance_cost(g,s)
 
-p1.insert_child(p4)
-p1.insert_child(p5)
-
-p4.insert_child(p6)
-
-p0.tree_display()
-
-
-lca,dist = path_finding(p0,p6,p3)
+print("-- %s seconds --" % (time.time() - start_time))
+print("Number of sentences : ",eval_size)
+print("Average size of sentence : ",len(s))
+print("Cost : ",cost)

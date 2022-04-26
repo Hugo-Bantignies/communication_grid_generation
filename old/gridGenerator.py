@@ -1817,8 +1817,8 @@ if __name__ == '__main__':
   # Paramètres d'entrée 
   grids_source_list = []
   sentence = ''
-  row_size = args.nblignes
-  col_size = args.nbcolonnes
+  row_size = 3
+  col_size = 3
   threshold = args.threshold
   maxiter = args.maxiter
 

@@ -14,6 +14,7 @@ class PageTreeNode():
         self.children = []
         self.parent = None
         self.depth = 0
+        self.eulerian_values = None
 
     def insert_child(self,new_node):
         '''Method to insert a child to the current node'''
@@ -33,6 +34,29 @@ class PageTreeNode():
         for child in node.children :
             #Update the depth of the subnodes
             child.depth_update(child,node.depth)
+
+    def find_node(self,page_name):
+        '''Method to find and return particular node following a DFS'''
+
+        #Initialisation of the sets
+        nodes = [self]
+        visited = []
+
+        while nodes:
+            current_node = nodes.pop()
+            #Target node is found
+            if(current_node.page == page_name):
+                return current_node
+            #Target node is not found
+            else:
+                if(current_node not in visited):
+                    visited.append(current_node)
+                    for child in current_node.children:
+                        nodes.append(child)
+        
+        print("Node not found !")
+        return None
+            
 
     #=========================================================================================================================
     # DISPLAY METHOD OF THE PAGE TREE
@@ -96,7 +120,7 @@ def find_lca(start_node,end_node,euler_nodes,depths):
     start_idx = euler_nodes.index(start_node)
     end_idx = euler_nodes.index(end_node)
 
-    #Return the indexes : start, lca, end 
+    #Return the indexes : start, end, lca
     return [start_idx,end_idx,depths.index(min(depths[min(start_idx,end_idx):max(start_idx,end_idx)]))]
 
 def nodes_distance(start_idx,end_idx,lca_idx,depths):
@@ -105,16 +129,53 @@ def nodes_distance(start_idx,end_idx,lca_idx,depths):
     #Return the length of the path between the two nodes
     return abs(depths[start_idx] - depths[lca_idx]) + abs(depths[end_idx] - depths[lca_idx])
 
+def nodes_path(start_idx,end_idx,lca_idx,euler_nodes):
+    '''Function to return the path between two nodes knowing the LCA'''
+
+    #Get the three nodes (Start, LCA , End)
+    lca = euler_nodes[lca_idx]
+    node_a = euler_nodes[start_idx]
+    node_b = euler_nodes[end_idx]
+
+    #Final path
+    path_a = [node_a]
+    path_b = [node_b]
+
+    #Get the subpath from Start to LCA
+    while node_a.parent != None and node_a != lca:
+        path_a.append(node_a.parent)
+        node_a = node_a.parent
+    
+    #Get the subpath from LCA to End
+    while node_b.parent != None and node_b != lca:
+        path_b.append(node_b.parent)
+        node_b = node_b.parent
+
+    #Removing the duplicata of the LCA
+    path_a.pop()
+
+    return [*path_a,*reversed(path_b)]
+
+
+
 
 def path_finding(root,start_node,end_node):
-    '''Pipeline to find the LCA and the path between two nodes'''
-    #Perform the eulerian tour
-    eulerian_values = euler_tour(root,0)
+    '''Pipeline to find the LCA and return the path between two nodes and the distance'''
+    
+    #If the two nodes are the same (same pages)
+    if(start_node == end_node):
+        return [0,[start_node,end_node]]
+    
+    #If the two nodes are not the same
+    else:
+        #Find the lca between two nodes
+        lca = find_lca(start_node,end_node,root.eulerian_values[0],root.eulerian_values[1])
 
-    #Find the lca between two nodes
-    lca = find_lca(start_node,end_node,eulerian_values[0],eulerian_values[1])
+        #Get the distance between the two nodes
+        distance = nodes_distance(lca[0],lca[1],lca[2],root.eulerian_values[1])
 
-    #Get the distance between the two nodes
-    distance = nodes_distance(lca[0],lca[1],lca[2],eulerian_values[1])
+        #Get the path between two nodes
+        path = nodes_path(lca[0],lca[1],lca[2],root.eulerian_values[0])
 
-    return eulerian_values[0][lca[2]].page,distance
+        #Return the distance and the path
+        return [distance,path]
