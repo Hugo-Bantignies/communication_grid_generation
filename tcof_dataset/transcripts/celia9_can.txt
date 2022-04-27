@@ -1,40 +1,9 @@
-euh Célia corpus numéro neuf "Lucie et Bruno se déguisent" nous sommes dans le dortoir dans le bureau de la directrice et il est dix heures un quart + une lecture allez je t'écoute 
-*** à quelle page qu'on commence ? 
-on commence par cette page là on commence toujours par cette pa- la page de droite de gauche + d'accord ? 
-Lucie veut se déguiser en tata 
-oui Bruno il s'appelle Bruno 
-Bruno veut se déguiser en Papi 
-Bruno veut se déguiser en Papi 
-/// Lucie 
-Lucie met un chapeau de tata d'abord + et lui je sais plus comment il *** 
-Bruno Bruno tu tournes la page ? + 
-Lucie 
-ah tu d'abord cette page là d'abord la page de gauche Bruno ? 
-Bruno met la casquette de Papi 
-oui la casquette cache les yeux de Bruno /// 
-la casquette le euh 
-Lucie Lucie 
-met met les chaussures de de tata 
-oui et elle dit qu'elle est une grande dame 
-une grande dame *** 
-c'est bon c'est bon voilà + 
-après 
-Bruno 
-Bruno met l- les + les chaussons 
-oui 
-de Papi 
-oui et tu te souviens de ce qu'il dit Bruno en mettant les chaussons de Papi? il dit moi je suis un Papi avec des grosses pattes d'ours 
-+ je suis un Papi avec des grosses pattes d'ours 
-oui 
-/// c'est laquelle qu'on commence ? 
-comme tu veux Lucie ? + 
-Lucie se regarde * la glace avec Bruno 
-oui 
-Bruno dit bonjour tata l- Tata-Lucie 
-hum oui et puis 
-+ Tata Lucie dit bonjour Tont- Papi 
-Bruno 
-Papi-Bruno 
+corpus numéro neuf dortoir bureau directrice heure quart lecture aller écouter page commencer
+commencer page commencer page droite gauche accord
+vouloir déguiser tata oui appeler vouloir déguiser papi vouloir déguiser papi mettre chapeau tata savoir tourner page
+page page gauche
+mettre casquette papi oui casquette cacher œil casquette mettre mettre chaussure tata oui grand dame grand dame mettre chausson oui papi oui souvenir mettre chausson papi
+papi gros patte papi gros patte oui commencer
+vouloir
+regarder glace oui bonjour tata oui tata bonjour papi
 
-*** 
-voilà $$$ 

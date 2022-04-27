@@ -255,7 +255,7 @@ class Grid():
             
             #Add the directory pictogram responsible of the new page
             current_page.add_pictogram(new_name,is_directory = True,warnings = self.warnings)
-            self.picto_voc.update({new_name : [parent.page]})
+            self.picto_voc.update({new_name : [parent]})
             page_counter += 1
 
             #Insert the node and append it to the queue
@@ -313,9 +313,9 @@ class Grid():
                 current_page.add_pictogram(word,warnings = self.warnings)
 
             if(word in self.picto_voc):
-                self.picto_voc[word].append(current_page.name)
+                self.picto_voc[word].append(self.page_tree.find_node(current_page.name))
             else:
-                self.picto_voc.update({word : [current_page.name]})
+                self.picto_voc.update({word : [self.page_tree.find_node(current_page.name)]})
                 
   #=========================================================================================================================
 

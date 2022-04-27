@@ -1,4 +1,5 @@
 from audioop import reverse
+from distutils.command.build_scripts import first_line_re
 from importlib.resources import path
 from tracemalloc import start
 
@@ -107,18 +108,23 @@ def euler_tour(node,node_depth):
     #Initialization of euler tour
     euler_nodes = []
     depths = []
+    first_indexes = dict()
 
     #Deep first search
     dfs(node,euler_nodes,depths,node_depth)
 
-    return [euler_nodes,depths]
+    for node in euler_nodes:
+        if(node not in first_indexes):
+            first_indexes.update({node : euler_nodes.index(node)})
 
-def find_lca(start_node,end_node,euler_nodes,depths):
+    return [euler_nodes,depths,first_indexes]
+
+def find_lca(start_node,end_node,depths,first_indexes):
     '''Function to find the lca between to nodes in a tree'''
 
     #Find the indexes of the interval in the euler tour
-    start_idx = euler_nodes.index(start_node)
-    end_idx = euler_nodes.index(end_node)
+    start_idx = first_indexes[start_node]
+    end_idx = first_indexes[end_node]
 
     #Return the indexes : start, end, lca
     return [start_idx,end_idx,depths.index(min(depths[min(start_idx,end_idx):max(start_idx,end_idx)]))]
@@ -169,7 +175,7 @@ def path_finding(root,start_node,end_node):
     #If the two nodes are not the same
     else:
         #Find the lca between two nodes
-        lca = find_lca(start_node,end_node,root.eulerian_values[0],root.eulerian_values[1])
+        lca = find_lca(start_node,end_node,root.eulerian_values[1],root.eulerian_values[2])
 
         #Get the distance between the two nodes
         distance = nodes_distance(lca[0],lca[1],lca[2],root.eulerian_values[1])

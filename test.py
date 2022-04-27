@@ -1,5 +1,5 @@
 from PictogramGrid import Pictogram,Page,Grid
-from EvaluationGrid import sentence_distance_cost
+from EvaluationGrid import grid_distance_cost
 import os
 import time
 
@@ -9,17 +9,15 @@ for root, dirs, files in os.walk("./tcof_dataset/transcripts"):
     for name in files:
         corpus.append(os.path.join(root,name))
 
-g = Grid(corpus,randomizer=False,warnings = False)
+g = Grid(corpus,randomizer=True,warnings = False)
+
+g.display_information()
 
 start_time = time.time()
 cost = 0
-eval_size = 10000
+eval_size = 30000
 
-for i in range(eval_size):
-    s = "puzzle refaire peur école vrai abeille petit chat chien arbre".split(" ")
-    cost += sentence_distance_cost(g,s)
+cost = grid_distance_cost(g,corpus)
 
 print("-- %s seconds --" % (time.time() - start_time))
-print("Number of sentences : ",eval_size)
-print("Average size of sentence : ",len(s))
 print("Cost : ",cost)

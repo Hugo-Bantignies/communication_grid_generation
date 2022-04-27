@@ -1,5 +1,5 @@
 import math
-from shutil import move
+import codecs
 from PictogramGrid import Grid
 from PageTree import *
 
@@ -67,8 +67,8 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
         best_path = []
 
         #For each potential page, computation of the path to keep the smallest
-        for page_name in potential_pages:
-            end_node = grid.page_tree.find_node(page_name)
+        for page in potential_pages:
+            end_node = page
 
             result = path_finding(grid.page_tree,start_node,end_node)
             if(result[0] < best_distance):
@@ -81,7 +81,7 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
 
         movement_dist = 0
         selection_dist = best_distance + 1
-
+        
         for i in range(best_distance):
             #If go up, just add the selection of the return (not a pictogram, constant)
             if(best_path[i].parent == best_path[i+1]):
@@ -112,3 +112,43 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
 
     return cost
 
+def grid_distance_cost(grid,input_corpus):
+
+    '''Main function to compute the cost of a given grid and a source file.
+
+    :param grid: Input grid to evalute its cost.
+    :type grid: class: Grid
+    :param input_file: source file containing sentences for the evaluation.
+    :type input_file: file (`.txt`)
+    :return: cost of the grid for the input file. 
+    :rtype: float
+    '''
+    
+    cost = 0
+    n = 0
+    
+    for file_path in input_corpus:
+
+        #The source file is a '.txt' file
+        if(file_path.endswith('.txt')):
+
+            #Source file opening
+            with codecs.open(file_path,"r","utf-8") as rawFile:
+
+                #For each line in the file, split the line
+                for line in rawFile:
+                    #Line preparation
+                    line = line.strip()
+                    line = line.split(" ")
+                    #Cost computation
+                    result = sentence_distance_cost(grid,line)
+                    cost+=result
+                    n = n + 1
+                    
+        #The source file is not a '.txt' file
+        else:
+            raise Exception("Incorrect file format !")
+            
+    #Return the cost
+    else:
+        return cost

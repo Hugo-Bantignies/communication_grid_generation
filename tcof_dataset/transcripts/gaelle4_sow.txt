@@ -1,169 +1,45 @@
-tu es fatiguée ? 
-hum 
-Gaëlle le ¤C¤ alors Gaëlle 
-hum 
-aujourd'hui c'est toi qui va me raconter l'histoire 
-oui 
-d'acccord ? 
-oui d'accord je je te 
-l'avais déjà racontée plusieurs fois auparavant "Les deux tortues de la cour" tu dois t'en souvenir normalement ? 
-euh oui 
-hein ? alors tu vas me la raconter en t'aidant des images 
-*** oui d'accord d'accord ? alors attends je me suis 
-trompée de livre "Anaïs et Ludovic se réveillent" hein tu te souviens ? 
-oui 
-donc Anaïs Ludovic 
-hum 
-la maman et Karim 
-hum d'accord ? 
-oui d'accord 
-voilà allez dis-moi 
-il se réveille 
-hum alors qui c'est ? 
-euh celle-là 
-Anaïs ? 
-oui 
-Anaïs est réveillée 
-oui *** et tu as du soleil et + 
-elle regarde le soleil 
-oui elle regarde le soleil 
-sur le rideau bleu 
-regarde /là, il y a / du soleil 
-oui il y a du soleil oui 
-oui comme Anaïs 
-comme Anaïs oui 
-hum oui 
-oui oui c'est pareil Anaïs elle 
-c'est pareil ah oui regarde le soleil oui 
-et Ludovic 
-hum 
-qu'est-ce qu'il qu'est-ce qu'il fait lui ? + 
-il prend son pouce 
-oui il suce son pouce il dort encore 
-oui 
-alors et là ? donc Ludovic 
-hum il a les yeux 
-ouverts ? 
-oui 
-hein ? + 
-hum 
-et qu'est-ce qu'il l'a réveillé ? 
-euh + Ludovic 
-oui Ludovic est réveillé parce 
-hum + Ana- que + Anaïs 
-hum hum 
-qu'est-ce qu'elle a fait Anaïs ? + 
-+ * s'est réveillé 
-non Anaïs elle a crié très fort 
-oui 
-Ludo arrête de faire dodo + 
-oh oui 
-et c'est pour ça que Ludovic s'est réveillé 
-hum hum 
-hein ? 
-oui et donc 
-il a entendu et que fait-il ? 
-euh il chatouille le les doigts de pied 
-voilà il chatouille les doigts de pied d'Anaïs 
-hum + 
-et là ? 
-et ils s'habillent 
-ils s'habillent 
-hum oui 
-alors Anaïs 
-ah 
-elle enfile sa culotte 
-hum ah oui 
-alors répète + 
-et + ils se + *** 
-elle attends 
-je sais plus 
-elle enfile sa culotte 
-hum hum 
-concentre-toi un peu elle enfile sa culotte dis-le moi 
-il s'enfile + la culotte 
-ouais elle ? + elle ? 
-elle 
-s'enfile non pardon elle enfile elle 
-oui elle 
-enfile sa culotte 
-il s'enfile * sa culotte 
-oui et Ludovic ? 
-il il la chaussette 
-voilà il prend des chaussettes propres qui 
-oui qui 
-se trouvent 
-hum 
-où ? 
-euh dans les pieds 
-non dans l'armoire 
-dans l'armoire 
-oui + alors et là ils sont où ? 
-ils sont dans la cuisine 
-dans la cuisine et que font-ils dans la cuisine ? 
-euh /il boit son, ils boit son , ils boivent son / chocolat 
-ils boivent leur chocolat chaud 
-oui oui + 
-et là ? 
-il fait des grimaces 
-qui fait des grimaces ? 
-euh Ludovic 
-Ludovic très bien il fait des grimaces devant la glace 
-oui 
-et Anaïs ? 
-il il brosse les dents 
-non + non elle ne se brosse pas les dents 
-non 
-qu'est-ce qu'elle fait ? + 
-euh il met du dentifrice 
-oui très bien elle met du dentifrice sur sa brosse à dents 
-oui 
-hein ? et maman leur maman que fait-elle ? 
-euh il se lave les mains 
-elle se lave les mains 
-oui oui 
-très bien + alors là ? 
-ils s'habillent + 
-alors que dit Ludovic à Anaïs ? 
-euh il s- s'habille ce manteau 
-il lui dit regarde Anaïs moi j'ai déjà mis mon manteau et Anaïs que fait-elle ? 
-euh il il prend ce son sac à dos 
-ouais alors dans son sac elle a mis quoi ? 
-euh un dessin 
-oui et ce dessin il est pour qui ? 
-il est pour 
-pour son copain Karim 
-ah oui moi aussi moi j'ai un moi j'ai la la sac à dos 
-tu as un sac à dos ? 
-oui 
-oui 
-Bob l'éponge 
-pour l'éponge ? les ? 
-oui ah 
-ah un sac à dos Bob l'éponge ? 
-oui 
-ah c'est bien ça oui 
-ça me gratte 
-ça te gratte ? 
-oui 
-oui alors là Gaëlle ? 
-hum regarde mon mon chouchou 
-oui il est très joli ton 
-oui chouchou 
-ouais il est très beau alors dis-moi Gaëlle 
-et là ? 
-là 
-qui c'est le garçon-là qui arrive ? qui a sonné à la porte ? 
-euh + 
-c'est Karim qui a sonné à la porte 
-oui 
-hein ? et que dit Karim à Ludovic et Anaïs ? 
-euh + il a dit dépêche-toi on va être en retard 
-voilà il dit dépêchez-vous on va arriver en retard à l'école 
-oui 
-hein ? 
-hum 
-voilà on va arrêter là pour aujourd'hui 
-oui hein ? 
-*** celle-là 
-ouais 
+fatiguer
+aller raconter histoire oui
+oui accord raconter fois auparavant tortue cour devoir souvenir normalement
+oui hein
+aller raconter aider image oui accord accord
+attendre tromper livre réveiller hein souvenir
+oui maman accord
+oui accord aller réveiller
+
+oui réveiller oui soleil regarder soleil oui regarder soleil rideau bleu regarder soleil oui soleil oui oui oui oui oui oui pareil pareil oui regarder soleil oui faire
+prendre pouce oui sucer pouce oui
+œil
+oui hein
+réveiller
+oui réveiller
+faire
+réveiller non crier fort oui ludo arrêter faire dodo oui réveiller hein
+oui entendre faire
+chatouiller doigt pied chatouiller doigt pied habiller habiller oui enfiler culotte oui répéter attendre savoir enfiler culotte concentrer enfiler culotte enfiler culotte
+
+enfiler non pardon enfiler oui enfiler culotte enfiler culotte oui
+chaussette prendre chaussette propre oui trouver
+pied non armoire armoire oui
+cuisine cuisine faire cuisine
+boire chocolat boire chocolat chaud oui oui faire grimace faire grimace
+bien faire grimace glace oui
+brosser dent non non brosser dent non faire
+mettre dentifrice oui bien mettre dentifrice brosse dent oui hein
+maman maman faire
+lave main lave main oui oui bien
+habiller
+habiller manteau regarder mettre manteau faire
+prendre sac dos sac mettre
+dessin oui dessin
+copain oui sac dos sac dos
+oui oui bob éponge éponge oui sac dos bob éponge
+oui bien oui gratter gratter
+oui oui
+regarder chouchou oui joli oui chouchou ouai beau
+garçon arriver
+sonné porte
+sonné porte oui hein
+dépêche aller retard dépêcher aller arriver retard école oui hein
+aller arrêter oui hein
+ouai
