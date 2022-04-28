@@ -1,7 +1,12 @@
 import math
 import codecs
-from PictogramGrid import Grid
+from PictogramGrid import Grid,Page
 from PageTree import *
+
+
+#===================================================================
+# MATHS FUNCTIONS
+#===================================================================
 
 def euclidean_dist(x1,y1,x2,y2):
     '''Function that computes the Euclidean distance between two elements
@@ -34,6 +39,37 @@ def manhattan_dist(x1,y1,x2,y2):
     :rtype: intger
     '''
     return abs((x1 - x2)) + abs((y1 - y2))
+
+def dot_product(v_a,v_b):
+    '''Function to compute the dot product between two vectors'''
+    
+    dot_product = 0
+
+    for i in range(len(v_a)):   
+        dot_product = dot_product + v_a[i] * v_b[i]
+    
+    return dot_product
+
+def magnitude(v_a):
+    '''Function to compute the magnitude/norm of a vector'''
+
+    vector_sum = 0
+
+    for i in range(len(v_a)):
+        vector_sum = vector_sum + v_a[i] * v_a[i]
+    
+    return math.sqrt(vector_sum)
+
+
+def cosine_similarity(v_a,v_b):
+    '''Function to compute the cosine_similarity of two vectors'''
+
+    return dot_product(v_a,v_b) / (magnitude(v_a) * magnitude(v_b))
+
+
+#===================================================================
+# COST COMPUTATION
+#===================================================================
 
 def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
 
@@ -152,3 +188,56 @@ def grid_distance_cost(grid,input_corpus):
     #Return the cost
     else:
         return cost
+
+
+def page_similarity_cost(page,model):
+    '''Function to return the similarity cost of a page'''
+
+    #Initialization
+    cost = 0
+    words = page.get_words()
+
+    for wi in words:
+        #Score for a word
+        word_score = 0
+        vec_wi = model.get_word_vector(wi)
+
+        for wj in words:
+            #Compute the similarity between the two words
+            word_score += cosine_similarity(vec_wi,model.get_word_vector(wj))
+        
+        cost = cost + word_score
+    
+    return cost
+
+
+def grid_similarity_cost(grid,model):
+    '''Function to compute the similarity cost of an entire grid'''
+
+    cost = 0
+
+    #Compute the similarity of each page
+    for page in grid.pages.values():
+        
+        cost += page_similarity_cost(page,model)
+
+    return cost
+
+def grid_cost(grid,input_corpus,model,similarity_coefficient):
+    '''Function to evaluate a grid depending on the similarity coefficient'''
+
+    #If the cost is only depending on the distance
+    if(similarity_coefficient == 0):
+        return grid_distance_cost(grid,input_corpus)
+
+    #If the cost is only depending on the similarity
+    elif(similarity_coefficient == 1):
+        return grid_similarity_cost(grid,model)
+
+    #Hybrid format
+    else:
+        dist = grid_distance_cost(grid,input_corpus)
+        sim = grid_similarity_cost(grid,model)
+
+        return (similarity_coefficient * sim) * ((1 - similarity_coefficient) * dist)
+    

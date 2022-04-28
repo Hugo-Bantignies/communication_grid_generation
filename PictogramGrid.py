@@ -1,7 +1,6 @@
-from hashlib import new
 import math
-from platform import node
 import random
+import csv
 from utils import *
 from PageTree import PageTreeNode
 
@@ -82,6 +81,16 @@ class Page():
 
         #Full indicator (False, the page is not full)
         self.is_full = False
+
+    def get_words(self):
+        '''Method to get the words of the page'''
+        words = []
+
+        #For each picto, get its word
+        for picto in self.pictograms.values():
+            words.append(picto.word)
+        
+        return words
 
     def add_pictogram(self,word,is_directory = False,warnings = True):
         '''Method to add a pictogram to the page'''
@@ -321,6 +330,33 @@ class Grid():
 
   # PRINT AND DISPLAY METHODS OF THE GRID
   #--------------------------------------------------------------
+
+    def to_csv(self,output_file = "default.csv"):
+        '''Method to transform the grid into a csv file'''
+
+        #Opening the csv file
+        f = open(output_file,"w",encoding = "utf-8",newline = '')
+
+        #Initialization of the writer
+        writer = csv.writer(f)
+        
+        #Get the vocabulary (the grid)
+        header = ['word','row','col','page','identifier']
+        writer.writerow(header)
+        
+        for page in self.pages.values():
+
+            for picto in page.pictograms.values():
+
+                #Write the pictogram
+                writer.writerow(picto.in_list())
+
+                #If the pictogram is a directory
+                if(picto.is_directory == True):
+                    next_page_name = picto.id.split("@")[0]
+                    new_line = [None,None,None,picto.id,next_page_name]
+                    writer.writerow(new_line)
+        f.close()
 
     def display_information(self):
         '''Method to display the general information of the grid'''
