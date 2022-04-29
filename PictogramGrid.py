@@ -39,7 +39,10 @@ class Pictogram:
         :rtype: list
         '''
         
-        return [self.word,self.row,self.col,self.page_name,self.id]
+        if(self.is_directory):
+            return [self.word,self.row,self.col,self.page_name,self.id,"DIR",self.id.split("@")[0]]
+        else:
+            return [self.word,self.row,self.col,self.page_name,self.id]
 
     def __str__(self):
         '''Display the pictogram information (text)
@@ -150,15 +153,21 @@ class Page():
         '''Method to swap two pictograms in the page'''
 
         #Keep the information of the pictogram b
-        tmp_row = picto_b.row
-        tmp_col = picto_b.col
+        tmp_word = picto_b.word
+        tmp_page = picto_b.page_name
+        tmp_id = picto_b.id
+        tmp_directory = picto_b.is_directory
 
         #Swap
-        picto_b.row = picto_a.row
-        picto_b.col = picto_a.col
+        picto_b.word = picto_a.word
+        picto_b.page_name = picto_a.page_name
+        picto_b.id = picto_a.id
+        picto_b.is_directory = picto_a.is_directory
 
-        picto_a.row = tmp_row
-        picto_a.col = tmp_col   
+        picto_a.word = tmp_word
+        picto_a.page_name = tmp_page 
+        picto_a.id = tmp_id
+        picto_a.is_directory = tmp_directory 
 
     def __str__(self):
         '''Display the pictograms of the page (text)'''
@@ -216,9 +225,9 @@ class Grid():
         tmp_nb_picto = len(voc)
 
         #Get the number of pages / directories
-        nb_pages = int(math.ceil(tmp_nb_picto / (page_row_size * page_col_size)))
+        nb_pages = int(math.floor(tmp_nb_picto / (page_row_size * page_col_size)))
         self.nb_picto = tmp_nb_picto + nb_pages
-        nb_pages = int(math.ceil(self.nb_picto / (page_row_size * page_col_size)))
+        nb_pages = int(math.floor(self.nb_picto / (page_row_size * page_col_size)))
         page_size = page_row_size * page_col_size
 
         #Root page of the grid (first page)
@@ -348,14 +357,9 @@ class Grid():
 
             for picto in page.pictograms.values():
 
-                #Write the pictogram
-                writer.writerow(picto.in_list())
+                new_line = picto.in_list()
+                writer.writerow(new_line)
 
-                #If the pictogram is a directory
-                if(picto.is_directory == True):
-                    next_page_name = picto.id.split("@")[0]
-                    new_line = [None,None,None,picto.id,next_page_name]
-                    writer.writerow(new_line)
         f.close()
 
     def display_information(self):
