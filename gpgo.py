@@ -170,9 +170,9 @@ class gpgo():
 
       return ind_x,ind_y
 
-    def pgcs_mutation_swap(self,ind):
+    def mutation_swap_picto_intra(self,ind):
       '''Method used by the optimizer to perform a mutation on one individual
-      The mutation will swap randomly two pictograms in the grid.
+      The mutation will perform a random swap (intra) of two pictograms within the same page.
 
       :param ind: the individual subject to the mutation
       :type ind: individual
@@ -194,6 +194,38 @@ class gpgo():
 
       return ind
 
+    def mutation_swap_picto_inter(self,ind):
+      '''Method used by the optimizer to perform a mutation on one individual
+      The mutation will perform a random swap (inter) of two pictograms in different page.
+
+      :param ind: the individual subject to the mutation
+      :type ind: individual
+      :return: returns the individual after the mutation
+      :rtype: individual
+      '''
+
+      #Random selection of the two pages
+      selected_page_a = random.choice(list(ind.pages))
+      page_a = ind.pages[selected_page_a]
+
+      selected_page_b = random.choice(list(ind.pages))
+      page_b = ind.pages[selected_page_b]
+
+      #Selection of the two pictograms to swap
+      if(page_a.pictograms != dict()):
+        selected_picto_a = page_a.pictograms[random.choice(list(page_a.pictograms))]
+
+      if(page_b.pictograms != dict()):
+        selected_picto_b = page_b.pictograms[random.choice(list(page_b.pictograms))]
+      
+      #If both pictograms are not directory or not the same, we perform the swap
+      if(selected_picto_a.is_directory == False and selected_picto_b.is_directory == False and selected_picto_a.word != selected_picto_b.word):
+        ind.swap_pictograms(selected_picto_a,selected_picto_b)
+
+      return ind
+      
+      
+
     def init_operations(self):
       '''Method that will initialize operations used by the genetic algorithm (evaluation, selection, crossover, mutation)
       '''
@@ -210,7 +242,7 @@ class gpgo():
       self.toolbox.register("crossover",self.pgcs_crossover_swap)
 
       #--Mutation definition--
-      self.toolbox.register("mutation",self.pgcs_mutation_swap)
+      self.toolbox.register("mutation",self.mutation_swap_picto_inter)
   
 
     def genetic_algorithm(self):

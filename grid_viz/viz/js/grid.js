@@ -48,6 +48,7 @@ let Grid = (() => {
     */
    const getPageColors = (data) => {
     const pages = d3.map(data, d => d.page);
+
     // Eliminate duplicates.
     const keys = [... new Set(pages)];
 
@@ -67,6 +68,25 @@ let Grid = (() => {
         .domain(keys)
         .range(color_list);
     }
+
+  /**
+   * Build a dictionary of pages to get its number
+   */
+
+  const buildPageDict = (data) => {
+    var page_dict = {}
+
+    const pages = d3.map(data, d => d.page);
+
+    // Eliminate duplicates.
+    const keys = [... new Set(pages)];
+
+    for (i = 0; i < keys.length; i++) {
+      page_dict[keys[i]] = i
+    }
+      
+    return page_dict
+  }
 
 
   self.displayGrid = (divName) => {
@@ -130,16 +150,20 @@ let Grid = (() => {
     /**
      * Get the size of the grid (rows and columns)
      */
-    var numcol = d3.max(data, d => d.col) + 1;
-    var numrow = d3.max(data, d => d.row) + 1;
-    var maxlength = d3.max(data, d => d.word.length);
+
     var nbwords = d3.count(data, d => d.row);
+    var pages_row = 3;
+    var numcol = Math.ceil(Math.sqrt(nbwords)) * pages_row
+    var numrow = Math.ceil(Math.sqrt(nbwords)) * pages_row
+    var max_row = d3.max(data, d => d.row);
+    var max_col = d3.max(data, d => d.col);
 
     const colors = getPageColors(data);
+    const page_dict = buildPageDict(data);
 
     //Information display
     d3.select("#information")
-    .text("Number of words : " + nbwords + "  (" + numrow + "x" + numcol + ")"); 
+    .text("Number of words : " + nbwords)
 
     x.domain(d3.range(numcol))
     x_zoom.domain(d3.range(self.zoom_row))
@@ -286,8 +310,12 @@ let Grid = (() => {
       .data(data)
       .enter()
       .append("rect")
-        .attr("x", function(d) { return x(d.col) })
-        .attr("y", function(d) { return y(d.row) })
+        .attr("x", function(d) {
+           return x(d.col + (page_dict[d.page]) % pages_row * (max_col + 1)) 
+        })
+        .attr("y", function(d) {
+           return y(d.row + (Math.floor(page_dict[d.page] / pages_row)) * (max_row + 1)) 
+        })
         .attr("width", x.bandwidth() )
         .attr("height", y.bandwidth() )
         .attr("id",function(d) { return "r_"+d.word; })

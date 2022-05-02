@@ -153,21 +153,15 @@ class Page():
         '''Method to swap two pictograms in the page'''
 
         #Keep the information of the pictogram b
-        tmp_word = picto_b.word
-        tmp_page = picto_b.page_name
-        tmp_id = picto_b.id
-        tmp_directory = picto_b.is_directory
+        tmp_row = picto_b.row
+        tmp_col = picto_b.col
 
         #Swap
-        picto_b.word = picto_a.word
-        picto_b.page_name = picto_a.page_name
-        picto_b.id = picto_a.id
-        picto_b.is_directory = picto_a.is_directory
+        picto_b.row = picto_a.row
+        picto_b.col = picto_a.col
 
-        picto_a.word = tmp_word
-        picto_a.page_name = tmp_page 
-        picto_a.id = tmp_id
-        picto_a.is_directory = tmp_directory 
+        picto_a.row = tmp_row
+        picto_a.col = tmp_col
 
     def __str__(self):
         '''Display the pictograms of the page (text)'''
@@ -217,7 +211,7 @@ class Grid():
         if(input_file[0].endswith(".txt")):
             self.generate_grid_from_txt(input_file)
 
-    def generate_grid_structure(self,voc,page_row_size = 2,page_col_size = 2):
+    def generate_grid_structure(self,voc,page_row_size = 5,page_col_size = 5):
         '''Generate an empty grid structure (tree and directory pictograms) from the vocabulary
         '''
 
@@ -225,9 +219,12 @@ class Grid():
         tmp_nb_picto = len(voc)
 
         #Get the number of pages / directories
-        nb_pages = int(math.floor(tmp_nb_picto / (page_row_size * page_col_size)))
+        nb_pages = int(math.floor(tmp_nb_picto / (page_row_size * page_col_size))) - 1
         self.nb_picto = tmp_nb_picto + nb_pages
-        nb_pages = int(math.floor(self.nb_picto / (page_row_size * page_col_size)))
+        if(self.nb_picto <= page_row_size * page_col_size):
+            nb_pages = 0
+        else:
+            nb_pages = int(math.floor(self.nb_picto / (page_row_size * page_col_size)))
         page_size = page_row_size * page_col_size
 
         #Root page of the grid (first page)
@@ -334,7 +331,48 @@ class Grid():
                 self.picto_voc[word].append(self.page_tree.find_node(current_page.name))
             else:
                 self.picto_voc.update({word : [self.page_tree.find_node(current_page.name)]})
-                
+    
+    def swap_pictograms(self,picto_a,picto_b):
+        '''Method to swap two pictograms in the whole grid'''
+
+        #---NODES INFORMATION---
+
+        #Find the page node corresponding to the page of the pictogram a
+        for node in self.picto_voc[picto_a.word]:
+            if(node.page == picto_a.page_name):
+                node_a = node
+                break
+
+        #Find the page node corresponding to the page of the pictogram b
+        for node in self.picto_voc[picto_b.word]:
+            if(node.page == picto_b.page_name):
+                node_b = node
+                break
+
+        #Modify the information of page nodes for the pictogram a
+        self.picto_voc[picto_a.word].remove(node_a)
+        self.picto_voc[picto_a.word].append(node_b)
+
+        #Modify the information of page nodes for the pictogram b
+        self.picto_voc[picto_b.word].remove(node_b)
+        self.picto_voc[picto_b.word].append(node_a)
+
+        #---PAGES AND PICTOGRAM INFORMATION---
+        
+        #Build new pictograms
+        new_id_a = str(picto_a.word+"@"+picto_b.page_name)
+        new_id_b = str(picto_b.word+"@"+picto_a.page_name)
+        new_picto_a = Pictogram(picto_a.word,picto_b.row,picto_b.col,picto_b.page_name,new_id_a,picto_a.is_directory)
+        new_picto_b = Pictogram(picto_b.word,picto_a.row,picto_a.col,picto_a.page_name,new_id_b,picto_b.is_directory)
+
+        #Swap
+        self.pages[picto_a.page_name].pictograms.pop(picto_a.word)
+        self.pages[picto_b.page_name].pictograms.pop(picto_b.word)
+
+        self.pages[picto_b.page_name].pictograms.update({new_picto_a.word : new_picto_a})
+        self.pages[picto_a.page_name].pictograms.update({new_picto_b.word : new_picto_b})
+
+
   #=========================================================================================================================
 
   # PRINT AND DISPLAY METHODS OF THE GRID
