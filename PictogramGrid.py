@@ -91,7 +91,8 @@ class Page():
 
         #For each picto, get its word
         for picto in self.pictograms.values():
-            words.append(picto.word)
+            if(picto.is_directory == False):
+                words.append(picto.word)
         
         return words
 

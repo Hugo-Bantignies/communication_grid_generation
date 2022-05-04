@@ -1,6 +1,7 @@
 import random
 from PictogramGrid import Grid
 from EvaluationGrid import *
+from utils import *
 from tqdm import tqdm
 
 #Paralellization
@@ -34,10 +35,14 @@ class gpgo():
     :type gen_number: integer
     :randomizer: if True, the initial population of the grid will contain random grids, else the grids will follow the source_files, optional (True by default)
     :type gen_number: boolean
+    :similarity_coefficient: coefficient corresponding of the proportion of the type of display of the grid
+    :type similarity_coefficient: float ([0,1])
+    :sim_model: Language model to compute the similarity between words (Word2Vec, Glove, ...)
+    :type sim_model: model
     '''
     
     def __init__(self, source_files, training_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
-                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True):
+                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, similarity_coefficient = 0.5, sim_model = None):
         '''Constructor
         '''
 
@@ -66,6 +71,7 @@ class gpgo():
         #Check the mutation probability is between 0 and 1
         if(mutation_proba < 0 or mutation_proba > 1):
             raise Exception("Unexpected mutation probability (not between 0 and 1) !") 
+
         self.mutation_proba = mutation_proba
 
         self.select_number = select_number
@@ -73,7 +79,16 @@ class gpgo():
         self.gen_number = gen_number
 
         self.randomizer = randomizer
-        
+
+        #Check the similarity coefficient
+        if(similarity_coefficient < 0 or similarity_coefficient > 1):
+            raise Exception("Unexpected similarity coefficient (not between 0 and 1) !") 
+
+        if(sim_model == None):
+          self.similarity_coefficient = 0
+        else:
+          self.similarity_coefficient = similarity_coefficient
+
         self.fitness_history = dict()
 
         self.best_history = []
@@ -84,6 +99,12 @@ class gpgo():
 
         #Genetic operations initialization
         self.init_operations()
+
+        self.display_config()
+
+        #Compute the similarity matrix
+        tmp_voc  = get_vocabulary_from_corpus(source_files)
+        self.sim_matrix = compute_word_similarities(tmp_voc,sim_model)
 
     def fitness_history_record(self,fitnesses,gen_idx):
       '''Update the fitness history with a new fitness record and the corresponding generation as key
@@ -155,9 +176,9 @@ class gpgo():
       :return: returns the production cost of the grid
       :rtype: (float,)
       '''
-      return grid_distance_cost(individual, self.training_files),
+      return grid_cost(individual, self.training_files,sim_matrix = self.sim_matrix, similarity_coefficient=self.similarity_coefficient),
 
-    def pgcs_crossover_swap(self,ind_x, ind_y):
+    def crossover_picto_inter(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
 
       :param ind_x: The first individual for the crossover (parent x)
@@ -167,8 +188,33 @@ class gpgo():
       :return: returns the childs of the two parents (crossover result)
       :rtype: individual,individual
       '''
+      #For each page of the grid
+      for page_y in ind_y.pages.values():
 
-      return ind_x,ind_y
+        #For each pictogram of the page
+        for picto_y in page_y.pictograms.values():
+
+          if(picto_y.is_directory == False):
+            #Transmission of the information
+            if(random.random() < self.cross_info_rate):
+
+              #Get the pictogram of the word of the picto_y in the individual x
+              page_name_x = random.choice(ind_x.picto_voc[picto_y.word]).page
+              
+              picto_target_x = ind_x.pages[page_name_x].pictograms[picto_y.word]
+
+              #Find the pictogram having the same position of the previous one
+              for picto_x in ind_x.pages[page_y.name].pictograms.values():
+
+                if(picto_x.is_directory == False and picto_x.row == picto_y.row and picto_x.col == picto_y.col):
+
+                  picto_to_swap_x = picto_x
+
+              #Do not swap the same pictogram
+              if(picto_target_x != picto_to_swap_x):
+                ind_x.swap_pictograms(picto_target_x,picto_to_swap_x)
+
+      return ind_x,ind_x
 
     def mutation_swap_picto_intra(self,ind):
       '''Method used by the optimizer to perform a mutation on one individual
@@ -239,7 +285,7 @@ class gpgo():
       self.toolbox.register("selection", tools.selBest) 
 
       #--Crossover definition--
-      self.toolbox.register("crossover",self.pgcs_crossover_swap)
+      self.toolbox.register("crossover",self.crossover_picto_inter)
 
       #--Mutation definition--
       self.toolbox.register("mutation",self.mutation_swap_picto_inter)
@@ -302,7 +348,7 @@ class gpgo():
 
           #Probability to perform the crossover
           if(random.random() < self.cross_proba):
-
+            
             #Crossover operation to generate the new individual
             new_ind1,new_ind2 = self.toolbox.crossover(ind2,ind1)
             offspring.append(new_ind1)

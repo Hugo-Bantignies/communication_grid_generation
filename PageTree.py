@@ -127,7 +127,7 @@ def find_lca(start_node,end_node,depths,first_indexes):
     end_idx = first_indexes[end_node]
 
     #Return the indexes : start, end, lca
-    return [start_idx,end_idx,depths.index(min(depths[min(start_idx,end_idx):max(start_idx,end_idx)]))]
+    return [start_idx,end_idx,depths.index(min(depths[min(start_idx,end_idx):max(start_idx,end_idx)]),min(start_idx,end_idx),max(start_idx,end_idx))]
 
 def nodes_distance(start_idx,end_idx,lca_idx,depths):
     '''Function to compute the path length between the two nodes knowing the lca'''

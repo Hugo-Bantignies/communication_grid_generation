@@ -2,6 +2,7 @@ import math
 import codecs
 from PictogramGrid import Grid,Page,Pictogram
 from PageTree import *
+from tqdm import tqdm
 
 
 #===================================================================
@@ -63,8 +64,10 @@ def magnitude(v_a):
 
 def cosine_similarity(v_a,v_b):
     '''Function to compute the cosine_similarity of two vectors'''
-
-    return dot_product(v_a,v_b) / (magnitude(v_a) * magnitude(v_b))
+    if(magnitude(v_a) * magnitude(v_b) != 0):
+        return dot_product(v_a,v_b) / (magnitude(v_a) * magnitude(v_b))
+    else:
+        return 0
 
 
 #===================================================================
@@ -124,12 +127,17 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
         else:
             picto_start = grid.pages[best_path[0].page].pictograms[start_word]
 
+
+        #print("DEBUG : Words :",start_word,end_word)
+        #print("DEBUG : Best distance : ",best_distance)
+
+
         for i in range(len(best_path)):
 
             #End of the path
             if(i == best_distance):
-                next_picto = grid.pages[best_path[i].page].pictograms[end_word]
                 #print("DEBUG : End page",picto_start,"-->",next_picto)
+                next_picto = grid.pages[best_path[i].page].pictograms[end_word]
                 break
             
             #Navigation in the tree
@@ -199,8 +207,31 @@ def grid_distance_cost(grid,input_corpus):
     else:
         return cost
 
+def compute_word_similarities(voc,model):
+    '''Function to compute the similarities between all words and returns a dictionary'''
+    sim_matrix = dict()
 
-def page_similarity_cost(page,model):
+    for i in tqdm(range(len(voc)),desc = "Similarities computation ",unit = "word"):
+        
+        wi = voc[i]
+        wi_sims = dict()
+
+        #Get the vector of the word wi
+        vec_wi = model.get_word_vector(wi)
+
+        for wj in voc:
+
+            #Compute the similarity between the two words
+            word_score = 1 - cosine_similarity(vec_wi,model.get_word_vector(wj))
+            #Store it
+            wi_sims.update({wj : word_score})
+
+        #Store all similarities with the word wi
+        sim_matrix.update({wi : wi_sims})
+
+    return sim_matrix
+
+def page_similarity_cost(page,sim_matrix):
     '''Function to return the similarity cost of a page'''
 
     #Initialization
@@ -210,18 +241,17 @@ def page_similarity_cost(page,model):
     for wi in words:
         #Score for a word
         word_score = 0
-        vec_wi = model.get_word_vector(wi)
 
         for wj in words:
             #Compute the similarity between the two words
-            word_score += cosine_similarity(vec_wi,model.get_word_vector(wj))
+            word_score += sim_matrix[wi][wj]
         
         cost = cost + word_score
     
     return cost
 
 
-def grid_similarity_cost(grid,model):
+def grid_similarity_cost(grid,sim_matrix):
     '''Function to compute the similarity cost of an entire grid'''
 
     cost = 0
@@ -229,11 +259,11 @@ def grid_similarity_cost(grid,model):
     #Compute the similarity of each page
     for page in grid.pages.values():
         
-        cost += page_similarity_cost(page,model)
+        cost += page_similarity_cost(page,sim_matrix)
 
     return cost
 
-def grid_cost(grid,input_corpus,model,similarity_coefficient):
+def grid_cost(grid,input_corpus,sim_matrix,similarity_coefficient = 0.5):
     '''Function to evaluate a grid depending on the similarity coefficient'''
 
     #If the cost is only depending on the distance
@@ -242,12 +272,11 @@ def grid_cost(grid,input_corpus,model,similarity_coefficient):
 
     #If the cost is only depending on the similarity
     elif(similarity_coefficient == 1):
-        return grid_similarity_cost(grid,model)
+        return grid_similarity_cost(grid,sim_matrix)
 
     #Hybrid format
     else:
         dist = grid_distance_cost(grid,input_corpus)
-        sim = grid_similarity_cost(grid,model)
+        sim = grid_similarity_cost(grid,sim_matrix)
 
-        return (similarity_coefficient * sim) * ((1 - similarity_coefficient) * dist)
-    
+        return math.pow(math.log(sim),similarity_coefficient) + math.pow(math.log(dist),(1 - similarity_coefficient))
