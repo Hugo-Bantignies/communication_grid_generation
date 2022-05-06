@@ -3,22 +3,22 @@ from EvaluationGrid import grid_distance_cost,sentence_distance_cost
 from gpgo import gpgo
 import os
 
-corpus = ["training_corpora/animal_proof_5.txt"]
+corpus = []
 
 for root, dirs, files in os.walk("training_corpora"):
     for name in files:
-        pass#corpus.append(os.path.join(root,name))
+        corpus.append(os.path.join(root,name))
 
-my_gpgo= gpgo(corpus,corpus,pop_size=2,cross_proba=1,cross_info_rate=1,
+'''my_gpgo= gpgo(corpus,corpus,pop_size=2,cross_proba=1,cross_info_rate=1,
               mutation_proba=0,select_number=2,gen_number=1,randomizer=True)
 
 my_gpgo.display_config()
 
-g = my_gpgo.genetic_algorithm()
+g = my_gpgo.genetic_algorithm()'''
 
-'''g = Grid(corpus,randomizer=False,warnings = False)
+g = Grid(corpus,randomizer=False,warnings = False)
 g.to_csv()
-
+'''
 for p in g.pages.values():
     print(p.name)
     print(p)

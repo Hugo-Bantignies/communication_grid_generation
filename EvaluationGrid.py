@@ -250,7 +250,6 @@ def page_similarity_cost(page,sim_matrix):
     
     return cost
 
-
 def grid_similarity_cost(grid,sim_matrix):
     '''Function to compute the similarity cost of an entire grid'''
 
@@ -268,11 +267,13 @@ def grid_cost(grid,input_corpus,sim_matrix,similarity_coefficient = 0.5):
 
     #If the cost is only depending on the distance
     if(similarity_coefficient == 0):
-        return grid_distance_cost(grid,input_corpus)
+        dist =  grid_distance_cost(grid,input_corpus)
+        return math.log(dist)
 
     #If the cost is only depending on the similarity
     elif(similarity_coefficient == 1):
-        return grid_similarity_cost(grid,sim_matrix)
+        sim =  grid_similarity_cost(grid,sim_matrix)
+        return math.log(sim)
 
     #Hybrid format
     else:

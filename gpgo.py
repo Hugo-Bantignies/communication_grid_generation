@@ -2,6 +2,8 @@ import random
 from PictogramGrid import Grid
 from EvaluationGrid import *
 from utils import *
+
+from os.path import exists
 from tqdm import tqdm
 
 #Paralellization
@@ -42,7 +44,9 @@ class gpgo():
     '''
     
     def __init__(self, source_files, training_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
-                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, similarity_coefficient = 0.5, sim_model = None):
+                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True,
+                 similarity_coefficient = 0.5, sim_model = None, sim_matrix_path = "sim_default.json"):
+                 
         '''Constructor
         '''
 
@@ -89,7 +93,7 @@ class gpgo():
         else:
           self.similarity_coefficient = similarity_coefficient
 
-        self.fitness_history = dict()
+        self.fitness_log = dict()
 
         self.best_history = []
 
@@ -102,9 +106,16 @@ class gpgo():
 
         self.display_config()
 
-        #Compute the similarity matrix
-        tmp_voc  = get_vocabulary_from_corpus(source_files)
-        self.sim_matrix = compute_word_similarities(tmp_voc,sim_model)
+        self.sim_matrix = None
+
+        if(similarity_coefficient > 0):
+          #Precomputing of the similarity matrix or loading from a JSON if the path exists
+          if(not exists(sim_matrix_path)):
+            tmp_voc  = get_vocabulary_from_corpus(source_files)
+            self.sim_matrix = compute_word_similarities(tmp_voc,sim_model)
+            store_similarity_matrix(self.sim_matrix,output_file = "sim_default.json")
+          else:
+            self.sim_matrix = load_similarity_matrix("sim_default.json")
 
     def fitness_history_record(self,fitnesses,gen_idx):
       '''Update the fitness history with a new fitness record and the corresponding generation as key
@@ -115,7 +126,7 @@ class gpgo():
       :type gen_idx: integer
       '''
 
-      self.fitness_history.update({gen_idx:fitnesses})
+      self.fitness_log.update({gen_idx:fitnesses})
 
     def fitness_best_record(self,fitness):
       '''Update the best fitness history with the record of the best fitness ever. 
@@ -398,8 +409,61 @@ class gpgo():
       return best_ind
 
     #===============================================
-    # DISPLAY METHODS
+    # DISPLAY METHODS AND HISTORY
     #===============================================
+
+    def fitness_history(self,option = "only_best"):
+      '''Methods returning the fitness history depending on the request from the user (parameters) for each process.
+
+      :param option: Option to know what the history will contain, optional ("best" by default)
+      Possible options : "gen_best", "only_best", "average", "all"
+      :type: string
+      :return: Returns the prepared history depending of the options and the request from the user.
+      :rtype: list
+      '''
+
+      #Get the best history
+      if(option == "only_best"):
+        return self.best_history
+
+      #Get the average history
+      elif(option == "average"):
+
+        #History
+        history = []
+
+        for fitness in self.fitness_log.values():
+          #Append the average of the fitness for the generation in the history to return (if the list is not empty)
+          if(fitness):
+            
+            tmp_avg = []
+
+            for value in fitness:
+
+              tmp_avg.append(value[0])
+            
+            history.append(sum(tmp_avg) / len(tmp_avg))
+            
+        return history
+      
+      elif(option == "gen_best"):
+
+        #History
+        history = []
+
+        for fitness in self.fitness_log.values():
+          #Append the average of the fitness for the generation in the history to return (if the list is not empty)
+          if(fitness):
+            
+            tmp_avg = []
+            
+            for value in fitness:
+
+              tmp_avg.append(value[0])
+            
+            history.append(min(tmp_avg))
+            
+        return history
 
     def display_config(self):
         '''Method to display the configuration of the optimizer

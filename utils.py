@@ -2,6 +2,7 @@ import math
 import numpy as np
 import pandas as pd
 import codecs
+import json
 
 def dot_product(v_a,v_b):
     '''Function to compute the dot product between two vectors'''
@@ -83,3 +84,28 @@ def get_vocabulary_from_corpus(corpus):
         rawFile.close()
 
     return voc
+
+def store_similarity_matrix(sim_matrix,output_file = "sim_default.json"):
+
+    #File opening
+    similarity_file = codecs.open(output_file,"w","utf-8")
+
+    #Store the similarity matrix
+    tmp = json.dumps(sim_matrix)
+    similarity_file.write(tmp)
+    similarity_file.close()
+
+def load_similarity_matrix(input_file):
+
+    if(input_file.endswith(".json")):
+
+        #File opening
+        similarity_file = codecs.open(input_file,"r","utf-8")
+
+        #Load the similarity matrix
+        sim_matrix = json.load(similarity_file)
+
+        return sim_matrix
+
+    else:
+        raise Exception("Not correct file format, .json was expected !")

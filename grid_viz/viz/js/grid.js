@@ -286,8 +286,13 @@ let Grid = (() => {
     //Listener to hollow the pages
     const hollowpages = function(event)
     {
-      self.main_container.selectAll("rect").style("fill",d => colors(d.page)).style("opacity",0.6);
-      self.show_pages_state = true;
+      if(self.show_pages_state == false)
+      {self.main_container.selectAll("rect").style("fill",d => colors(d.page)).style("opacity",0.6);
+      self.show_pages_state = true;}
+      else
+      {self.main_container.selectAll("rect").style("fill","white").style("opacity",1);
+      document.getElementById("search").value = "";
+      self.show_pages_state = false;}
     }
 
     //Buttons and search bar
