@@ -131,13 +131,12 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
         #print("DEBUG : Words :",start_word,end_word)
         #print("DEBUG : Best distance : ",best_distance)
 
-
         for i in range(len(best_path)):
 
             #End of the path
             if(i == best_distance):
-                #print("DEBUG : End page",picto_start,"-->",next_picto)
                 next_picto = grid.pages[best_path[i].page].pictograms[end_word]
+                #print("DEBUG : End page",picto_start,"-->",next_picto)
                 break
             
             #Navigation in the tree

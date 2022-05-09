@@ -44,8 +44,8 @@ class gpgo():
     '''
     
     def __init__(self, source_files, training_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
-                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True,
-                 similarity_coefficient = 0.5, sim_model = None, sim_matrix_path = "sim_default.json"):
+                 mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, page_row_size = 5, 
+                 page_col_size = 5, similarity_coefficient = 0.5, sim_model = None, sim_matrix_path = "sim_default.json"):
                  
         '''Constructor
         '''
@@ -83,6 +83,9 @@ class gpgo():
         self.gen_number = gen_number
 
         self.randomizer = randomizer
+
+        self.page_row = page_row_size
+        self.page_col = page_col_size
 
         #Check the similarity coefficient
         if(similarity_coefficient < 0 or similarity_coefficient > 1):
@@ -149,7 +152,8 @@ class gpgo():
       :rtype container: container
       '''
       #Create an encapsulated grid in the container to fit with the DEAP framework (from the source file)
-      return container(source_files,root_name = "accueil",randomizer = self.randomizer,warnings = False)
+      return container(source_files,root_name = "accueil",randomizer = self.randomizer,warnings = False,
+                       page_row_size = self.page_row,page_col_size = self.page_col)
 
     def init_population(self,container,func,source_files):
       '''Method to initialize the population of the Optimizer
@@ -248,7 +252,8 @@ class gpgo():
         selected_picto_b = selected_page.pictograms[random.choice(list(selected_page.pictograms))]
 
         #Swap the two pictograms
-        selected_page.swap_pictograms(selected_picto_a,selected_picto_b)
+        if(selected_picto_a.is_directory == False and selected_picto_b.is_directory == False):
+          selected_page.swap_pictograms(selected_picto_a,selected_picto_b)
 
       return ind
 
@@ -282,7 +287,56 @@ class gpgo():
 
       return ind
       
+    def mutation_duplicata(self,ind):
+      '''Method used by the optimizer to perform a mutation on one individual
+      The mutation will perform a duplicata of a random pictogram within the grid.
+
+      :param ind: the individual subject to the mutation
+      :type ind: individual
+      :return: returns the individual after the mutation
+      :rtype: individual
+      '''
+
+      #Random selection of a page
+      selected_page_name = random.choice(list(ind.pages))
+      selected_page = ind.pages[selected_page_name]
+
+      #Random selection of two pictograms within the selected page
+      if(selected_page.pictograms != dict()):
+        sel_pic = selected_page.pictograms[random.choice(list(selected_page.pictograms))]
+
+      sel_page = None
+
+      #Selection of a page having an empty space
+      for page in ind.pages.values():
+        if(page.next_row < page.row_size - 1 and page.next_col < page.col_size - 1):
+          sel_page = page
+          break
+
+      #Adding the duplicata
+      if(sel_page and sel_pic.is_directory == False and sel_pic.word not in sel_page.pictograms):
+        #Adding in the page
+        sel_page.add_pictogram(sel_pic.word,sel_pic.is_directory,warnings = False)
+        #Adding in the vocabulary
+        ind.picto_voc[sel_pic.word].append(ind.page_tree.find_node(sel_page.name))
+
+      return ind
+
+    def mutation_picto(self,ind):
       
+      r = random.random()
+
+      if(r < 0.2):
+        #ind = self.mutation_duplicata(ind)
+        pass
+      elif(r < 0.5):
+        ind = self.mutation_swap_picto_intra(ind)
+      else:
+        ind = self.mutation_swap_picto_inter(ind)
+
+      return ind
+
+
 
     def init_operations(self):
       '''Method that will initialize operations used by the genetic algorithm (evaluation, selection, crossover, mutation)
@@ -300,7 +354,7 @@ class gpgo():
       self.toolbox.register("crossover",self.crossover_picto_inter)
 
       #--Mutation definition--
-      self.toolbox.register("mutation",self.mutation_swap_picto_inter)
+      self.toolbox.register("mutation",self.mutation_picto)
   
 
     def genetic_algorithm(self):

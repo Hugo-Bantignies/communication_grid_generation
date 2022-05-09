@@ -187,7 +187,7 @@ class Grid():
     :type randomizer: boolean (True by default)
     '''
 
-    def __init__(self,input_file,root_name = "accueil",randomizer = True,warnings = True):
+    def __init__(self,input_file,root_name = "accueil",randomizer = True,warnings = True,page_row_size = 5,page_col_size = 5):
         '''Constructor''' 
 
         self.root_name = root_name
@@ -195,6 +195,11 @@ class Grid():
         self.pages = dict()
         self.picto_voc = dict()
         self.nb_picto = 0
+
+        #Dimension of the pages
+        self.page_row = page_row_size
+        self.page_col = page_col_size
+
         self.randomizer = randomizer
         self.warnings = warnings
         self.generate_grid(input_file)
@@ -212,7 +217,7 @@ class Grid():
         if(input_file[0].endswith(".txt")):
             self.generate_grid_from_txt(input_file)
 
-    def generate_grid_structure(self,voc,page_row_size = 5,page_col_size = 5):
+    def generate_grid_structure(self,voc):
         '''Generate an empty grid structure (tree and directory pictograms) from the vocabulary
         '''
 
@@ -220,17 +225,19 @@ class Grid():
         tmp_nb_picto = len(voc)
 
         #Get the number of pages / directories
-        nb_pages = int(math.floor(tmp_nb_picto / (page_row_size * page_col_size))) - 1
+        nb_pages = int(math.ceil(tmp_nb_picto / (self.page_row * self.page_col)))
         self.nb_picto = tmp_nb_picto + nb_pages
-        if(self.nb_picto <= page_row_size * page_col_size):
+        if(self.nb_picto <= self.page_row * self.page_col):
             nb_pages = 0
         else:
-            nb_pages = int(math.floor(self.nb_picto / (page_row_size * page_col_size)))
-        page_size = page_row_size * page_col_size
+            nb_pages = int(math.ceil(self.nb_picto / (self.page_row * self.page_col)))
+        self.nb_picto = tmp_nb_picto + nb_pages
+        nb_pages = int(math.ceil(self.nb_picto / (self.page_row * self.page_col))) - 1
+        page_size = self.page_row * self.page_col
 
         #Root page of the grid (first page)
         current_name = self.root_name
-        current_page = Page(current_name,page_row_size,page_col_size)
+        current_page = Page(current_name,self.page_row,self.page_col)
         self.pages.update({current_name : current_page})
 
         #Creation of the page tree with the root page
@@ -250,7 +257,7 @@ class Grid():
             new_name = "default"+str(i)
 
             #New page in the grid
-            self.pages.update({new_name : Page(new_name,page_row_size,page_col_size)})
+            self.pages.update({new_name : Page(new_name,self.page_row,self.page_col)})
 
             #Append the node in the tree
             new_node = PageTreeNode(new_name)
@@ -281,7 +288,7 @@ class Grid():
             #Update the parent pictogram for the link between pages
             self.pages[new_name].parent_picto = self.pages[parent.page].pictograms[new_name]
 
-    def generate_grid_from_txt(self,corpus,page_row_size = 5,page_col_size = 5):
+    def generate_grid_from_txt(self,corpus):
         '''Generate a grid from a .txt corpus
 
         :param corpus: source text file list containing the corpus
@@ -291,12 +298,12 @@ class Grid():
         #Get the vocabulary of the corpus and the number of pictograms
         voc = get_vocabulary_from_corpus(corpus)
 
-        self.generate_grid_structure(voc,page_row_size,page_col_size)
+        self.generate_grid_structure(voc)
 
         page_queue = []
         
         for page in self.pages.values():
-            if(len(page.pictograms) < page_row_size * page_col_size):
+            if(len(page.pictograms) < self.page_row * self.page_col):
                 page_queue.append(page)
 
         current_page = page_queue.pop(0)
@@ -315,8 +322,6 @@ class Grid():
 
             #If the current page is not full add the pictogram
             ret_full = current_page.add_pictogram(word,warnings = self.warnings)
-
-
             
             #If the current page is full, the pictogram was not added, create a new page
             if(ret_full == True):
@@ -338,6 +343,9 @@ class Grid():
 
         #---NODES INFORMATION---
 
+        node_a = None
+        node_b = None
+
         #Find the page node corresponding to the page of the pictogram a
         for node in self.picto_voc[picto_a.word]:
             if(node.page == picto_a.page_name):
@@ -349,6 +357,8 @@ class Grid():
             if(node.page == picto_b.page_name):
                 node_b = node
                 break
+
+        #print("DEBUG :",picto_a,"<-->",picto_b)
 
         #Modify the information of page nodes for the pictogram a
         self.picto_voc[picto_a.word].remove(node_a)
