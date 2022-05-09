@@ -108,14 +108,15 @@ class gpgo():
 
         self.sim_matrix = None
 
+        #Similarity matrix loading
         if(similarity_coefficient > 0):
           #Precomputing of the similarity matrix or loading from a JSON if the path exists
           if(not exists(sim_matrix_path)):
             tmp_voc  = get_vocabulary_from_corpus(source_files)
             self.sim_matrix = compute_word_similarities(tmp_voc,sim_model)
-            store_similarity_matrix(self.sim_matrix,output_file = "sim_default.json")
+            store_similarity_matrix(self.sim_matrix,output_file = sim_matrix_path)
           else:
-            self.sim_matrix = load_similarity_matrix("sim_default.json")
+            self.sim_matrix = load_similarity_matrix(sim_matrix_path)
 
     def fitness_history_record(self,fitnesses,gen_idx):
       '''Update the fitness history with a new fitness record and the corresponding generation as key

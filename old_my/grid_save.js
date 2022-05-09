@@ -10,6 +10,16 @@ let Grid = (() => {
   self.main_height = 700 - self.main_margin.top - self.main_margin.bottom;
 
   /**
+   * Dimension of the zoom grid in the visualization 
+   */
+  self.zoom_margin = {top:15, right: 15, bottom: 15, left: 15}
+  self.zoom_width = 550 - self.zoom_margin.left - self.zoom_margin.right;
+  self.zoom_height = 550 - self.zoom_margin.top - self.zoom_margin.bottom;
+
+  self.zoom_row = 5;
+  self.zoom_col = 5;
+
+  /**
   * SVG Element that will contain the main grid
   */
    const createMainSvg = (divName) => {
@@ -19,6 +29,18 @@ let Grid = (() => {
     .attr("height", self.main_height + self.main_margin.top + self.main_margin.bottom)
     .append("g")
     .attr("transform", `translate(${self.main_margin.left},${self.main_margin.top})`);
+   }
+
+   /**
+    * SVG Element that will contain the zoom grid
+    */
+   const createZoomSvg = (divname) => {
+     self.zoom_container = d3.select(divname)
+     .append("svg")
+     .attr("width", self.zoom_width + self.zoom_margin.left + self.zoom_margin.right)
+     .attr("height", self.zoom_height + self.zoom_margin.top + self.zoom_margin.bottom)
+     .append("g")
+     .attr("transform", `translate(${self.zoom_margin.left},${self.zoom_margin.top})`);
    }
 
    /**
@@ -70,6 +92,7 @@ let Grid = (() => {
   self.displayGrid = (divName) => {
 
     createMainSvg(divName)
+    createZoomSvg("#wordtip")
     
     /**
      * X scale and axis for the main grid
@@ -82,6 +105,16 @@ let Grid = (() => {
     .attr("transform", `translate(0, ${self.main_height})`)
 
     /**
+     * X scale and axis for the zoom grid
+     */
+     const x_zoom = d3.scaleBand()
+     .range([ 0, self.zoom_width ])
+     .domain(d3.range(0))
+     .padding(0.01);
+     self.zoom_container.append("g")
+     .attr("transform", `translate(0, ${self.zoom_height})`)
+
+    /**
      * Y scale and axis for the main grid
      */
     const y = d3.scaleBand()
@@ -89,6 +122,16 @@ let Grid = (() => {
     .domain(d3.range(0))
     .padding(0.01);
     self.main_container.append("g")
+
+
+    /**
+     * Y scale and axis for the zoom grid
+     */
+     const y_zoom = d3.scaleBand()
+     .range([ 0 , self.zoom_height ])
+     .domain(d3.range(0))
+     .padding(0.01);
+     self.zoom_container.append("g")
 
     /**
      * Data preparation (read and assignation)
@@ -131,40 +174,22 @@ let Grid = (() => {
     .text("Number of pictograms : " + nbwords)
 
     x.domain(d3.range(numcol))
+    x_zoom.domain(d3.range(self.zoom_row))
     y.domain(d3.range(numrow))
-
-
-    // create a tooltip
-    const tooltip = d3.select("#pictogram_grid")
-    .append("div")
-    .style("opacity", 0)
-    .attr("class", "tooltip")
-    .style("position", "absolute")
-    .style("background-color", "white")
-    .style("border", "solid")
-    .style("border-width", "2px")
-    .style("border-radius", "5px")
-    .style("padding", "5px")
+    y_zoom.domain(d3.range(self.zoom_col))
 
     /**
      * Mouse : Three function that change the wordtip when user hover / move / leave a cell
      */
     const mouseover = function(event,d) {
+      self.zoom_container.style("opacity", 1)
       d3.select(this)
           .style("fill", "red")
-          .style("opacity", 0.7);
-      tooltip.style("opacity", 1);
-    }
-
-    const mousemove = function(event,d) {
-      tooltip
-        .html(d.word)
-        .style("left", (event.x)/2 + "px")
-        .style("top", (event.y)/2 + "px")
+          .style("opacity", 0.7)
     }
 
     const mouseleave = function(d) {
-      tooltip.style("opacity", 0)
+      self.zoom_container.style("opacity", 0)
       if(self.show_pages_state == true)
       {
         d3.select(this)
@@ -175,6 +200,51 @@ let Grid = (() => {
         d3.select(this)
         .style("fill", "white")
         .style("opacity",1);}
+    }
+
+    /**
+     * Functon to display the zoom grid of the selected word
+     */
+    const zoomGrid = function(event,d) {
+
+      //Text to modify
+      var text;
+
+      //Apply the filter from the middle
+      for(let i = -Math.floor(self.zoom_row/2); i < Math.ceil(self.zoom_row / 2); i++)
+      {
+        for(let j = -Math.floor(self.zoom_col/2); j < Math.ceil(self.zoom_col / 2); j++)
+        {
+
+          //Get the text
+          text = document.getElementById("text"+((i+Math.floor(self.zoom_row/2)) 
+                                                    * self.zoom_col + (j+Math.floor(self.zoom_col/2))));
+
+          //Get the rect
+          rect = document.getElementById("rect"+((i+Math.floor(self.zoom_row/2)) 
+                                                    * self.zoom_col + (j+Math.floor(self.zoom_col/2))));
+
+          var p_row = d.row + i;
+          var p_col = d.col + j;
+
+          console.log(p_row,p_col)
+          
+          //If not out of bounds
+          if(p_row >= 0 && p_col >= 0 && p_row < numrow && p_col < numcol && ((p_row * numcol + p_col) < nbwords))
+          {
+            word = data[(p_row * numcol)+ p_col].word
+            text.textContent = word;
+
+            rect_color = document.getElementById("r_"+word).style.fill;
+            rect.style.fill = rect_color;
+          }
+          //If out of bounds
+          else{
+            text.textContent = "";
+            rect.style.fill = "white";
+          }
+        }
+      }
     }
 
 
@@ -191,10 +261,19 @@ let Grid = (() => {
       
       if(word !== "")
       {
+        self.zoom_container.style("opacity", 1)
         self.search_mem = document.getElementById("r_"+word)
         self.search_mem.style.fill = "green"
         self.search_mem.style.opacity = 0.5
+        for(let i = 0; i < nbwords; i++)
+        {
+          if(data[i].word == word)
+          {
+            zoomGrid(event,data[i]);
+          }
+        }
       }
+      else {self.zoom_container.style("opacity", 0)}
     }
 
     //Listener of the marker button
@@ -258,9 +337,34 @@ let Grid = (() => {
         .style("fill", "white")
         .style("stroke","black")
         .on("mouseover", mouseover)
+        .on("mousemove", zoomGrid)
         .on("mouseleave", mouseleave)
-        .on("mousemove", mousemove)
-        .on("click", searchmarker);
+
+      const zoom_rect = d3.range(self.zoom_row*self.zoom_col);
+
+      self.zoom_container.selectAll()
+        .data(zoom_rect)
+        .enter()
+        .append("rect")
+          .attr("x", function(d) { return x_zoom(d%self.zoom_row); })
+          .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)); })
+          .attr("width", x_zoom.bandwidth() )
+          .attr("height", y_zoom.bandwidth() )
+          .attr("id",function(d) {return "rect"+d})
+          .style("stroke","black")
+          .style("fill","white")
+          .style("opacity",0.7)
+
+      self.zoom_container.selectAll()
+      .data(zoom_rect)
+      .enter()
+        .append("text")
+        .attr("dy", ".35em")
+          .attr("x", function(d) { return x_zoom(d%self.zoom_row) + self.zoom_width/(self.zoom_row * 4) })
+        .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)) + self.zoom_height/(self.zoom_col * 2) })
+        .attr("id",function(d) {return "text"+d})
+        .style("font-size", 11)
+        .text("")
     })
   }
 
