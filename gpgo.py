@@ -204,31 +204,28 @@ class gpgo():
       :return: returns the childs of the two parents (crossover result)
       :rtype: individual,individual
       '''
-      #For each page of the grid
-      for page_y in ind_y.pages.values():
 
-        #For each pictogram of the page
-        for picto_y in page_y.pictograms.values():
+      #Get the pictogram of the individual y
+      page_y = random.choice(list(ind_y.pages.values()))
+      picto_y = random.choice(list(page_y.pictograms.values()))
 
-          if(picto_y.is_directory == False):
-            #Transmission of the information
-            if(random.random() < self.cross_info_rate):
-
-              #Get the pictogram of the word of the picto_y in the individual x
-              page_name_x = random.choice(ind_x.picto_voc[picto_y.word]).page
+      #Get the pictogram of the word of the picto_y in the individual x
+      page_name_x = random.choice(ind_x.picto_voc[picto_y.word]).page
               
-              picto_target_x = ind_x.pages[page_name_x].pictograms[picto_y.word]
+      picto_target_x = ind_x.pages[page_name_x].pictograms[picto_y.word]
 
-              #Find the pictogram having the same position of the previous one
-              for picto_x in ind_x.pages[page_y.name].pictograms.values():
+      #Find the pictogram having the same position of the previous one
+      picto_to_swap_x = None
 
-                if(picto_x.is_directory == False and picto_x.row == picto_y.row and picto_x.col == picto_y.col):
+      for picto_x in ind_x.pages[page_y.name].pictograms.values():
 
-                  picto_to_swap_x = picto_x
+        if(picto_x.is_directory == False and picto_x.row == picto_y.row and picto_x.col == picto_y.col):
 
-              #Do not swap the same pictogram
-              if(picto_target_x != picto_to_swap_x):
-                ind_x.swap_pictograms(picto_target_x,picto_to_swap_x)
+          picto_to_swap_x = picto_x
+
+      #Do not swap the same pictogram
+      if(picto_to_swap_x and picto_target_x.word != picto_to_swap_x.word):
+        ind_x.swap_pictograms(picto_target_x,picto_to_swap_x)
 
       return ind_x,ind_x
 
@@ -282,7 +279,9 @@ class gpgo():
         selected_picto_b = page_b.pictograms[random.choice(list(page_b.pictograms))]
       
       #If both pictograms are not directory or not the same, we perform the swap
-      if(selected_picto_a.is_directory == False and selected_picto_b.is_directory == False and selected_picto_a.word != selected_picto_b.word):
+      if(selected_picto_a.is_directory == False and selected_picto_b.is_directory == False 
+                and selected_picto_a.word != selected_picto_b.word):
+
         ind.swap_pictograms(selected_picto_a,selected_picto_b)
 
       return ind
@@ -301,38 +300,39 @@ class gpgo():
       selected_page_name = random.choice(list(ind.pages))
       selected_page = ind.pages[selected_page_name]
 
-      #Random selection of two pictograms within the selected page
+      #Random selection of the pictogram to ducplicate
       if(selected_page.pictograms != dict()):
         sel_pic = selected_page.pictograms[random.choice(list(selected_page.pictograms))]
 
-      sel_page = None
+      selected_page = None
 
       #Selection of a page having an empty space
       for page in ind.pages.values():
-        if(page.next_row < page.row_size - 1 and page.next_col < page.col_size - 1):
-          sel_page = page
+        if(page.is_full == False):
+          selected_page = page
           break
 
       #Adding the duplicata
-      if(sel_page and sel_pic.is_directory == False and sel_pic.word not in sel_page.pictograms):
+      if(selected_page != None and sel_pic.is_directory == False and sel_pic.word not in selected_page.pictograms):
+
         #Adding in the page
-        sel_page.add_pictogram(sel_pic.word,sel_pic.is_directory,warnings = False)
+        ret = selected_page.add_word_to_pictogram(sel_pic.word,sel_pic.is_directory,warnings = False)
         #Adding in the vocabulary
-        ind.picto_voc[sel_pic.word].append(ind.page_tree.find_node(sel_page.name))
+        if(ret == False):
+          ind.picto_voc[sel_pic.word].append(ind.page_tree.find_node(selected_page.name))
 
       return ind
 
     def mutation_picto(self,ind):
       
-      r = random.random()
+      #Mutation Duplicata
+      ind = self.mutation_duplicata(ind)
 
-      if(r < 0.2):
-        #ind = self.mutation_duplicata(ind)
-        pass
-      elif(r < 0.5):
-        ind = self.mutation_swap_picto_intra(ind)
-      else:
-        ind = self.mutation_swap_picto_inter(ind)
+      #Mutation Swap Inter Picto
+      ind = self.mutation_swap_picto_intra(ind)
+
+      #Mutation Swap Intra Picto
+      ind = self.mutation_swap_picto_inter(ind)
 
       return ind
 

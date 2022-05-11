@@ -88,6 +88,8 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
         #Next word
         end_word = word
 
+        #print("DEBUG : Words :",start_word,end_word)
+
         #Potential pages (contain the word)
         potential_pages = []
 
@@ -125,10 +127,10 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
         if(start_word == "--start"):
             picto_start = Pictogram("--start",0,0,grid.root_name,None,None)
         else:
+            #print(start_word,best_path[0].page)
+            #print(grid.pages[best_path[0].page])
             picto_start = grid.pages[best_path[0].page].pictograms[start_word]
 
-
-        #print("DEBUG : Words :",start_word,end_word)
         #print("DEBUG : Best distance : ",best_distance)
 
         for i in range(len(best_path)):

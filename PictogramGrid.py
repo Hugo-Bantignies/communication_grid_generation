@@ -42,7 +42,7 @@ class Pictogram:
         if(self.is_directory):
             return [self.word,self.row,self.col,self.page_name,self.id,"DIR",self.id.split("@")[0]]
         else:
-            return [self.word,self.row,self.col,self.page_name,self.id]
+            return [self.word,self.row,self.col,self.page_name,self.id,"NO"]
 
     def __str__(self):
         '''Display the pictogram information (text)
@@ -96,8 +96,8 @@ class Page():
         
         return words
 
-    def add_pictogram(self,word,is_directory = False,warnings = True):
-        '''Method to add a pictogram to the page'''
+    def add_word_to_pictogram(self,word,is_directory = False,warnings = True):
+        '''Method to add a pictogram to the page from a word'''
 
         #End of column
         if(self.next_col == self.col_size):
@@ -119,6 +119,11 @@ class Page():
         self.next_col += 1
 
         return self.is_full
+    
+    def add_pictogram(self,pictogram):
+        '''Method to add an existing pictogram to the page'''
+
+        self.pictograms.update({pictogram.word : pictogram})
     
     def remove_pictogram(self,word):
         '''Method to remove a pictogram from the page'''
@@ -202,7 +207,63 @@ class Grid():
 
         self.randomizer = randomizer
         self.warnings = warnings
-        self.generate_grid(input_file)
+        if(isinstance(input_file, list)):
+            self.generate_grid(input_file)
+        elif(input_file.endswith(".csv")):
+            self.load_grid(input_file)
+    
+    def load_grid(self,input_file):
+        
+        #Opening the csv file
+        f = open(input_file,"r",encoding = "utf-8",newline = '')
+
+        #Initialization of the reader
+        reader = csv.reader(f)
+
+        #Building the pictogram list
+        picto_list = []
+
+        header = next(reader)
+        next(reader)
+
+        for row in reader:
+            if(row[5] == "DIR"):
+                picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],True))
+            else:
+                picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4]))
+
+        self.root_name = header[0]
+        self.page_row = header[1]
+        self.page_col = header[2]
+
+        #Get the root page name
+        self.page_tree = PageTreeNode(self.root_name)
+
+        #Create the root page
+        root_page = Page(self.root_name,self.page_row,self.page_col)
+        self.pages.update({self.root_name : root_page})
+
+
+        #Build pages
+        for picto in picto_list:
+
+            #New page
+            if(picto.is_directory == True):
+                parent = self.page_tree.find_node(picto.page_name)
+                parent.insert_child(PageTreeNode(picto.word))
+
+                new_page = Page(picto.word,self.page_row,self.page_col)
+                self.pages.update({new_page.name : new_page})
+
+        #Load the grid
+        for picto in picto_list:
+
+            if(picto.word in self.picto_voc):
+                self.picto_voc[picto.word].append(self.page_tree.find_node(picto.page_name))
+            else:
+                self.picto_voc.update({picto.word : [self.page_tree.find_node(picto.page_name)]})
+
+            self.pages[picto.page_name].add_pictogram(picto)
 
     def generate_grid(self,input_file):
         '''Encapsulation function.
@@ -277,7 +338,7 @@ class Grid():
                 page_counter = 0
             
             #Add the directory pictogram responsible of the new page
-            current_page.add_pictogram(new_name,is_directory = True,warnings = self.warnings)
+            current_page.add_word_to_pictogram(new_name,is_directory = True,warnings = self.warnings)
             self.picto_voc.update({new_name : [parent]})
             page_counter += 1
 
@@ -321,7 +382,7 @@ class Grid():
                 word = voc[i]
 
             #If the current page is not full add the pictogram
-            ret_full = current_page.add_pictogram(word,warnings = self.warnings)
+            ret_full = current_page.add_word_to_pictogram(word,warnings = self.warnings)
             
             #If the current page is full, the pictogram was not added, create a new page
             if(ret_full == True):
@@ -331,7 +392,7 @@ class Grid():
                     current_page = page_queue.pop(0)
 
                 #Add the pictogram to the new page
-                current_page.add_pictogram(word,warnings = self.warnings)
+                current_page.add_word_to_pictogram(word,warnings = self.warnings)
 
             if(word in self.picto_voc):
                 self.picto_voc[word].append(self.page_tree.find_node(current_page.name))
@@ -341,24 +402,24 @@ class Grid():
     def swap_pictograms(self,picto_a,picto_b):
         '''Method to swap two pictograms in the whole grid'''
 
+        #---CONDITION BEFORE THE SWAP---#
+
+        page_a = self.pages[picto_a.page_name]
+        page_b = self.pages[picto_b.page_name]
+
+        #If there is already the word in the page, do no process the swap
+        if(picto_a.word in page_b.pictograms or picto_b.word in page_a.pictograms):
+            return
+
         #---NODES INFORMATION---
 
-        node_a = None
-        node_b = None
+        #print(picto_a,"<-->",picto_b)
 
         #Find the page node corresponding to the page of the pictogram a
-        for node in self.picto_voc[picto_a.word]:
-            if(node.page == picto_a.page_name):
-                node_a = node
-                break
+        node_a = self.page_tree.find_node(picto_a.page_name)
 
         #Find the page node corresponding to the page of the pictogram b
-        for node in self.picto_voc[picto_b.word]:
-            if(node.page == picto_b.page_name):
-                node_b = node
-                break
-
-        #print("DEBUG :",picto_a,"<-->",picto_b)
+        node_b = self.page_tree.find_node(picto_b.page_name)
 
         #Modify the information of page nodes for the pictogram a
         self.picto_voc[picto_a.word].remove(node_a)
@@ -380,8 +441,8 @@ class Grid():
         self.pages[picto_a.page_name].pictograms.pop(picto_a.word)
         self.pages[picto_b.page_name].pictograms.pop(picto_b.word)
 
-        self.pages[picto_b.page_name].pictograms.update({new_picto_a.word : new_picto_a})
         self.pages[picto_a.page_name].pictograms.update({new_picto_b.word : new_picto_b})
+        self.pages[picto_b.page_name].pictograms.update({new_picto_a.word : new_picto_a})
 
 
   #=========================================================================================================================
@@ -399,7 +460,9 @@ class Grid():
         writer = csv.writer(f)
         
         #Get the vocabulary (the grid)
-        header = ['word','row','col','page','identifier']
+        header = [self.root_name,self.page_row,self.page_col]
+        writer.writerow(header)
+        header = ['word','row','col','page','identifier','is_dir','link']
         writer.writerow(header)
         
         for page in self.pages.values():
