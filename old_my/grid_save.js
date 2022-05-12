@@ -333,7 +333,7 @@ let Grid = (() => {
         })
         .attr("width", x.bandwidth() )
         .attr("height", y.bandwidth() )
-        .attr("id",function(d) { return "r_"+d.word; })
+        .attr("id",function(d) { return "r_"+d.word+d.page; })
         .style("fill", "white")
         .style("stroke","black")
         .on("mouseover", mouseover)

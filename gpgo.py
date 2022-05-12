@@ -324,15 +324,20 @@ class gpgo():
       return ind
 
     def mutation_picto(self,ind):
+
+      r = random.randint(1,3)
       
       #Mutation Duplicata
-      ind = self.mutation_duplicata(ind)
+      if(r == 1):
+        ind = self.mutation_duplicata(ind)
 
-      #Mutation Swap Inter Picto
-      ind = self.mutation_swap_picto_intra(ind)
+      elif(r == 2):
+        #Mutation Swap Inter Picto
+        ind = self.mutation_swap_picto_intra(ind)
 
-      #Mutation Swap Intra Picto
-      ind = self.mutation_swap_picto_inter(ind)
+      else:
+        #Mutation Swap Intra Picto
+        ind = self.mutation_swap_picto_inter(ind)
 
       return ind
 

@@ -10,6 +10,16 @@ let Grid = (() => {
   self.main_height = 700 - self.main_margin.top - self.main_margin.bottom;
 
   /**
+   * Dimension of the zoom grid in the visualization 
+   */
+   self.zoom_margin = {top:15, right: 15, bottom: 15, left: 15}
+   self.zoom_width = 550 - self.zoom_margin.left - self.zoom_margin.right;
+   self.zoom_height = 550 - self.zoom_margin.top - self.zoom_margin.bottom;
+ 
+   self.zoom_row = 5;
+   self.zoom_col = 5;
+
+  /**
   * SVG Element that will contain the main grid
   */
    const createMainSvg = (divName) => {
@@ -20,6 +30,19 @@ let Grid = (() => {
     .append("g")
     .attr("transform", `translate(${self.main_margin.left},${self.main_margin.top})`);
    }
+
+   /**
+    * SVG Element that will contain the zoom grid
+    */
+    const createZoomSvg = (divname) => {
+      self.zoom_container = d3.select(divname)
+      .append("svg")
+      .attr("width", self.zoom_width + self.zoom_margin.left + self.zoom_margin.right)
+      .attr("height", self.zoom_height + self.zoom_margin.top + self.zoom_margin.bottom + 100)
+      .append("g")
+      .attr("transform", `translate(${self.zoom_margin.left},${self.zoom_margin.top})`)
+      .style("opacity",0);
+    }
 
    /**
     * Colorscale for the different pages
@@ -70,6 +93,7 @@ let Grid = (() => {
   self.displayGrid = (divName) => {
 
     createMainSvg(divName)
+    createZoomSvg(divName)
     
     /**
      * X scale and axis for the main grid
@@ -82,6 +106,16 @@ let Grid = (() => {
     .attr("transform", `translate(0, ${self.main_height})`)
 
     /**
+     * X scale and axis for the zoom grid
+     */
+     const x_zoom = d3.scaleBand()
+     .range([ 0, self.zoom_width ])
+     .domain(d3.range(0))
+     .padding(0.01);
+     self.zoom_container.append("g")
+     .attr("transform", `translate(0, ${self.zoom_height})`)
+
+    /**
      * Y scale and axis for the main grid
      */
     const y = d3.scaleBand()
@@ -89,6 +123,16 @@ let Grid = (() => {
     .domain(d3.range(0))
     .padding(0.01);
     self.main_container.append("g")
+
+     /**
+     * Y scale and axis for the zoom grid
+     */
+      const y_zoom = d3.scaleBand()
+      .range([ 0 , self.zoom_height ])
+      .domain(d3.range(0))
+      .padding(0.01);
+      self.zoom_container.append("g")
+ 
 
     /**
      * Data preparation (read and assignation)
@@ -102,7 +146,6 @@ let Grid = (() => {
       identifier: d.identifier,
     }
     )).then(function(data) {
-
 
     /**
      * Get the size of the grid (rows and columns)
@@ -121,10 +164,16 @@ let Grid = (() => {
     var page_dim_y = d3.max(data, d => d.row);
     
     var numcol = Math.ceil(Math.sqrt(nbwords)) * grid_dim_x
-    var numrow = Math.ceil(Math.sqrt(nbwords)) * grid_dim_x
+    var numrow = Math.ceil(Math.sqrt(nbwords)) * grid_dim_y
 
     const colors = getPageColors(data);
     const page_dict = buildPageDict(data);
+
+    //Domain of the zoom grid
+    x.domain(d3.range(numcol))
+    x_zoom.domain(d3.range(self.zoom_row))
+    y.domain(d3.range(numrow))
+    y_zoom.domain(d3.range(self.zoom_col))
 
     //Information display
     d3.select("#information")
@@ -150,10 +199,50 @@ let Grid = (() => {
      * Mouse : Three function that change the wordtip when user hover / move / leave a cell
      */
     const mouseover = function(event,d) {
+      self.zoom_container.style("opacity", 1)
       d3.select(this)
           .style("fill", "red")
           .style("opacity", 0.7);
       tooltip.style("opacity", 1);
+    }
+
+    /**
+     * Functon to display the zoom grid of the selected word
+     */
+     const zoomGrid = function(event,d) {
+
+      //Text to modify
+      var text; var rect;
+      var zoom_text; var zoom_r;
+
+      for(let i = 0; i < data.length; i++)
+      {
+        if(data[i].page == d.page)
+        {
+          /*MAIN INFORMATION*/
+
+          //Get the text and identifier
+          text = data[i].word;
+          id = "r_"+text+data[i].page;
+          //Get the color of the pictogram
+          rect = document.getElementById(id);
+          rect_col = rect.style.fill;
+
+          text = data[i].word;
+        
+          /*ZOOM INFORMATION*/
+          zoom_text = document.getElementById("text"+((data[i].row * (page_dim_x+1))+ data[i].col));
+          zoom_r = document.getElementById("rect"+((data[i].row * (page_dim_x+1))+ data[i].col));
+
+          zoom_text.textContent = text;
+          zoom_r.style.fill = rect_col;
+          zoom_r.style.opacity = rect.style.opacity;
+
+          document.getElementById("page_name").textContent = "Page : "+d.page;
+        }
+      }
+
+
     }
 
     const mousemove = function(event,d) {
@@ -161,15 +250,20 @@ let Grid = (() => {
         .html(d.word)
         .style("left", (event.x)/2 + "px")
         .style("top", (event.y)/2 + "px")
+
+      zoomGrid(event,d)
     }
 
     const mouseleave = function(d) {
+      self.zoom_container.style("opacity", 0)
+      self.zoom_container.selectAll("rect").style("fill",d => "white")
+      self.zoom_container.selectAll("text").text("")
       tooltip.style("opacity", 0)
       if(self.show_pages_state == true)
       {
         d3.select(this)
             .style("fill", d => colors(d.page))
-            .style("opacity", 0.6);
+            .style("opacity", 0.5);
       }
       else{
         d3.select(this)
@@ -178,7 +272,7 @@ let Grid = (() => {
     }
 
 
-    self.search_mem = null;
+    self.search_mem = [];
     self.show_pages_state = false;
 
     //Listener of the search bar
@@ -186,14 +280,21 @@ let Grid = (() => {
     {
       const word = document.getElementById("search").value;
 
-      if(self.search_mem != null && self.search_mem.style.fill != "blue")
-        {self.search_mem.style.fill = "white"}
+      for (var i = 0; i < self.search_mem.length; i++) {
+        if(self.search_mem[i] != null && self.search_mem[i].style.fill != "blue")
+          if(self.show_pages_state)
+            {self.main_container.select("#"+self.search_mem[i].id).style("fill",d => colors(d.page)).style("opacity",0.5);}
+          else
+            {self.search_mem[i].style.fill = "white"}
+      }
       
       if(word !== "")
       {
-        self.search_mem = document.getElementById("r_"+word)
-        self.search_mem.style.fill = "green"
-        self.search_mem.style.opacity = 0.5
+        self.search_mem = document.getElementsByName(word);
+        for (var i = 0; i < self.search_mem.length; i++) {
+          self.search_mem[i].style.fill = "green";
+          self.search_mem[i].style.opacity = 0.5;
+        }
       }
     }
 
@@ -201,9 +302,11 @@ let Grid = (() => {
     const searchmarker = function(event)
     {
       const word = document.getElementById("search").value;
-      var el = document.getElementById("r_"+word);
-      el.style.fill = "blue";
-      el.style.opacity = 0.7;
+      var elements = document.getElementsByName(word);
+      elements.forEach(function (item, index) {
+        item.style.fill = "blue";
+        item.style.opacity = 0.7;
+      });
     }
 
     //Listener of the reset button
@@ -218,7 +321,7 @@ let Grid = (() => {
     const hollowpages = function(event)
     {
       if(self.show_pages_state == false)
-      {self.main_container.selectAll("rect").style("fill",d => colors(d.page)).style("opacity",0.6);
+      {self.main_container.selectAll("rect").style("fill",d => colors(d.page)).style("opacity",0.5);
       self.show_pages_state = true;}
       else
       {self.main_container.selectAll("rect").style("fill","white").style("opacity",1);
@@ -254,13 +357,41 @@ let Grid = (() => {
         })
         .attr("width", x.bandwidth() )
         .attr("height", y.bandwidth() )
-        .attr("id",function(d) { return "r_"+d.word; })
+        .attr("id",function(d) { return "r_"+d.word+d.page; })
+        .attr("name",function(d) {return d.word})
         .style("fill", "white")
         .style("stroke","black")
         .on("mouseover", mouseover)
         .on("mouseleave", mouseleave)
         .on("mousemove", mousemove)
-        .on("click", searchmarker);
+    
+    const zoom_rect = d3.range(self.zoom_row*self.zoom_col);
+
+    self.zoom_container.append("text").text("").attr("id","page_name").attr("y",-4).attr("x",550/2 - 50)
+
+    self.zoom_container.selectAll()
+          .data(zoom_rect)
+          .enter()
+          .append("rect")
+            .attr("x", function(d) { return x_zoom(d%self.zoom_row); })
+            .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)); })
+            .attr("width", x_zoom.bandwidth() )
+            .attr("height", y_zoom.bandwidth() )
+            .attr("id",function(d) {return "rect"+d})
+            .style("stroke","black")
+            .style("fill","white")
+            .style("opacity",0.7)
+  
+    self.zoom_container.selectAll()
+        .data(zoom_rect)
+        .enter()
+          .append("text")
+          .attr("dy", ".35em")
+            .attr("x", function(d) { return x_zoom(d%self.zoom_row) + self.zoom_width/(self.zoom_row * 4) })
+          .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)) + self.zoom_height/(self.zoom_col * 2) })
+          .attr("id",function(d) {return "text"+d})
+          .style("font-size", 11)
+          .text("")
     })
   }
 
