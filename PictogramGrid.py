@@ -224,7 +224,6 @@ class Grid():
         picto_list = []
 
         header = next(reader)
-        next(reader)
 
         for row in reader:
             if(row[5] == "DIR"):
@@ -232,9 +231,9 @@ class Grid():
             else:
                 picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4]))
 
-        self.root_name = header[0]
-        self.page_row = header[1]
-        self.page_col = header[2]
+        self.root_name = header[7]
+        self.page_row = header[8]
+        self.page_col = header[9]
 
         #Get the root page name
         self.page_tree = PageTreeNode(self.root_name)
@@ -459,12 +458,11 @@ class Grid():
         #Initialization of the writer
         writer = csv.writer(f)
         
-        #Get the vocabulary (the grid)
-        header = [self.root_name,self.page_row,self.page_col]
-        #writer.writerow(header)
-        header = ['word','row','col','page','identifier','is_dir','link']
+        #Header
+        header = ['word','row','col','page','identifier','is_dir','link',self.root_name,self.page_row,self.page_col]
         writer.writerow(header)
         
+        #Get the vocabulary (the grid)
         for page in self.pages.values():
 
             for picto in page.pictograms.values():
