@@ -105,14 +105,22 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
             start_node = grid.page_tree
         
         best_distance = math.inf
+        page_pict_dist = math.inf
         best_path = []
 
         #For each potential page, computation of the path to keep the smallest
         for page in potential_pages:
             end_node = page
 
+            #Computation of the distance at the end
+            end_picto = grid.pages[end_node.page].pictograms[end_word]
+            new_page_pict_dist = manhattan_dist(0,0,end_picto.row,end_picto.col)
+
+            #Computation of the path in the tree
             result = path_finding(grid.page_tree,start_node,end_node)
-            if(result[0] < best_distance):
+
+            #Keeping the best path
+            if(result[0] + new_page_pict_dist < best_distance + page_pict_dist):
                 best_distance = result[0]
                 best_path = result[1]
 
