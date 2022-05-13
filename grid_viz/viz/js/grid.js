@@ -155,16 +155,19 @@ let Grid = (() => {
     //Number of words / pictograms
     var nbwords = d3.count(data, d => d.row);
 
-    //Dimension of the page grid
-    var grid_dim_x = 3;
-    var grid_dim_y = 3;
+
+    console.log(nbwords)
 
     //Dimension of the page
-    var page_dim_x = d3.max(data, d => d.col);
-    var page_dim_y = d3.max(data, d => d.row);
+    var page_dim_x = d3.max(data, d => d.col) + 1;
+    var page_dim_y = d3.max(data, d => d.row) + 1;
+
+    //Dimension of the page grid
+    var grid_dim_x = Math.ceil(Math.ceil(Math.sqrt(nbwords)) / page_dim_x);
+    var grid_dim_y = Math.ceil(Math.ceil(Math.sqrt(nbwords)) / page_dim_y);
     
-    var numcol = Math.ceil(Math.sqrt(nbwords)) * grid_dim_x
-    var numrow = Math.ceil(Math.sqrt(nbwords)) * grid_dim_y
+    var numcol = page_dim_x * grid_dim_x
+    var numrow = page_dim_y * grid_dim_y
 
     const colors = getPageColors(data);
     const page_dict = buildPageDict(data);
@@ -231,8 +234,8 @@ let Grid = (() => {
           text = data[i].word;
         
           /*ZOOM INFORMATION*/
-          zoom_text = document.getElementById("text"+((data[i].row * (page_dim_x+1))+ data[i].col));
-          zoom_r = document.getElementById("rect"+((data[i].row * (page_dim_x+1))+ data[i].col));
+          zoom_text = document.getElementById("text"+((data[i].row * (page_dim_x))+ data[i].col));
+          zoom_r = document.getElementById("rect"+((data[i].row * (page_dim_x))+ data[i].col));
 
           zoom_text.textContent = text;
           zoom_r.style.fill = rect_col;
@@ -350,10 +353,10 @@ let Grid = (() => {
       .enter()
       .append("rect")
         .attr("x", function(d) {
-           return x(d.col + (page_dict[d.page]) % grid_dim_x * (page_dim_x + 1)) 
+           return x(d.col + (page_dict[d.page] % grid_dim_x) * (page_dim_x)) 
         })
         .attr("y", function(d) {
-           return y(d.row + (Math.floor(page_dict[d.page] / grid_dim_x)) * (page_dim_y + 1)) 
+           return y(d.row + (Math.floor(page_dict[d.page] / grid_dim_y)) * (page_dim_y)) 
         })
         .attr("width", x.bandwidth() )
         .attr("height", y.bandwidth() )

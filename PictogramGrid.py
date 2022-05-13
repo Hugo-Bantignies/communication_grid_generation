@@ -461,7 +461,7 @@ class Grid():
         
         #Get the vocabulary (the grid)
         header = [self.root_name,self.page_row,self.page_col]
-        writer.writerow(header)
+        #writer.writerow(header)
         header = ['word','row','col','page','identifier','is_dir','link']
         writer.writerow(header)
         
