@@ -76,6 +76,7 @@ class Page():
         self.row_size = row_size
         self.col_size = col_size
         self.pictograms = dict()
+        self.nb_picto = 0
         self.parent_picto = None
 
         #Position of the next pictogram (if not full)
@@ -96,27 +97,58 @@ class Page():
         
         return words
 
+    def update_next_slot(self):
+        '''Method to update the new free slot of the page'''
+
+        #Page is full
+        if(self.nb_picto == self.row_size * self.col_size):
+                self.next_row = self.col_size
+                self.next_col = self.row_size
+                self.is_full = True
+
+        #Page not full
+        else:
+
+            find = False
+
+            #Find the next free slot
+            for i in range(self.row_size):
+
+                for j in range(self.col_size):
+                        
+                    if(find == False):
+                        save = True
+
+                        for picto in self.pictograms.values():
+
+                            #The slot [i,j] is not empty
+                            if(picto.row == i and picto.col == j):
+                                save = False
+
+                        #The slot [i,j] is empty
+                        if(save == True):
+                            self.next_row = i
+                            self.next_col = j
+                            find = True
+
     def add_word_to_pictogram(self,word,is_directory = False,warnings = True):
         '''Method to add a pictogram to the page from a word'''
 
-        #End of column
-        if(self.next_col == self.col_size):
-            self.next_col = 0
-            self.next_row += 1
-
-        #End of row
-        if(self.next_row == self.row_size):
-            self.is_full = True
+        #Page is full
+        if(self.is_full == True):
             if(warnings == True):
                 print("Page '"+self.name+"' is full, can not contain : '"+str(word)+"'")
-            return self.is_full
         
-        #Create the pictogram and add it to the page
-        picto = Pictogram(word,self.next_row,self.next_col,self.name,word+"@"+self.name,is_directory = is_directory)
-        self.pictograms.update({picto.word : picto})
+        #Page not full
+        else:
 
-        #Next position
-        self.next_col += 1
+            #Create the pictogram and add it to the page
+            picto = Pictogram(word,self.next_row,self.next_col,self.name,word+"@"+self.name,is_directory = is_directory)
+            self.pictograms.update({picto.word : picto})
+            self.nb_picto += 1
+
+            #Next position
+            self.update_next_slot()
 
         return self.is_full
     
@@ -124,37 +156,11 @@ class Page():
         '''Method to add an existing pictogram to the page'''
 
         self.pictograms.update({pictogram.word : pictogram})
-    
-    def remove_pictogram(self,word):
-        '''Method to remove a pictogram from the page'''
+        self.nb_picto += 1
 
-        #Remove the pictogram
-        target = self.pictograms[word]
-        self.pictograms.pop(word)
+        #Next position
+        self.update_next_slot()
 
-        #Update the position of each pictogram in the dictionary
-        for picto in self.pictograms.values():
-
-            if(target.row * self.col_size + target.col <= picto.row * self.col_size + picto.col):
-                #Start of row
-                if(picto.col - 1 < 0):
-                    picto.col = self.col_size - 1
-                    picto.row -= 1
-                
-                else:
-                    picto.col -= 1
-
-        #Update the position for the next pictogram
-        if(self.next_col - 1 < 0):
-            self.next_col = self.col_size - 1
-            self.next_row -= 1
-        else:
-            self.next_col -= 1
-
-        #If the page is empty
-        if(self.next_row < 0):
-            self.next_row = 0
-    
     def swap_pictograms(self,picto_a,picto_b):
         '''Method to swap two pictograms in the page'''
 
@@ -232,8 +238,8 @@ class Grid():
                 picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4]))
 
         self.root_name = header[7]
-        self.page_row = header[8]
-        self.page_col = header[9]
+        self.page_row = int(header[8])
+        self.page_col = int(header[9])
 
         #Get the root page name
         self.page_tree = PageTreeNode(self.root_name)
@@ -263,6 +269,11 @@ class Grid():
                 self.picto_voc.update({picto.word : [self.page_tree.find_node(picto.page_name)]})
 
             self.pages[picto.page_name].add_pictogram(picto)
+
+        #Find for each page emptyness information
+        for page in self.pages.values():
+
+            page.update_next_slot()
 
     def generate_grid(self,input_file):
         '''Encapsulation function.
@@ -382,6 +393,11 @@ class Grid():
 
             #If the current page is not full add the pictogram
             ret_full = current_page.add_word_to_pictogram(word,warnings = self.warnings)
+
+            if(word in self.picto_voc):
+                self.picto_voc[word].append(self.page_tree.find_node(current_page.name))
+            else:
+                self.picto_voc.update({word : [self.page_tree.find_node(current_page.name)]})
             
             #If the current page is full, the pictogram was not added, create a new page
             if(ret_full == True):
@@ -389,14 +405,6 @@ class Grid():
                 #New page
                 if(page_queue):
                     current_page = page_queue.pop(0)
-
-                #Add the pictogram to the new page
-                current_page.add_word_to_pictogram(word,warnings = self.warnings)
-
-            if(word in self.picto_voc):
-                self.picto_voc[word].append(self.page_tree.find_node(current_page.name))
-            else:
-                self.picto_voc.update({word : [self.page_tree.find_node(current_page.name)]})
     
     def swap_pictograms(self,picto_a,picto_b):
         '''Method to swap two pictograms in the whole grid'''

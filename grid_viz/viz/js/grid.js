@@ -154,10 +154,7 @@ let Grid = (() => {
     
     //Number of words / pictograms
     var nbwords = d3.count(data, d => d.row);
-
-
-    console.log(nbwords)
-
+    
     //Dimension of the page
     var page_dim_x = d3.max(data, d => d.col) + 1;
     var page_dim_y = d3.max(data, d => d.row) + 1;

@@ -249,8 +249,7 @@ class gpgo():
         selected_picto_b = selected_page.pictograms[random.choice(list(selected_page.pictograms))]
 
         #Swap the two pictograms
-        if(selected_picto_a.is_directory == False and selected_picto_b.is_directory == False):
-          selected_page.swap_pictograms(selected_picto_a,selected_picto_b)
+        selected_page.swap_pictograms(selected_picto_a,selected_picto_b)
 
       return ind
 
@@ -316,10 +315,8 @@ class gpgo():
       if(selected_page != None and sel_pic.is_directory == False and sel_pic.word not in selected_page.pictograms):
 
         #Adding in the page
-        ret = selected_page.add_word_to_pictogram(sel_pic.word,sel_pic.is_directory,warnings = False)
-        #Adding in the vocabulary
-        if(ret == False):
-          ind.picto_voc[sel_pic.word].append(ind.page_tree.find_node(selected_page.name))
+        selected_page.add_word_to_pictogram(sel_pic.word,sel_pic.is_directory,warnings = False)
+        ind.picto_voc[sel_pic.word].append(ind.page_tree.find_node(selected_page.name))
 
       return ind
 

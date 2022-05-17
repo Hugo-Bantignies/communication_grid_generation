@@ -114,7 +114,7 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
 
             #Computation of the distance at the end
             end_picto = grid.pages[end_node.page].pictograms[end_word]
-            new_page_pict_dist = manhattan_dist(0,0,end_picto.row,end_picto.col)
+            new_page_pict_dist = euclidean_dist(0,0,end_picto.row,end_picto.col)
 
             #Computation of the path in the tree
             result = path_finding(grid.page_tree,start_node,end_node)
@@ -135,8 +135,6 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
         if(start_word == "--start"):
             picto_start = Pictogram("--start",0,0,grid.root_name,None,None)
         else:
-            #print(start_word,best_path[0].page)
-            #print(grid.pages[best_path[0].page])
             picto_start = grid.pages[best_path[0].page].pictograms[start_word]
 
         #print("DEBUG : Best distance : ",best_distance)
@@ -155,17 +153,17 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
                 if(best_path[i].parent == best_path[i+1]):
                     next_picto = Pictogram("--start",0,0,best_path[i+1].page,None,None)
                     #print("DEBUG : UP",picto_start,"-->",next_picto)
-                    movement_dist += manhattan_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
+                    movement_dist += euclidean_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
                     picto_start = next_picto
 
                 #Down   
                 else:
                     next_picto = grid.pages[best_path[i].page].pictograms[best_path[i+1].page]
                     #print("DEBUG : DOWN",picto_start,"-->",next_picto)
-                    movement_dist += manhattan_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
+                    movement_dist += euclidean_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
                     picto_start = Pictogram("--start",0,0,best_path[i+1].page,None,None)
 
-        movement_dist += manhattan_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
+        movement_dist += euclidean_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
 
         cost += movement_dist * movement_coef + selection_dist * selection_coef
 
