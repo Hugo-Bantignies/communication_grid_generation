@@ -535,5 +535,6 @@ class gpgo():
         print("  NUMBER OF GENERATION : "+ str(self.gen_number)+"\n")
         print("  CROSSOVER RATE : "+ str(self.cross_proba * 100)+"%     MUTATION RATE : "+ str(self.mutation_proba * 100)+"%\n")
         print("  CROSSOVER INFORMATION RATE : "+ str(self.cross_info_rate * 100)+"%\n")
+        print("  SIMILARITY RATE : "+str(self.similarity_coefficient * 100)+"%\n")
         print("------------------------------------------------------------------------")
         print("========================================================================\n")
