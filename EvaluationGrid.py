@@ -252,7 +252,10 @@ def page_similarity_cost(page,sim_matrix):
         for wj in words:
             #Compute the similarity between the two words
             word_score += sim_matrix[wi][wj]
-        
+
+        #Update the similarity score of the pictogram
+        page.pictograms[wi].similarity_score = 1 - (word_score / page.nb_picto)
+
         cost = cost + word_score
     
     return cost

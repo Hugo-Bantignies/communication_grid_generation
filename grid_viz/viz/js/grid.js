@@ -144,6 +144,7 @@ let Grid = (() => {
       col:    +d.col,
       page: d.page,
       identifier: d.identifier,
+      sim_score: d.sim_score
     }
     )).then(function(data) {
 
@@ -246,8 +247,18 @@ let Grid = (() => {
     }
 
     const mousemove = function(event,d) {
+      if(self.show_similarities_state == true)
+      {
+        toDisplay = d.word + " | sim = "+d.sim_score
+      }
+
+      else
+      {
+        toDisplay = d.word
+      }
+
       tooltip
-        .html(d.word)
+        .html(toDisplay)
         .style("left", (event.x)/2 + "px")
         .style("top", (event.y)/2 + "px")
 
@@ -265,6 +276,12 @@ let Grid = (() => {
             .style("fill", d => colors(d.page))
             .style("opacity", 0.5);
       }
+      else if(self.show_similarities_state == true)
+      {
+        d3.select(this)
+        .style("fill","black")
+        .style("opacity", d => d.sim_score)
+      }
       else{
         d3.select(this)
         .style("fill", "white")
@@ -274,6 +291,7 @@ let Grid = (() => {
 
     self.search_mem = [];
     self.show_pages_state = false;
+    self.show_similarities_state = false;
 
     //Listener of the search bar
     const searchbar = function(event)
@@ -315,6 +333,7 @@ let Grid = (() => {
       self.main_container.selectAll("rect").style("fill","white").style("opacity",1);
       document.getElementById("search").value = "";
       self.show_pages_state = false;
+      self.show_similarities_state = false;
     }
 
     //Listener to hollow the pages
@@ -322,11 +341,25 @@ let Grid = (() => {
     {
       if(self.show_pages_state == false)
       {self.main_container.selectAll("rect").style("fill",d => colors(d.page)).style("opacity",0.5);
-      self.show_pages_state = true;}
+      self.show_pages_state = true;
+      self.show_similarities_state = false;}
       else
       {self.main_container.selectAll("rect").style("fill","white").style("opacity",1);
       document.getElementById("search").value = "";
       self.show_pages_state = false;}
+    }
+
+    //Listener to hollow the pages
+    const showsim = function(event)
+    {
+      if(self.show_similarities_state == false)
+      {self.main_container.selectAll("rect").style("fill","black").style("opacity",d => d.sim_score);
+      self.show_similarities_state = true;
+      self.show_pages_state = false;}
+      else
+      {self.main_container.selectAll("rect").style("fill","white").style("opacity",1);
+      document.getElementById("search").value = "";
+      self.show_similarities_state = false;}
     }
 
     //Buttons and search bar
@@ -334,12 +367,14 @@ let Grid = (() => {
     const reset = document.getElementById("resetmark");
     const search_bar = document.getElementById("search");
     const show_pages = document.getElementById("showpages");
+    const show_sim = document.getElementById("simscore");
     
     //Bind events to the buttons and the search bar
     search_bar.addEventListener('keyup', searchbar);
     marker.addEventListener("click", searchmarker);
     reset.addEventListener("click",resetmarker);
     show_pages.addEventListener("click",hollowpages);
+    show_sim.addEventListener("click",showsim);
 
     /**
      * Fill the grid : squares and hollow for pages

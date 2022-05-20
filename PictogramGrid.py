@@ -21,7 +21,7 @@ class Pictogram:
     :type is_directory: boolean (False by default)
     '''
 
-    def __init__(self,word,row,col,page_name,id,is_directory = False):
+    def __init__(self,word,row,col,page_name,id,is_directory = False,similarity_score = 0):
         '''Constructor
         '''
 
@@ -31,6 +31,7 @@ class Pictogram:
         self.page_name = page_name
         self.id = id
         self.is_directory = is_directory
+        self.similarity_score = similarity_score
     
     def in_list(self):
         '''Get the pictogram in a list form
@@ -40,9 +41,9 @@ class Pictogram:
         '''
         
         if(self.is_directory):
-            return [self.word,self.row,self.col,self.page_name,self.id,"DIR",self.id.split("@")[0]]
+            return [self.word,self.row,self.col,self.page_name,self.id,"DIR",self.id.split("@")[0],self.similarity_score]
         else:
-            return [self.word,self.row,self.col,self.page_name,self.id,"NO"]
+            return [self.word,self.row,self.col,self.page_name,self.id,"NO",None,self.similarity_score]
 
     def __str__(self):
         '''Display the pictogram information (text)
@@ -231,15 +232,15 @@ class Grid():
 
         header = next(reader)
 
+        self.root_name = header[8]
+        self.page_row = int(header[9])
+        self.page_col = int(header[10])
+
         for row in reader:
             if(row[5] == "DIR"):
-                picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],True))
+                picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],True,row[7]))
             else:
-                picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4]))
-
-        self.root_name = header[7]
-        self.page_row = int(header[8])
-        self.page_col = int(header[9])
+                picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],similarity_score=row[7]))
 
         #Get the root page name
         self.page_tree = PageTreeNode(self.root_name)
@@ -436,6 +437,20 @@ class Grid():
         self.picto_voc[picto_b.word].remove(node_b)
         self.picto_voc[picto_b.word].append(node_a)
 
+        #If picto_a is a directory, modify the links
+        if(picto_a.is_directory == True):
+            child_a = self.page_tree.find_node(picto_a.word)
+            node_a.children.remove(child_a)
+            node_b.insert_child(child_a)
+            self.page_tree.eulerian_values = None
+
+        #If picto_b is a directory, modify the links
+        if(picto_b.is_directory == True):
+            child_b = self.page_tree.find_node(picto_b.word)
+            node_b.children.remove(child_b)
+            node_a.insert_child(child_b)
+            self.page_tree.eulerian_values = None
+
         #---PAGES AND PICTOGRAM INFORMATION---
         
         #Build new pictograms
@@ -467,7 +482,7 @@ class Grid():
         writer = csv.writer(f)
         
         #Header
-        header = ['word','row','col','page','identifier','is_dir','link',self.root_name,self.page_row,self.page_col]
+        header = ['word','row','col','page','identifier','is_dir','link','sim_score',self.root_name,self.page_row,self.page_col]
         writer.writerow(header)
         
         #Get the vocabulary (the grid)

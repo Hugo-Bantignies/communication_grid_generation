@@ -13,10 +13,13 @@ for root, dirs, files in os.walk("training_corpora"):
 
 g = Grid(corpus,randomizer=False,warnings=True)
 
-print(g.pages["accueil"])
-g.pages["accueil"].remove_pictogram("dauphin")
-print(g.pages["accueil"])
+picto_a = g.pages["accueil"].pictograms["default1"]
+picto_b = g.pages["default2"].pictograms["toucan"]
 
-cost = grid_cost(g,corpus,None,0)
+c = grid_cost(g,corpus,None,0)
 
-print(cost)
+g.swap_pictograms(picto_a,picto_b)
+
+c = grid_cost(g,corpus,None,0)
+
+print(c)

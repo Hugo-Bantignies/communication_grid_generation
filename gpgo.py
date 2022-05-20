@@ -205,27 +205,30 @@ class gpgo():
       :rtype: individual,individual
       '''
 
-      #Get the pictogram of the individual y
-      page_y = random.choice(list(ind_y.pages.values()))
-      picto_y = random.choice(list(page_y.pictograms.values()))
+      for i in range(math.ceil(ind_x.nb_picto * self.cross_info_rate)):
+        #Get the pictogram of the individual y
+        page_y = random.choice(list(ind_y.pages.values()))
+        picto_y = random.choice(list(page_y.pictograms.values()))
 
-      #Get the pictogram of the word of the picto_y in the individual x
-      page_name_x = random.choice(ind_x.picto_voc[picto_y.word]).page
-              
-      picto_target_x = ind_x.pages[page_name_x].pictograms[picto_y.word]
+        if(picto_y.is_directory == False):
 
-      #Find the pictogram having the same position of the previous one
-      picto_to_swap_x = None
+          #Get the pictogram of the word of the picto_y in the individual x
+          page_name_x = random.choice(ind_x.picto_voc[picto_y.word]).page
+                  
+          picto_target_x = ind_x.pages[page_name_x].pictograms[picto_y.word]
 
-      for picto_x in ind_x.pages[page_y.name].pictograms.values():
+          #Find the pictogram having the same position of the previous one
+          picto_to_swap_x = None
 
-        if(picto_x.is_directory == False and picto_x.row == picto_y.row and picto_x.col == picto_y.col):
+          for picto_x in ind_x.pages[page_y.name].pictograms.values():
 
-          picto_to_swap_x = picto_x
+            if(picto_x.is_directory == False and picto_x.row == picto_y.row and picto_x.col == picto_y.col):
 
-      #Do not swap the same pictogram
-      if(picto_to_swap_x and picto_target_x.word != picto_to_swap_x.word):
-        ind_x.swap_pictograms(picto_target_x,picto_to_swap_x)
+              picto_to_swap_x = picto_x
+
+          #Do not swap the same pictogram
+          if(picto_to_swap_x and picto_target_x.word != picto_to_swap_x.word):
+            ind_x.swap_pictograms(picto_target_x,picto_to_swap_x)
 
       return ind_x,ind_x
 
