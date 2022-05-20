@@ -323,15 +323,58 @@ class gpgo():
 
       return ind
 
+    def mutation_exportation(self,ind):
+      '''Method used by the optimizer to perform a mutation on one individual
+      The mutation will perform an exportation of a random pictogram within the grid.
+
+      :param ind: the individual subject to the mutation
+      :type ind: individual
+      :return: returns the individual after the mutation
+      :rtype: individual
+      '''
+
+      #Random selection of a page
+      selected_page_name = random.choice(list(ind.pages))
+      selected_page = ind.pages[selected_page_name]
+
+      #Random selection of the pictogram to export
+      if(selected_page.pictograms != dict()):
+        sel_pic = selected_page.pictograms[random.choice(list(selected_page.pictograms))]
+
+      target_page = None
+
+      #Selection of a page having an empty space
+      for page in ind.pages.values():
+        if(page.is_full == False):
+          target_page = page
+          break
+      
+      #Adding the exported pictogram
+      if(target_page != None and sel_pic.is_directory == False and sel_pic.word not in target_page.pictograms):
+
+        #Adding in the page
+        target_page.add_word_to_pictogram(sel_pic.word,sel_pic.is_directory,warnings = False)
+        ind.picto_voc[sel_pic.word].append(ind.page_tree.find_node(target_page.name))
+
+        #Removing the pictogram
+        selected_page.remove_word_to_pictogram(sel_pic.word)
+        ind.picto_voc[sel_pic.word].remove(ind.page_tree.find_node(selected_page.name))
+
+      return ind
+
     def mutation_picto(self,ind):
 
-      r = random.randint(1,3)
+      r = random.randint(1,4)
       
-      #Mutation Duplicata
       if(r == 1):
+        #Mutation Duplicata
         ind = self.mutation_duplicata(ind)
-
+      
       elif(r == 2):
+        #Mutation Exportation
+        ind = self.mutation_exportation(ind)
+
+      elif(r == 3):
         #Mutation Swap Inter Picto
         ind = self.mutation_swap_picto_intra(ind)
 

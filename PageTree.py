@@ -124,7 +124,8 @@ def find_lca(start_node,end_node,depths,first_indexes):
 
     #Find the indexes of the interval in the euler tour
     start_idx = first_indexes[start_node]
-    end_idx = first_indexes[end_node]
+    if(end_node in first_indexes):
+        end_idx = first_indexes[end_node]
 
     #Return the indexes : start, end, lca
     return [start_idx,end_idx,depths.index(min(depths[min(start_idx,end_idx):max(start_idx,end_idx)]),min(start_idx,end_idx),max(start_idx,end_idx))]

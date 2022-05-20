@@ -162,6 +162,15 @@ class Page():
         #Next position
         self.update_next_slot()
 
+    def remove_word_to_pictogram(self,word):
+        '''Method to remove a pictogram of a page'''
+
+        self.pictograms.pop(word)
+        self.nb_picto -= 1
+
+        #Next position
+        self.update_next_slot()
+
     def swap_pictograms(self,picto_a,picto_b):
         '''Method to swap two pictograms in the page'''
 
@@ -416,7 +425,7 @@ class Grid():
         page_b = self.pages[picto_b.page_name]
 
         #If there is already the word in the page, do no process the swap
-        if(picto_a.word in page_b.pictograms or picto_b.word in page_a.pictograms):
+        if(picto_a.word in page_b.pictograms or picto_b.word in page_a.pictograms or picto_a.word == picto_b.word):
             return
 
         #---NODES INFORMATION---
@@ -436,20 +445,6 @@ class Grid():
         #Modify the information of page nodes for the pictogram b
         self.picto_voc[picto_b.word].remove(node_b)
         self.picto_voc[picto_b.word].append(node_a)
-
-        #If picto_a is a directory, modify the links
-        if(picto_a.is_directory == True):
-            child_a = self.page_tree.find_node(picto_a.word)
-            node_a.children.remove(child_a)
-            node_b.insert_child(child_a)
-            self.page_tree.eulerian_values = None
-
-        #If picto_b is a directory, modify the links
-        if(picto_b.is_directory == True):
-            child_b = self.page_tree.find_node(picto_b.word)
-            node_b.children.remove(child_b)
-            node_a.insert_child(child_b)
-            self.page_tree.eulerian_values = None
 
         #---PAGES AND PICTOGRAM INFORMATION---
         
