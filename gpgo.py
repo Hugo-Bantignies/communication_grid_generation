@@ -78,6 +78,9 @@ class gpgo():
 
         self.mutation_proba = mutation_proba
 
+        #Probabilities for the different mutation operations (intra,inter,duplicate,exportation)
+        self.mpo = [0.25,0.25,0.25,0.25]
+
         self.select_number = select_number
 
         self.gen_number = gen_number
@@ -426,7 +429,7 @@ class gpgo():
       #Evaluation of the initial population
 
       fitnesses = list(map(self.toolbox.evaluation,pop))
-      min_init_fit = fitnesses[0]
+      min_init_fit = math.inf,
 
       #Recording fitnesses
       self.fitness_history_record(fitnesses,0)
