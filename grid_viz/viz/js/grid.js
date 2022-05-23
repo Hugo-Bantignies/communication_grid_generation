@@ -144,6 +144,7 @@ let Grid = (() => {
       col:    +d.col,
       page: d.page,
       identifier: d.identifier,
+      is_dir: d.is_dir,
       sim_score: d.sim_score
     }
     )).then(function(data) {
@@ -394,8 +395,18 @@ let Grid = (() => {
         .attr("height", y.bandwidth() )
         .attr("id",function(d) { return "r_"+d.word+d.page; })
         .attr("name",function(d) {return d.word})
-        .style("fill", "white")
+        .style("fill","white")
         .style("stroke","black")
+        .style("stroke-width",function(d) {
+          if(d.is_dir == "DIR")
+          {
+            return 3;
+          }
+          else
+          {
+            return 1;
+          }
+        })
         .on("mouseover", mouseover)
         .on("mouseleave", mouseleave)
         .on("mousemove", mousemove)

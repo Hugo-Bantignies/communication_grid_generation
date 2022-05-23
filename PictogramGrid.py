@@ -168,6 +168,8 @@ class Page():
         self.pictograms.pop(word)
         self.nb_picto -= 1
 
+        self.is_full = False
+
         #Next position
         self.update_next_slot()
 
