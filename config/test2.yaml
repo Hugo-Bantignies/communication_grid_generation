@@ -1,0 +1,12 @@
+cross_info_rate: 0.6
+cross_proba: 0.7
+gen_number: 500
+mutation_proba: 0.3
+page_col: 5
+page_row: 5
+pop_size: 100
+randomizer: true
+select_number: 50
+sim_matrix_path: sim_default.json
+sim_model: null
+similarity_coefficient: 0

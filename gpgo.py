@@ -5,6 +5,7 @@ from utils import *
 
 from os.path import exists
 from tqdm import tqdm
+import yaml
 
 #Paralellization
 import multiprocessing as mp
@@ -21,7 +22,7 @@ class gpgo():
 
     :source_files: source_files name or corpus from the one the optimizer will generate an optimal grid (`.txt`,`.csv`, Augcom)
     :type source_files: string
-    :training_files: training file name to train the optimization of the grid.
+    :evaluation_files: training file name to train the optimization of the grid.
     :type source_files: string
     :pop_size: size of the initial population, optional (10 by default)
     :type pop_size: integer
@@ -43,7 +44,7 @@ class gpgo():
     :type sim_model: model
     '''
     
-    def __init__(self, source_files, training_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
+    def __init__(self, source_files, evaluation_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
                  mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, page_row_size = 5, 
                  page_col_size = 5, similarity_coefficient = 0.5, sim_model = None, sim_matrix_path = "sim_default.json"):
                  
@@ -53,8 +54,8 @@ class gpgo():
         self.source_files = source_files
         
         #The evaluation file has to be a .txt file.
-        if(training_files[0].endswith('.txt')):
-            self.training_files = training_files
+        if(evaluation_files[0].endswith('.txt')):
+            self.evaluation_files = evaluation_files
 
         #File format not accepted
         else:
@@ -77,9 +78,6 @@ class gpgo():
             raise Exception("Unexpected mutation probability (not between 0 and 1) !") 
 
         self.mutation_proba = mutation_proba
-
-        #Probabilities for the different mutation operations (intra,inter,duplicate,exportation)
-        self.mpo = [0.25,0.25,0.25,0.25]
 
         self.select_number = select_number
 
@@ -110,19 +108,19 @@ class gpgo():
         #Genetic operations initialization
         self.init_operations()
 
-        self.display_config()
-
         self.sim_matrix = None
+        self.sim_model = sim_model
+        self.sim_matrix_path = sim_matrix_path
 
         #Similarity matrix loading
-        if(similarity_coefficient > 0):
+        if(self.similarity_coefficient > 0):
           #Precomputing of the similarity matrix or loading from a JSON if the path exists
           if(not exists(sim_matrix_path)):
-            tmp_voc  = get_vocabulary_from_corpus(source_files)
-            self.sim_matrix = compute_word_similarities(tmp_voc,sim_model)
-            store_similarity_matrix(self.sim_matrix,output_file = sim_matrix_path)
+            tmp_voc  = get_vocabulary_from_corpus(self.source_files)
+            self.sim_matrix = compute_word_similarities(tmp_voc,self.sim_model)
+            store_similarity_matrix(self.sim_matrix,output_file = self.sim_matrix_path)
           else:
-            self.sim_matrix = load_similarity_matrix(sim_matrix_path)
+            self.sim_matrix = load_similarity_matrix(self.sim_matrix_path)
 
     def fitness_history_record(self,fitnesses,gen_idx):
       '''Update the fitness history with a new fitness record and the corresponding generation as key
@@ -195,7 +193,7 @@ class gpgo():
       :return: returns the production cost of the grid
       :rtype: (float,)
       '''
-      return grid_cost(individual, self.training_files,sim_matrix = self.sim_matrix, similarity_coefficient=self.similarity_coefficient),
+      return grid_cost(individual, self.evaluation_files,sim_matrix = self.sim_matrix, similarity_coefficient=self.similarity_coefficient),
 
     def crossover_picto_inter(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
@@ -408,7 +406,7 @@ class gpgo():
       self.toolbox.register("mutation",self.mutation_picto)
   
 
-    def genetic_algorithm(self):
+    def genetic_algorithm(self,pid = 0):
       '''Method that will use a genetic algorithm to generate an optimal grid starting from a random generation.
 
       :param pid: Process id
@@ -451,7 +449,7 @@ class gpgo():
       #==ITERATION OVER GENERATIONS==
 
       #Iterative process : For each generation
-      for gen in tqdm(range(1,self.gen_number+1),desc = "Optimization : ",unit = "generation"):
+      for gen in tqdm(range(1,self.gen_number+1),desc = "Process : "+str(pid),unit = "generation",position = pid):
 
         #--SELECTION--
 
@@ -511,8 +509,9 @@ class gpgo():
         self.fitness_best_record(best_ind.fitness.values[0])
         
       #Final best grid
-      print("DEBUG : Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str((self.toolbox.evaluation(best_ind))[0]))
-      return best_ind
+      best_fitness = self.toolbox.evaluation(best_ind)[0]
+      print("DEBUG : Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str(best_fitness))
+      return best_ind,best_fitness
 
     #===============================================
     # DISPLAY METHODS AND HISTORY
@@ -571,6 +570,18 @@ class gpgo():
             
         return history
 
+    def save_config(self,config_file = "default.yaml"):
+
+      params = {"pop_size" : self.pop_size,"select_number" : self.select_number,"gen_number" : self.gen_number,
+                    "cross_proba" : self.cross_proba,"cross_info_rate" : self.cross_info_rate,"mutation_proba" : self.mutation_proba,
+                    "page_row" : self.page_row,"page_col" : self.page_col,"randomizer" : self.randomizer,
+                    "similarity_coefficient" : self.similarity_coefficient,"sim_model" : self.sim_model,"sim_matrix_path" : self.sim_matrix_path}
+
+      with open(config_file,'w') as file:
+
+        documents = yaml.dump(params, file)
+
+
     def display_config(self):
         '''Method to display the configuration of the optimizer
         '''
@@ -587,3 +598,23 @@ class gpgo():
         print("  SIMILARITY RATE : "+str(self.similarity_coefficient * 100)+"%\n")
         print("------------------------------------------------------------------------")
         print("========================================================================\n")
+
+
+def load_gpgo(source_files,evaluation_files,config_file):
+  '''Function to create a gpgo with a configuration file'''
+
+  if(config_file.endswith('.yaml')):
+        
+    with open(config_file,'r') as file:
+
+      docs = yaml.load_all(file, Loader=yaml.FullLoader)
+
+      for doc in docs:
+            
+        return gpgo(source_files,evaluation_files,doc["pop_size"],doc["cross_proba"],doc["cross_info_rate"],
+                    doc["mutation_proba"],doc["select_number"],doc["gen_number"],doc["randomizer"],doc["page_row"],
+                    doc["page_col"],doc["similarity_coefficient"],doc["sim_model"],doc["sim_matrix_path"])
+  else:
+    raise Exception("Not accepted configuration file format ! (.yaml)")
+
+  

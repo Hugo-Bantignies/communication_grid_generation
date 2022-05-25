@@ -18,7 +18,7 @@ class SingleGeneticPGCSOptimizer():
 
     :source_files: source_files name or corpus from the one the optimizer will generate an optimal grid (`.txt`,`.csv`, Augcom)
     :type source_files: string
-    :training_files: training file name to train the optimization of the grid.
+    :evaluation_files: training file name to train the optimization of the grid.
     :type source_files: string
     :pop_size: size of the initial population, optional (10 by default)
     :type pop_size: integer
@@ -44,7 +44,7 @@ class SingleGeneticPGCSOptimizer():
     :type fitness_history: dict
     '''
     
-    def __init__(self, source_files, training_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
+    def __init__(self, source_files, evaluation_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
                  mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, cost_average = True, distance_formula = "euclidean"):
         '''Constructor
         '''
@@ -52,8 +52,8 @@ class SingleGeneticPGCSOptimizer():
         self.source_files = source_files
         
         #The evaluation file has to be a .txt file.
-        if(training_files[0].endswith('.txt')):
-            self.training_files = training_files
+        if(evaluation_files[0].endswith('.txt')):
+            self.evaluation_files = evaluation_files
 
         #File format not accepted
         else:
@@ -171,7 +171,7 @@ class SingleGeneticPGCSOptimizer():
       :return: returns the production cost of the grid
       :rtype: (float,)
       '''
-      return grid_cost(individual, self.training_files, average_option = self.cost_average, distance_mode = self.distance_formula),
+      return grid_cost(individual, self.evaluation_files, average_option = self.cost_average, distance_mode = self.distance_formula),
 
     def pgcs_crossover_swap(self,ind_x, ind_y):
       '''Method used by the optimizer to perform a crossover between two individuals and generate a new one
@@ -431,7 +431,7 @@ class GeneticPGCSOptimizer():
 
     :source_files: source_files name from the one the optimizer will generate an optimal grid (`.txt`,`.csv`, Augcom)
     :type source_files: string
-    :training_files: evalutation file name to evaluate the generated grids.
+    :evaluation_files: evalutation file name to evaluate the generated grids.
     :type source_files: string
     :pop_size: size of the initial population, optional (10 by default)
     :type pop_size: integer
@@ -454,7 +454,7 @@ class GeneticPGCSOptimizer():
                        available formulas : "euclidean", "manhattan"
     '''
     
-    def __init__(self, source_files, training_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
+    def __init__(self, source_files, evaluation_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
                  mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, cost_average = True,
                  distance_formula = "euclidean", nb_proc = -1):
         '''Constructor
@@ -469,11 +469,11 @@ class GeneticPGCSOptimizer():
           self.source_files = source_files
         
         #Multiple files ('.txt' corpus or multiple csv / dicts )
-        if isinstance(training_files, list):
+        if isinstance(evaluation_files, list):
 
           #The evaluation file has to be a .txt file.
-          if(training_files[0].endswith('.txt')):
-            self.training_files = training_files
+          if(evaluation_files[0].endswith('.txt')):
+            self.evaluation_files = evaluation_files
 
           #File format not accepted
           else:
@@ -481,8 +481,8 @@ class GeneticPGCSOptimizer():
         
         else:
           #The evaluation file has to be a .txt file.
-          if(training_files.endswith('.txt')):
-            self.training_files = [training_files]
+          if(evaluation_files.endswith('.txt')):
+            self.evaluation_files = [evaluation_files]
 
           #File format not accepted
           else:
@@ -532,14 +532,14 @@ class GeneticPGCSOptimizer():
       #--EVALUATION--
 
       #Best grid initialization
-      best_cost = grid_cost(final_results[0][0],self.training_files, average_option = self.cost_average, distance_mode = self.distance_formula)
+      best_cost = grid_cost(final_results[0][0],self.evaluation_files, average_option = self.cost_average, distance_mode = self.distance_formula)
       best_grid = final_results[0][0]
 
       #Looking for the best grid
       for i in range(1,len(final_results)):
 
         #Computation of the cost
-        cost = grid_cost(final_results[i][0],self.training_files, average_option = self.cost_average, distance_mode = self.distance_formula)
+        cost = grid_cost(final_results[i][0],self.evaluation_files, average_option = self.cost_average, distance_mode = self.distance_formula)
 
         #The cost is lower than the current best cost
         if(cost < best_cost):
@@ -612,7 +612,7 @@ class GeneticPGCSOptimizer():
       '''
 
       #New genetic optimizer
-      optimizer = SingleGeneticPGCSOptimizer(source_files = self.source_files,training_files = self.training_files,pop_size = self.pop_size,
+      optimizer = SingleGeneticPGCSOptimizer(source_files = self.source_files,evaluation_files = self.evaluation_files,pop_size = self.pop_size,
                                        cross_proba = self.cross_proba,cross_info_rate = self.cross_info_rate,
                                        mutation_proba = self.mutation_proba, select_number = self.select_number, gen_number = self.gen_number,
                                        randomizer = self.randomizer, cost_average = self.cost_average, distance_formula = self.distance_formula)
