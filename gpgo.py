@@ -15,6 +15,10 @@ from deap import base
 from deap import creator
 from deap import tools
 
+#fastText
+import fasttext
+import fasttext.util
+
 
 class gpgo():
     '''Object that will compute an optimized grid from an initial grid using 
@@ -46,7 +50,7 @@ class gpgo():
     
     def __init__(self, source_files, evaluation_files, pop_size = 10, cross_proba = 0.5, cross_info_rate = 0.5,
                  mutation_proba = 0.5, select_number = 2, gen_number = 10, randomizer = True, page_row_size = 5, 
-                 page_col_size = 5, similarity_coefficient = 0.5, sim_model = None, sim_matrix_path = "sim_default.json"):
+                 page_col_size = 5, similarity_coefficient = 0.5, sim_model_path = None, sim_matrix_path = "sim_default.json"):
                  
         '''Constructor
         '''
@@ -92,7 +96,7 @@ class gpgo():
         if(similarity_coefficient < 0 or similarity_coefficient > 1):
             raise Exception("Unexpected similarity coefficient (not between 0 and 1) !") 
 
-        if(sim_model == None):
+        if(sim_model_path == None):
           self.similarity_coefficient = 0
         else:
           self.similarity_coefficient = similarity_coefficient
@@ -109,7 +113,7 @@ class gpgo():
         self.init_operations()
 
         self.sim_matrix = None
-        self.sim_model = sim_model
+        self.sim_model_path = sim_model_path
         self.sim_matrix_path = sim_matrix_path
 
         #Similarity matrix loading
@@ -117,8 +121,14 @@ class gpgo():
           #Precomputing of the similarity matrix or loading from a JSON if the path exists
           if(not exists(sim_matrix_path)):
             tmp_voc  = get_vocabulary_from_corpus(self.source_files)
+
+            #Load similarity model
+            self.sim_model = fasttext.load_model(self.sim_model_path)
+
+            #Compute the similarity matrix
             self.sim_matrix = compute_word_similarities(tmp_voc,self.sim_model)
             store_similarity_matrix(self.sim_matrix,output_file = self.sim_matrix_path)
+            
           else:
             self.sim_matrix = load_similarity_matrix(self.sim_matrix_path)
 
@@ -282,8 +292,7 @@ class gpgo():
         selected_picto_b = page_b.pictograms[random.choice(list(page_b.pictograms))]
       
       #If both pictograms are not directory or not the same, we perform the swap
-      if(selected_picto_a.is_directory == False and selected_picto_b.is_directory == False 
-                and selected_picto_a.word != selected_picto_b.word):
+      if(selected_picto_a.word != selected_picto_b.word):
 
         ind.swap_pictograms(selected_picto_a,selected_picto_b)
 
@@ -365,7 +374,7 @@ class gpgo():
 
     def mutation_picto(self,ind):
 
-      r = random.randint(1,4)
+      r = 4
       
       if(r == 1):
         #Mutation Duplicata
@@ -510,7 +519,7 @@ class gpgo():
         
       #Final best grid
       best_fitness = self.toolbox.evaluation(best_ind)[0]
-      print("DEBUG : Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str(best_fitness))
+      #print("DEBUG : Best individual --> Generation : " + str(best_gen) + ", Fitness : " + str(best_fitness))
       return best_ind,best_fitness
 
     #===============================================
@@ -575,7 +584,7 @@ class gpgo():
       params = {"pop_size" : self.pop_size,"select_number" : self.select_number,"gen_number" : self.gen_number,
                     "cross_proba" : self.cross_proba,"cross_info_rate" : self.cross_info_rate,"mutation_proba" : self.mutation_proba,
                     "page_row" : self.page_row,"page_col" : self.page_col,"randomizer" : self.randomizer,
-                    "similarity_coefficient" : self.similarity_coefficient,"sim_model" : self.sim_model,"sim_matrix_path" : self.sim_matrix_path}
+                    "similarity_coefficient" : self.similarity_coefficient,"sim_model_path" : self.sim_model_path,"sim_matrix_path" : self.sim_matrix_path}
 
       with open(config_file,'w') as file:
 
@@ -613,7 +622,7 @@ def load_gpgo(source_files,evaluation_files,config_file):
             
         return gpgo(source_files,evaluation_files,doc["pop_size"],doc["cross_proba"],doc["cross_info_rate"],
                     doc["mutation_proba"],doc["select_number"],doc["gen_number"],doc["randomizer"],doc["page_row"],
-                    doc["page_col"],doc["similarity_coefficient"],doc["sim_model"],doc["sim_matrix_path"])
+                    doc["page_col"],doc["similarity_coefficient"],doc["sim_model_path"],doc["sim_matrix_path"])
   else:
     raise Exception("Not accepted configuration file format ! (.yaml)")
 

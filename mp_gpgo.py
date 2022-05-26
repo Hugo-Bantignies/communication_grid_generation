@@ -32,7 +32,7 @@ class mp_gpgo():
           self.nb_proc = nb_proc
 
         self.final_results = None
-
+        
         #Load one optimizer to initialize the DEAP objects
         init_deap = load_gpgo(self.source_files, self.evaluation_files, self.config_files[0])
 

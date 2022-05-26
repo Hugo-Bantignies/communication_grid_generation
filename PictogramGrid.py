@@ -440,6 +440,23 @@ class Grid():
         #Find the page node corresponding to the page of the pictogram b
         node_b = self.page_tree.find_node(picto_b.page_name)
 
+        if((picto_a.is_directory == True or picto_b.is_directory == True) and node_a.depth != node_b.depth):
+            return
+
+        #If picto_a is a directory, modify the links
+        if(picto_a.is_directory == True):
+            child_a = self.page_tree.find_node(picto_a.word)
+            node_a.children.remove(child_a)
+            node_b.insert_child(child_a)
+            self.page_tree.eulerian_values = None
+
+        #If picto_b is a directory, modify the links
+        if(picto_b.is_directory == True):
+            child_b = self.page_tree.find_node(picto_b.word)
+            node_b.children.remove(child_b)
+            node_a.insert_child(child_b)
+            self.page_tree.eulerian_values = None
+
         #Modify the information of page nodes for the pictogram a
         self.picto_voc[picto_a.word].remove(node_a)
         self.picto_voc[picto_a.word].append(node_b)
