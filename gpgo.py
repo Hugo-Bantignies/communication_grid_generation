@@ -374,7 +374,7 @@ class gpgo():
 
     def mutation_picto(self,ind):
 
-      r = 4
+      r = random.randint(1,4)
       
       if(r == 1):
         #Mutation Duplicata

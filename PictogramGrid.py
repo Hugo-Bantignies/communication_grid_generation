@@ -21,7 +21,7 @@ class Pictogram:
     :type is_directory: boolean (False by default)
     '''
 
-    def __init__(self,word,row,col,page_name,id,is_directory = False,similarity_score = 0):
+    def __init__(self,word,row,col,page_name,id,is_directory = False,similarity_score = 0,link = None):
         '''Constructor
         '''
 
@@ -32,6 +32,7 @@ class Pictogram:
         self.id = id
         self.is_directory = is_directory
         self.similarity_score = similarity_score
+        self.link = link
     
     def in_list(self):
         '''Get the pictogram in a list form
@@ -249,7 +250,7 @@ class Grid():
 
         for row in reader:
             if(row[5] == "DIR"):
-                picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],True,row[7]))
+                picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],True,row[7],row[6]))
             else:
                 picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],similarity_score=row[7]))
 
@@ -267,9 +268,9 @@ class Grid():
             #New page
             if(picto.is_directory == True):
                 parent = self.page_tree.find_node(picto.page_name)
-                parent.insert_child(PageTreeNode(picto.word))
+                parent.insert_child(PageTreeNode(picto.link))
 
-                new_page = Page(picto.word,self.page_row,self.page_col)
+                new_page = Page(picto.link,self.page_row,self.page_col)
                 self.pages.update({new_page.name : new_page})
 
         #Load the grid
