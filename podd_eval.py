@@ -5,5 +5,5 @@ import os
 podd = Grid("podd.csv")
 tcof = Grid("default.csv")
 
-print("PODD : ",sentence_distance_cost(podd,"oups maman aimer".split(" ")))
-print("TCOF : ",sentence_distance_cost(tcof,"oups maman aimer".split(" ")))
+print("PODD : ",sentence_distance_cost(podd,"hier chat vouloir souris".split(" ")))
+print("TCOF : ",sentence_distance_cost(tcof,"hier chat vouloir souris".split(" ")))

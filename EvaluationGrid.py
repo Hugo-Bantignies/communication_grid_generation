@@ -290,4 +290,4 @@ def grid_cost(grid,input_corpus,sim_matrix,similarity_coefficient = 0.5):
         dist = grid_distance_cost(grid,input_corpus)
         sim = grid_similarity_cost(grid,sim_matrix)
 
-        return math.pow(math.log10(sim),similarity_coefficient) + math.pow(math.log10(dist),(1 - similarity_coefficient))
+        return math.log10(sim) * similarity_coefficient + math.log10(dist) * (1 - similarity_coefficient)
