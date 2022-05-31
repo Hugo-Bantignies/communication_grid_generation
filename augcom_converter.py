@@ -1,6 +1,7 @@
 import csv
 import json
 import codecs
+import string
 
 def get_pagelist(input_file):
 
@@ -80,6 +81,8 @@ def augcom_to_csv(input_file,output_file = "default.csv"):
             if(el in elems):
                 elems_queue.append(elems[el] + [page_name])
 
+    visited_links = []
+
     #Insert each elements
     for el in elems_queue:
         page = el[4]
@@ -92,11 +95,18 @@ def augcom_to_csv(input_file,output_file = "default.csv"):
         else:
             dir = "DIR"
             link = el[2].upper()
-        new_line = [el[3],el[0],el[1],page,id,dir,link,0]
 
-        writer.writerow(new_line)
+        if(link not in visited_links and link != None):
+
+            new_line = [link,el[0],el[1],page,id,dir,link,0]
+            visited_links.append(link)
+            writer.writerow(new_line)
+
+        elif(link == None):
+            new_line = [el[3].rstrip(string.digits),el[0],el[1],page,id,dir,link,0]
+            writer.writerow(new_line)
     
     f.close()
 
 
-augcom_to_csv("../podd.augcom/podd.json","test.csv")
+augcom_to_csv("../podd.augcom/podd.json","podd.csv")
