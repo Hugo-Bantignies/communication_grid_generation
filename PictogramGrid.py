@@ -254,6 +254,8 @@ class Grid():
             else:
                 picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],similarity_score=row[7]))
 
+        self.nb_picto = len(picto_list)
+
         #Get the root page name
         self.page_tree = PageTreeNode(self.root_name)
 
