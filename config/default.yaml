@@ -2,8 +2,8 @@ cross_info_rate: 0.5
 cross_proba: 0.5
 gen_number: 500
 mutation_proba: 0.5
-page_col: 3
-page_row: 3
+page_col: 5
+page_row: 5
 pop_size: 100
 randomizer: true
 select_number: 50

@@ -1,6 +1,7 @@
 import math
 import random
 import csv
+import json
 from utils import *
 from PageTree import PageTreeNode
 
@@ -211,7 +212,7 @@ class Grid():
     :type randomizer: boolean (True by default)
     '''
 
-    def __init__(self,input_file,root_name = "accueil",randomizer = True,warnings = True,page_row_size = 5,page_col_size = 5):
+    def __init__(self,input_file,root_name = "accueil",randomizer = True,warnings = True,page_row_size = 5,page_col_size = 5,synonyms_file = None):
         '''Constructor''' 
 
         self.root_name = root_name
@@ -229,9 +230,9 @@ class Grid():
         if(isinstance(input_file, list)):
             self.generate_grid(input_file)
         elif(input_file.endswith(".csv")):
-            self.load_grid(input_file)
+            self.load_grid(input_file,synonyms_file)
     
-    def load_grid(self,input_file):
+    def load_grid(self,input_file,synonyms_file = None):
         
         #Opening the csv file
         f = open(input_file,"r",encoding = "utf-8",newline = '')
@@ -242,6 +243,9 @@ class Grid():
         #Building the pictogram list
         picto_list = []
 
+        #Reference dictionary for evaluation
+        synonyms_refs = dict()
+
         header = next(reader)
 
         self.root_name = header[8]
@@ -249,10 +253,30 @@ class Grid():
         self.page_col = int(header[10])
 
         for row in reader:
+
             if(row[5] == "DIR"):
                 picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],True,row[7],row[6]))
             else:
-                picto_list.append(Pictogram(row[0],int(row[1]),int(row[2]),row[3],row[4],similarity_score=row[7]))
+                words = row[0].split(",")
+                word = words.pop(0)
+
+                #If there are synonyms (words separated by a ',' in the csv file)
+                if(words != []):
+                    for w in words:
+                        synonyms_refs.update({w.lstrip() : word.lstrip()})
+
+                picto_list.append(Pictogram(word,int(row[1]),int(row[2]),row[3],word+"@"+str(row[3]),similarity_score=row[7]))
+        
+
+        #Store the synonyms in a JSON if the file is mentionned
+        if(synonyms_file != None and synonyms_file.endswith(".json")):
+
+            file = codecs.open(synonyms_file,"w","utf-8")
+
+            tmp = json.dumps(synonyms_refs)
+            file.write(tmp)
+
+            file.close()
 
         self.nb_picto = len(picto_list)
 

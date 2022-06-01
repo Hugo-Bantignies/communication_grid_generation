@@ -1,5 +1,6 @@
 import math
 import codecs
+import json
 from PictogramGrid import Grid,Page,Pictogram
 from PageTree import *
 from tqdm import tqdm
@@ -74,7 +75,7 @@ def cosine_similarity(v_a,v_b):
 # COST COMPUTATION
 #===================================================================
 
-def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
+def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1,synonyms_refs = None, missmatch_mode = False):
 
     #Computation of the euler tour (just one time is needed)
     if(grid.page_tree.eulerian_values == None):
@@ -83,10 +84,17 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
     #Beginning of the sentence
     start_word = "--start"
     cost = 0
+    missmatches = 0
+    miss_list = []
 
     for word in sentence:
         #Next word
         end_word = word
+
+        #If synonym pictograms
+        if(synonyms_refs != None):
+            if(word in synonyms_refs):
+                end_word = synonyms_refs[word]
 
         #print("DEBUG : Words :",start_word,end_word)
 
@@ -97,83 +105,94 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1):
         #PATH FINDING BETWEEN THE STARTING WORD AND THE NEXT WORD
         #--------------------------------------------------------
 
-        #Find pages containing the word
-        potential_pages = grid.picto_voc[end_word]
+        missmatch = False
 
-        #The node is the root at the beginning
-        if(start_word == "--start"):
-            start_node = grid.page_tree
+        #If missmatches are allowed
+        if(missmatch_mode == True):
+            if(end_word not in grid.picto_voc):
+                missmatches += 1
+                missmatch = True
+                if(end_word not in miss_list):
+                    miss_list.append(end_word)
         
-        best_distance = math.inf
-        page_pict_dist = math.inf
-        best_path = []
+        if(missmatch == False):
+            #Find pages containing the word
+            potential_pages = grid.picto_voc[end_word]
 
-        #For each potential page, computation of the path to keep the smallest
-        for page in potential_pages:
-            end_node = page
-
-            #Computation of the distance at the end
-            end_picto = grid.pages[end_node.page].pictograms[end_word]
-            new_page_pict_dist = euclidean_dist(0,0,end_picto.row,end_picto.col)
-
-            #Computation of the path in the tree
-            result = path_finding(grid.page_tree,start_node,end_node)
-
-            #Keeping the best path
-            if(result[0] + new_page_pict_dist < best_distance + page_pict_dist):
-                best_distance = result[0]
-                best_path = result[1]
-
-        #-----------------------------------------------------------------
-        #COMPUTATION OF THE DISTANCE BETWEEN PICTOGRAMS FOLLOWING THE PATH
-        #-----------------------------------------------------------------
-
-        movement_dist = 0
-        selection_dist = best_distance + 1
-
-        #Get the starting pictogram
-        if(start_word == "--start"):
-            picto_start = Pictogram("--start",0,0,grid.root_name,None,None)
-        else:
-            picto_start = grid.pages[best_path[0].page].pictograms[start_word]
-
-        #print("DEBUG : Best distance : ",best_distance)
-
-        for i in range(len(best_path)):
-
-            #End of the path
-            if(i == best_distance):
-                next_picto = grid.pages[best_path[i].page].pictograms[end_word]
-                #print("DEBUG : End page",picto_start,"-->",next_picto)
-                break
+            #The node is the root at the beginning
+            if(start_word == "--start"):
+                start_node = grid.page_tree
             
-            #Navigation in the tree
+            best_distance = math.inf
+            page_pict_dist = math.inf
+            best_path = []
+
+            #For each potential page, computation of the path to keep the smallest
+            for page in potential_pages:
+                end_node = page
+
+                #Computation of the distance at the end
+                end_picto = grid.pages[end_node.page].pictograms[end_word]
+                new_page_pict_dist = euclidean_dist(0,0,end_picto.row,end_picto.col)
+
+                #Computation of the path in the tree
+                result = path_finding(grid.page_tree,start_node,end_node)
+
+                #Keeping the best path
+                if(result[0] + new_page_pict_dist < best_distance + page_pict_dist):
+                    best_distance = result[0]
+                    best_path = result[1]
+
+            #-----------------------------------------------------------------
+            #COMPUTATION OF THE DISTANCE BETWEEN PICTOGRAMS FOLLOWING THE PATH
+            #-----------------------------------------------------------------
+
+            movement_dist = 0
+            selection_dist = best_distance + 1
+
+            #Get the starting pictogram
+            if(start_word == "--start"):
+                picto_start = Pictogram("--start",0,0,grid.root_name,None,None)
             else:
-                #Up
-                if(best_path[i].parent == best_path[i+1]):
-                    next_picto = Pictogram("--start",0,0,best_path[i+1].page,None,None)
-                    #print("DEBUG : UP",picto_start,"-->",next_picto)
-                    movement_dist += euclidean_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
-                    picto_start = next_picto
+                picto_start = grid.pages[best_path[0].page].pictograms[start_word]
 
-                #Down   
+            #print("DEBUG : Best distance : ",best_distance)
+
+            for i in range(len(best_path)):
+
+                #End of the path
+                if(i == best_distance):
+                    next_picto = grid.pages[best_path[i].page].pictograms[end_word]
+                    #print("DEBUG : End page",picto_start,"-->",next_picto)
+                    break
+                
+                #Navigation in the tree
                 else:
-                    next_picto = grid.pages[best_path[i].page].pictograms[best_path[i+1].page]
-                    #print("DEBUG : DOWN",picto_start,"-->",next_picto)
-                    movement_dist += euclidean_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
-                    picto_start = Pictogram("--start",0,0,best_path[i+1].page,None,None)
+                    #Up
+                    if(best_path[i].parent == best_path[i+1]):
+                        next_picto = Pictogram("--start",0,0,best_path[i+1].page,None,None)
+                        #print("DEBUG : UP",picto_start,"-->",next_picto)
+                        movement_dist += euclidean_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
+                        picto_start = next_picto
 
-        movement_dist += euclidean_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
+                    #Down   
+                    else:
+                        next_picto = grid.pages[best_path[i].page].pictograms[best_path[i+1].page]
+                        #print("DEBUG : DOWN",picto_start,"-->",next_picto)
+                        movement_dist += euclidean_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
+                        picto_start = Pictogram("--start",0,0,best_path[i+1].page,None,None)
 
-        cost += movement_dist * movement_coef + selection_dist * selection_coef
+            movement_dist += euclidean_dist(picto_start.row,picto_start.col,next_picto.row,next_picto.col)
 
-        #The end becomes the start for the previous iteration
-        start_word = end_word
-        start_node = end_node
+            cost += movement_dist * movement_coef + selection_dist * selection_coef
 
-    return cost
+            #The end becomes the start for the previous iteration
+            start_word = end_word
+            start_node = end_node
 
-def grid_distance_cost(grid,input_corpus):
+    return cost,missmatches,miss_list
+
+def grid_distance_cost(grid,input_corpus,synonyms_file = None,missmatch_mode = False):
 
     '''Main function to compute the cost of a given grid and a source file.
 
@@ -186,7 +205,18 @@ def grid_distance_cost(grid,input_corpus):
     '''
     
     cost = 0
+    missmatches = 0
+    missmatch_list = []
     n = 0
+
+    synonyms_refs = None
+
+    if(synonyms_file != None and synonyms_file.endswith(".json")):
+        #File opening
+        file = codecs.open(synonyms_file,"r","utf-8")
+
+        #Load the similarity matrix
+        synonyms_refs = json.load(file)
     
     for file_path in input_corpus:
 
@@ -202,8 +232,10 @@ def grid_distance_cost(grid,input_corpus):
                     line = line.strip()
                     line = line.split(" ")
                     #Cost computation
-                    result = sentence_distance_cost(grid,line)
-                    cost+=result
+                    results = sentence_distance_cost(grid,line,synonyms_refs = synonyms_refs,missmatch_mode=missmatch_mode)
+                    cost+=results[0]
+                    missmatches+=results[1]
+                    missmatch_list = missmatch_list + results[2]
                     n = n + 1
                     
         #The source file is not a '.txt' file
@@ -211,8 +243,7 @@ def grid_distance_cost(grid,input_corpus):
             raise Exception("Incorrect file format !")
             
     #Return the cost
-    else:
-        return cost
+    return cost,missmatches,set(missmatch_list)
 
 def compute_word_similarities(voc,model):
     '''Function to compute the similarities between all words and returns a dictionary'''
@@ -272,12 +303,12 @@ def grid_similarity_cost(grid,sim_matrix):
 
     return cost
 
-def grid_cost(grid,input_corpus,sim_matrix,similarity_coefficient = 0.5):
+def grid_cost(grid,input_corpus,sim_matrix,similarity_coefficient = 0.5,synonyms_file = None, missmatch_mode = False):
     '''Function to evaluate a grid depending on the similarity coefficient'''
 
     #If the cost is only depending on the distance
     if(similarity_coefficient == 0):
-        dist =  grid_distance_cost(grid,input_corpus)
+        dist,mms,_ =  grid_distance_cost(grid,input_corpus,synonyms_file,missmatch_mode)
         return math.log10(dist)
 
     #If the cost is only depending on the similarity

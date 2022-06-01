@@ -44,7 +44,8 @@ def elements(input_file):
                 type = el["Type"]
                 if(el["Type"] != "button"):
                     type = el["Type"]["GoTo"]
-                    if(type not in page_order):
+                    print(type)
+                    if(type.upper() not in page_order):
                         page_order.append(type.upper())
 
                 elements.update({el["ID"] : [el["x"],el["y"],type,el["ID"]]})
@@ -86,7 +87,7 @@ def augcom_to_csv(input_file,output_file = "default.csv"):
     #Insert each elements
     for el in elems_queue:
         page = el[4]
-        id = str(el[3]) + "@" + str(page)
+        id = str(el[3].rstrip(string.digits)) + "@" + str(page)
 
         link = None
         
