@@ -16,8 +16,8 @@ from deap import creator
 from deap import tools
 
 #fastText
-import fasttext
-import fasttext.util
+#import fasttext
+#import fasttext.util
 
 
 class gpgo():

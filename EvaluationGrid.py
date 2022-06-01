@@ -75,7 +75,8 @@ def cosine_similarity(v_a,v_b):
 # COST COMPUTATION
 #===================================================================
 
-def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1,synonyms_refs = None, missmatch_mode = False):
+def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1,
+                           synonyms_refs = None, missmatch_mode = False, stopwords = []):
 
     #Computation of the euler tour (just one time is needed)
     if(grid.page_tree.eulerian_values == None):
@@ -115,7 +116,7 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1,sy
                 if(end_word not in miss_list):
                     miss_list.append(end_word)
         
-        if(missmatch == False):
+        if(missmatch == False and end_word not in stopwords):
             #Find pages containing the word
             potential_pages = grid.picto_voc[end_word]
 
@@ -192,7 +193,7 @@ def sentence_distance_cost(grid,sentence,movement_coef = 1,selection_coef = 1,sy
 
     return cost,missmatches,miss_list
 
-def grid_distance_cost(grid,input_corpus,synonyms_file = None,missmatch_mode = False):
+def grid_distance_cost(grid,input_corpus,synonyms_file = None,missmatch_mode = False,stopwords = []):
 
     '''Main function to compute the cost of a given grid and a source file.
 
@@ -205,6 +206,7 @@ def grid_distance_cost(grid,input_corpus,synonyms_file = None,missmatch_mode = F
     '''
     
     cost = 0
+    sentence_costs = []
     missmatches = 0
     missmatch_list = []
     n = 0
@@ -232,18 +234,23 @@ def grid_distance_cost(grid,input_corpus,synonyms_file = None,missmatch_mode = F
                     line = line.strip()
                     line = line.split(" ")
                     #Cost computation
-                    results = sentence_distance_cost(grid,line,synonyms_refs = synonyms_refs,missmatch_mode=missmatch_mode)
+                    results = sentence_distance_cost(grid,line,synonyms_refs = synonyms_refs,missmatch_mode=missmatch_mode,stopwords=stopwords)
+
+                    #Saving results
                     cost+=results[0]
+                    sentence_costs.append(results[0])
                     missmatches+=results[1]
                     missmatch_list = missmatch_list + results[2]
-                    n = n + 1
+
+                    n += 1
                     
         #The source file is not a '.txt' file
         else:
             raise Exception("Incorrect file format !")
-            
+    
+    stats = [sentence_costs]
     #Return the cost
-    return cost,missmatches,set(missmatch_list)
+    return cost,missmatches,set(missmatch_list),stats
 
 def compute_word_similarities(voc,model):
     '''Function to compute the similarities between all words and returns a dictionary'''
@@ -308,7 +315,7 @@ def grid_cost(grid,input_corpus,sim_matrix,similarity_coefficient = 0.5,synonyms
 
     #If the cost is only depending on the distance
     if(similarity_coefficient == 0):
-        dist,mms,_ =  grid_distance_cost(grid,input_corpus,synonyms_file,missmatch_mode)
+        dist,_,_,_ =  grid_distance_cost(grid,input_corpus,synonyms_file,missmatch_mode)
         return math.log10(dist)
 
     #If the cost is only depending on the similarity
