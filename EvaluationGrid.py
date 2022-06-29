@@ -325,7 +325,7 @@ def grid_cost(grid,input_corpus,sim_matrix,similarity_coefficient = 0.5,synonyms
 
     #Hybrid format
     else:
-        dist = grid_distance_cost(grid,input_corpus)
+        dist,_,_,_ = grid_distance_cost(grid,input_corpus)
         sim = grid_similarity_cost(grid,sim_matrix)
 
         return math.log10(sim) * similarity_coefficient + math.log10(dist) * (1 - similarity_coefficient)

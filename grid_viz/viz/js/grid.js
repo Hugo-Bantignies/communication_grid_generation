@@ -363,6 +363,34 @@ let Grid = (() => {
       self.show_similarities_state = false;}
     }
 
+    //Listener to hollow the pages
+    const showdists = function(event)
+    {
+      if(self.show_similarities_state == false)
+      {
+        
+      self.main_container.selectAll("rect")
+          .style("fill","blue")
+          .style("opacity",function(d) {
+            if(d.sim_score == 0)
+            {
+              return 0.01
+            }
+            else
+            {
+              var t = parseFloat(d.sim_score) + 2 * parseFloat(d.sim_score);
+              return t
+            }})
+      self.show_similarities_state = true;
+      self.show_pages_state = false;
+    
+      }
+      else
+      {self.main_container.selectAll("rect").style("fill","white").style("opacity",1);
+      document.getElementById("search").value = "";
+      self.show_similarities_state = false;}
+    }
+
     //Buttons and search bar
     const marker = document.getElementById("markbutton");
     const reset = document.getElementById("resetmark");
@@ -433,10 +461,10 @@ let Grid = (() => {
         .enter()
           .append("text")
           .attr("dy", ".35em")
-            .attr("x", function(d) { return x_zoom(d%self.zoom_row) + self.zoom_width/(self.zoom_row * 4) })
+            .attr("x", function(d) { return x_zoom(d%self.zoom_row) + self.zoom_width/(self.zoom_row * 16) })
           .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)) + self.zoom_height/(self.zoom_col * 2) })
           .attr("id",function(d) {return "text"+d})
-          .style("font-size", 11)
+          .style("font-size", 17)
           .text("")
     })
   }
