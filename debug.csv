@@ -1,7 +1,0 @@
-accueil,3,3,,,,
-word,row,col,page,identifier,is_dir,link
-default0,0,0,accueil,default0@accueil,DIR,default0
-default1,0,0,default0,default1@default0,DIR,default1
-chat,0,0,default1,chat@default1,NO,
-dauphin,0,1,default1,dauphin@default1,NO,
-chat,3,3,default0,chat@default0,NO,
