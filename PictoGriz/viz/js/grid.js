@@ -137,7 +137,7 @@ let Grid = (() => {
     /**
      * Data preparation (read and assignation)
      */
-    d3.csv("../../default.csv", d => (
+    d3.csv("../../grids_samples/default.csv", d => (
     {
       word:     d.word,
       row:     +d.row,
@@ -202,10 +202,10 @@ let Grid = (() => {
      */
     const mouseover = function(event,d) {
       self.zoom_container.style("opacity", 1)
-      d3.select(this)
+      /*d3.select(this)
           .style("fill", "red")
           .style("opacity", 0.7);
-      tooltip.style("opacity", 1);
+      tooltip.style("opacity", 1);*/
     }
 
     /**
@@ -234,13 +234,15 @@ let Grid = (() => {
         
           /*ZOOM INFORMATION*/
           zoom_text = document.getElementById("text"+((data[i].row * (page_dim_x))+ data[i].col));
+          zoom_textbis = document.getElementById("textbis"+((data[i].row * (page_dim_x))+ data[i].col));
           zoom_r = document.getElementById("rect"+((data[i].row * (page_dim_x))+ data[i].col));
 
-          zoom_text.textContent = text;
+          zoom_text.textContent = "("+Math.round(data[i].sim_score * 1000) / 1000+")";
+          zoom_textbis.textContent = text
           zoom_r.style.fill = rect_col;
           zoom_r.style.opacity = rect.style.opacity;
 
-          document.getElementById("page_name").textContent = "Page : "+d.page;
+          document.getElementById("page_name").textContent = "TCOPH Hybrid (page : "+d.page+")";
         }
       }
 
@@ -441,7 +443,7 @@ let Grid = (() => {
     
     const zoom_rect = d3.range(self.zoom_row*self.zoom_col);
 
-    self.zoom_container.append("text").text("").attr("id","page_name").attr("y",-4).attr("x",550/2 - 50)
+    self.zoom_container.append("text").text("").attr("id","page_name").attr("y",-4).attr("x",450/2 - 50).style("font-size", 15)
 
     self.zoom_container.selectAll()
           .data(zoom_rect)
@@ -461,10 +463,21 @@ let Grid = (() => {
         .enter()
           .append("text")
           .attr("dy", ".35em")
-            .attr("x", function(d) { return x_zoom(d%self.zoom_row) + self.zoom_width/(self.zoom_row * 16) })
+            .attr("x", function(d) { return x_zoom(d%self.zoom_row) + self.zoom_width/(self.zoom_row * 8) })
           .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)) + self.zoom_height/(self.zoom_col * 2) })
+          .attr("id",function(d) {return "textbis"+d})
+          .style("font-size", 18)
+          .text("")
+
+    self.zoom_container.selectAll()
+        .data(zoom_rect)
+        .enter()
+          .append("text")
+          .attr("dy", ".35em")
+            .attr("x", function(d) { return x_zoom(d%self.zoom_row) + self.zoom_width/(self.zoom_row * 8) })
+          .attr("y", function(d) { return y_zoom(Math.floor(d/self.zoom_col)) + (self.zoom_height + 230)/(self.zoom_col * 2) })
           .attr("id",function(d) {return "text"+d})
-          .style("font-size", 17)
+          .style("font-size", 20)
           .text("")
     })
   }
